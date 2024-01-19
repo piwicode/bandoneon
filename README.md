@@ -1,6 +1,6 @@
 # First steps with the microcontroler
 
-*2024/01/18*
+_2024/01/18_
 
 Microcontroler development board are a huge time saver. Adafruit has a serie of
 small form factor called [Feathers](https://www.adafruit.com/category/946)
@@ -46,3 +46,49 @@ sampling timeseries.
 Adafruit and Arduino made such a good job that all the drivers and board
 integration in the IDE just works. I had to flash the device twice, but finally
 the board led is blinking. Hello word!
+
+# Emmiting Midi signals
+
+_2024/01/19_
+
+Musical Instrument Digital Interface (a.k.a. midi) is a communication protocol
+to send notes over a serial interface. Those notes are received by a synthetizer
+that generates a waveform.
+
+There are two hardware solutions 5 pin
+[DIN connector](https://fr.wikipedia.org/wiki/Connecteur_DIN) or USB Midi.
+
+## Midi via 5 pin DIN
+
+[5 pin din electrical midi specs](https://www.midi.org/specifications/midi-transports-specifications)
+says ut is a UART serial bus plus power. Fortunately most microcontroler now
+support UART.
+
+Only four wires out of five are in use for GND, 3V3, UART RX and TX.
+[UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter)
+is a thrifty serial that only use two wires TX and RX. In abscence of a clock
+the devices synchronize on the transmited signal. For it to work reliably,
+parity bit are also transmited.
+
+The
+[Arduino Midi library](https://github.com/FortySevenEffects/arduino_midi_library)
+works instantly.
+
+I used
+[Adafruit's Midi Featherwing](https://learn.adafruit.com/adafruit-midi-featherwing)
+for prototyping and it works like a charm.
+
+## Midi via USB
+
+Here the midi information transit throught the same USB chord used pro power,
+program and get logs from the board.
+
+It requires use [TinyUSB](https://docs.tinyusb.org/en/latest/index.html) in
+`Tools > UsbStack`. By default the USB driver is built with the program is
+`ArduinoUSB`. TinyUSB makes possible to support more protocol and act as a Midi
+device.
+
+The boards shows up as `Feather M4 Express` in my Digital Audio Workstation and
+output midi notes.
+
+This does not prevent the serial loging to work perfectly.
