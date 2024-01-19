@@ -19,7 +19,10 @@ void setup() {
   Serial.println("MCP3008 simple test.");
 
   // Hardware SPI (specify CS, use any available digital)
-  adc.begin(13); 
+  // adc.begin(13); 
+
+  // Software SPI.
+  adc.begin(10, 12, 11, 13);
 }
 
 void loop() {

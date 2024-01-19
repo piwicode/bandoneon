@@ -13,7 +13,7 @@ looks to be a goot fit because:
 
 - it has plenty (21) input-output pins
 - runs at high clock speed (120 MHz) which will make possible
-  [bit bang](https://en.wikipedia.org/wiki/Bit_banging) many analog-to-digital
+  [bitbang](https://en.wikipedia.org/wiki/Bit_banging) many analog-to-digital
   SPI busses at 3.6 MHz
 - it has a single core which keeps the temptation to write concurent code away
 - it does not have any unnecessary wireless connectivity
@@ -127,6 +127,10 @@ The tutorial showcase python code, fortunately Adafruit also made
 commes with examples. I just have to set the number of the `CS` pin and it just
 works.
 
+```
+adc.begin(13); 
+```
+
 Again a huge timesaver.
 
 I can read the 8 channels:
@@ -147,3 +151,32 @@ I can read the 8 channels:
   magnet is turned by 180°.
 
 <a href="images\Screenshot 2024-01-19 212708.jpg"><img src="images\Screenshot 2024-01-19 212708.jpg" height="100" /></a>
+
+Interestingly it Adafruit_MCP3008 is built on top of
+[Adafruit_BusIO](https://github.com/adafruit/Adafruit_BusIO) which abstracts
+SPI communication. It is able to implement a software bus, which is exaclt what I plan to do to read from multime MCP3008.
+
+The [library source code](https://github.com/adafruit/Adafruit_BusIO/blob/master/Adafruit_SPIDevice.cpp) shows how to modify multiple output of a given port:
+
+```
+BusIO_PortReg *mosiPort = (BusIO_PortReg *)portOutputRegister(digitalPinToPort(mosipin));
+BusIO_PortMask *mosiPinMask = digitalPinToBitMask(mosipin);
+
+// Write 
+*mosiPort = *mosiPort | mosiPinMask;
+```
+
+The frequency control looks minimal. It just sleeps according the the frequency period.
+
+```
+int bitdelay_us = (1000000 / _freq) / 2;
+delayMicroseconds(bitdelay_us);
+```
+
+It setup the library to [bit bang](https://en.wikipedia.org/wiki/Bit_banging) the but by setting each pin:
+
+```
+ adc.begin(10, 12, 11, 13);
+```
+
+Again this works on the first attempt.
