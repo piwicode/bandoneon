@@ -19,7 +19,7 @@ looks to be a goot fit because:
 - it does not have any unnecessary wireless connectivity
 
 The ATSAMD51J19A controler documentation is available
-[there](https://ww1.microchip.com/downloads/aemDocuments/documents/MCU32/ProductDocuments/DataSheets/SAM-D5x-E5x-Family-Data-Sheet-DS60001507.pdf).
+[there](datasheets\SAM-D5x-E5x-Family-Data-Sheet-DS60001507.pdf).
 
 The first thing to do it to check the bootloader version.
 
@@ -60,7 +60,7 @@ There are two hardware solutions 5 pin
 
 ## Midi via 5 pin DIN
 
-[5 pin din electrical midi specs](https://www.midi.org/specifications/midi-transports-specifications)
+[5 pin din electrical midi specs](datasheets\MCP3004-MCP3008-Data-Sheet-DS20001295.pdf)
 says ut is a UART serial bus plus power. Fortunately most microcontroler now
 support UART.
 
@@ -69,6 +69,8 @@ Only four wires out of five are in use for GND, 3V3, UART RX and TX.
 is a thrifty serial that only use two wires TX and RX. In abscence of a clock
 the devices synchronize on the transmited signal. For it to work reliably,
 parity bit are also transmited.
+
+<a href="images\Screen_Shot_2020-07-18_at_12.20.08_PM.png"><img src="images\Screen_Shot_2020-07-18_at_12.20.08_PM.png" height="100" /></a>
 
 The
 [Arduino Midi library](https://github.com/FortySevenEffects/arduino_midi_library)
@@ -88,7 +90,60 @@ It requires use [TinyUSB](https://docs.tinyusb.org/en/latest/index.html) in
 `ArduinoUSB`. TinyUSB makes possible to support more protocol and act as a Midi
 device.
 
+<a href="images\Screenshot 2024-01-19 183334.png"><img src="images\Screenshot 2024-01-19 183334.png" height="100" /></a>
+
 The boards shows up as `Feather M4 Express` in my Digital Audio Workstation and
 output midi notes.
 
+<a href="images\Screenshot 2024-01-19 135625.png"><img src="images\Screenshot 2024-01-19 135625.png" height="100" /></a>
+<a href="images\Screenshot 2024-01-19 135826.png"><img src="images\Screenshot 2024-01-19 135826.png" height="100" /></a>
+
 This does not prevent the serial loging to work perfectly.
+
+# Talking to the Analog-Digital-Conveter
+
+Analog to digital converters (a.h.a. ADC) measure a voltage from a pin and
+output the result as numerical data on a serial bus.
+
+I selected the [MCP3008](datasheets\MCP3004-MCP3008-Data-Sheet-DS20001295.pdf)
+which looks popular. There is a
+[tutorial available on Adafruit](https://learn.adafruit.com/reading-a-analog-in-and-controlling-audio-volume-with-the-raspberry-pi),
+and the [midi_hammer](https://github.com/aleathwick/midi_hammer) project has
+successfully integrated it with hall sensors to create a keyboard
+([demo](https://youtu.be/tgWXtYCHDI4)).
+
+The MCP3008 measures one of its 8 inputs and writes the result to an SPI serial
+bus. As opposito to UART, the SPI serial bus has an explicit clock. Hence it
+uses 3 wires names:
+
+- clock
+- MOSI (Master output slave input)
+- MISO (Master input slave output)
+
+A fourth pin `CS` is used to activate, or deactivate and silence the peripheral.
+
+The tutorial showcase python code, fortunately Adafruit also made
+[an Arduino library](https://github.com/adafruit/Adafruit_MCP3008). And it
+commes with examples. I just have to set the number of the `CS` pin and it just
+works.
+
+Again a huge timesaver.
+
+I can read the 8 channels:
+
+```
+522	0	1023	1	1	0	0	0	[150]
+522	0	1023	0	0	0	0	0	[151]
+522	0	1023	2	1	0	0	1	[152]
+522	0	1023	4	3	3	4	8	[153]
+```
+
+- The first is the sensor output. In abscence of manetic fields it returns an
+  intermediate value. As the MCP3008 is a 10bit converter, the maximal value is
+  1023, and 522 is close to the half.
+- The second is grounded, and we can read 0 as expected.
+- The third is fed with `3V3`, and we can read the maximal value: 1023.
+- With manget touching the sensor, I can reach the value of 788 and 254 when the
+  magnet is turned by 180°.
+
+<a href="images\Screenshot 2024-01-19 212708.jpg"><img src="images\Screenshot 2024-01-19 212708.jpg" height="100" /></a>
