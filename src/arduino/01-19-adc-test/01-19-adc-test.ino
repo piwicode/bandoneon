@@ -21,7 +21,7 @@ void setup() {
   // Hardware SPI (specify CS, use any available digital)
   // adc.begin(13); 
 
-  // Software SPI.
+  // Software SPI.git 
   adc.begin(10, 12, 11, 13);
 }
 
