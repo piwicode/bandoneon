@@ -89,18 +89,20 @@ class SPIArray {
     // Only MSB first is supported.
     int r_idx = 0;
     for (const uint8_t wbyte : wbuf) {
-      uint8_t rbyte = 0;
+      uint8_t rbyte[N];
       for (uint8_t bit = 0x80; bit != 0; bit >>= 1) {
         digitalWrite(mosi_, (wbyte & bit) != 0);
         digitalWrite(clk_, HIGH);
         delayMicroseconds(clk_period_us_);
-
-        bool rbit = digitalRead(miso_[0]);
+        for (int i = 0; i < N; i++) {
+          rbyte[i] = (rbyte[i] << 1) | digitalRead(miso_[i]);
+        }
         digitalWrite(clk_, LOW);
-        delayMicroseconds(clk_period_us_);
-        rbyte = (rbyte << 1) | rbit;
+        delayMicroseconds(clk_period_us_);        
       }
-      rbuf[r_idx++] = rbyte;
+      for (int i = 0; i < N; i++) {
+        rbuf[r_idx++] = rbyte[i];
+      }
     }
   }
 };
@@ -125,7 +127,7 @@ class MCP3008Array {
     spi_array_.transfer(w_buffer_, r_buffer_);
     spi_array_.select(false);
     for (int i = 0; i < spi_array_.size(); i++) {
-      *value++ = (r_buffer_[i * 3 + 1] & 0x03) << 8 | r_buffer_[i * 3 + 2];
+      *value++ = (r_buffer_[i + N] & 0x03) << 8 | r_buffer_[i + 2 * N];
     }
   }
 };
