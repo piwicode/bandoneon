@@ -1,5 +1,6 @@
 #include <Arduino.h>
 
+#include <array>
 #include <cassert>
 #include <vector>
 
@@ -16,6 +17,7 @@
     }                                  \
   } while (0);
 
+template <int N>
 class SPIArray {
  private:
   enum Mode { IDLE_LOW, IDEL_HIGH };
@@ -27,7 +29,7 @@ class SPIArray {
   // User provided configuration.
   uint8_t clk_;
   uint8_t mosi_;
-  std::vector<uint8_t> miso_;
+  std::array<uint8_t, N> miso_;
   uint8_t cs_;
 
   // Hardware mapping.
@@ -37,7 +39,7 @@ class SPIArray {
   uint32_t clk_period_us_;
 
  public:
-  SPIArray(uint8_t clk, uint8_t mosi, std::vector<uint8_t> miso, uint8_t cs,
+  SPIArray(uint8_t clk, uint8_t mosi, std::array<uint8_t, N> miso, uint8_t cs,
            uint32_t clk_period_us)
       : clk_(clk),
         mosi_(mosi),
@@ -81,10 +83,12 @@ class SPIArray {
   int size() const { return miso_.size(); }
   void select(bool value) { digitalWrite(cs_, value ? LOW : HIGH); }
 
-  void transfer(uint8_t *wbuf, size_t size, uint8_t *rbuf) {
+  template <unsigned int L>
+  void transfer(const std::array<uint8_t, L> &wbuf,
+                std::array<uint8_t, L * N> &rbuf) {
     // Only MSB first is supported.
-    for (size_t i = 0; i < size; ++i) {
-      const uint8_t wbyte = wbuf[i];
+    int r_idx = 0;
+    for (const uint8_t wbyte : wbuf) {
       uint8_t rbyte = 0;
       for (uint8_t bit = 0x80; bit != 0; bit >>= 1) {
         digitalWrite(mosi_, (wbyte & bit) != 0);
@@ -96,42 +100,45 @@ class SPIArray {
         delayMicroseconds(clk_period_us_);
         rbyte = (rbyte << 1) | rbit;
       }
-      rbuf[i] = rbyte;
+      rbuf[r_idx++] = rbyte;
     }
   }
 };
 
+template <unsigned int N>
 class MCP3008Array {
-  SPIArray *spi_array_;
-  uint8_t w_buffer_[3] = {0x01, 0x00, 0x00};
-  std::vector<uint8_t> r_buffer_;
+  SPIArray<N> spi_array_;
+  std::array<uint8_t, 3> w_buffer_ = {0x01, 0x00, 0x00};
+  std::array<uint8_t, 3 * N> r_buffer_;
 
  public:
-  MCP3008Array(SPIArray *spi_array) : spi_array_(spi_array) {
-    r_buffer_.resize(spi_array_->size() * sizeof(w_buffer_));
-  }
+  MCP3008Array(uint8_t clk, uint8_t mosi, std::array<uint8_t, N> miso,
+               uint8_t cs, uint32_t clk_period_us)
+      : spi_array_(clk, mosi, miso, cs, clk_period_us) {}
+
+  void begin() { spi_array_.begin(); }
 
   void read(uint8_t channel, uint16_t *value) {
     assert(channel < 8);
-    spi_array_->select(true);
+    spi_array_.select(true);
     w_buffer_[1] = channel << 4;
-    spi_array_->transfer(w_buffer_, sizeof(w_buffer_), r_buffer_.data());
-    spi_array_->select(false);
-    for (int i = 0; i < spi_array_->size(); i++) {
+    spi_array_.transfer(w_buffer_, r_buffer_);
+    spi_array_.select(false);
+    for (int i = 0; i < spi_array_.size(); i++) {
       *value++ = (r_buffer_[i * 3 + 1] & 0x03) << 8 | r_buffer_[i * 3 + 2];
     }
   }
 };
 
-SPIArray spi_array = SPIArray(10, 12, {11}, 13, 1);
-MCP3008Array adc_array = MCP3008Array(&spi_array);
+MCP3008Array<1> adc_array(10, 12, {11}, 13, 1);
+
 uint16_t measures[1] = {0};
 uint32_t count = 0;
 
 void setup() {
   // Enable logging through the serial port.
   Serial.begin(115200);
-  spi_array.begin();
+  adc_array.begin();
 }
 
 void loop() {
