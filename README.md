@@ -198,11 +198,7 @@ The following source implements software SPI. It writes the content of `wbuf` to
 the but while reading the content or `rbuf`. It is inspired from Adafruit
 implementation.
 
-<<<<<<< HEAD
 ```c++
-=======
-```
->>>>>>> 3a720fe8aa758d42852b8d664f2ac1b23ce4eaed
   template <unsigned int L>
   void transfer(const std::array<uint8_t, L> &wbuf,
                 std::array<uint8_t, L> &rbuf) {
