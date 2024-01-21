@@ -379,7 +379,11 @@ for (int i = 0; i < 1000000; i++) {
 }
 ```
 
-This returns 13.31 MHz `-Ofast` and 3.64 MHz for 4 register update.
+This returns 13.31 MHz `-Ofast`, and without surprise 3.64 MHz for 4 register
+update.
+
+Replacing `digital*` with pad manimulation makes possible to reach 97.7 ksps, but
+do far the read does not work for me. 
 
 # Related project/ Further readings
 

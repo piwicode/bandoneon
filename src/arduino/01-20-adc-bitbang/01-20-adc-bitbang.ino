@@ -52,6 +52,7 @@ class Clock {
     last_cyc_ += half_period_cyc_;
   }
   uint32_t overshoot_count() const { return overshoot_count_; }
+  uint32_t half_period_cyc() const { return half_period_cyc_; }
 };
 
 template <int N>
@@ -119,7 +120,11 @@ class SPIArray {
   }
 
   int size() const { return miso_.size(); }
-  void select(bool value) { digitalWrite(cs_, value ? LOW : HIGH); }
+  inline void select(bool value) {
+    // Fast
+    digitalWrite(cs_, value ? LOW : HIGH);
+    // *pad_ = (*pad_ & ~cs_mask_) | (value ? 0 : cs_mask_);
+  }
 
   template <unsigned int L>
   void transfer(const std::array<uint8_t, L> &wbuf, uint32_t bits_to_transmit,
@@ -133,29 +138,44 @@ class SPIArray {
       for (uint8_t bit = 0x80; bit != 0x80 >> bits_to_transmit; bit >>= 1) {
         const bool mosi_value = (wbyte & bit) != 0;
         if (mosi_value != lastmosi) {
-          digitalWrite(mosi_, mosi_value);
+          // Fast digitalWrite(mosi_, mosi_value);
+          *pad_ = (*pad_ & ~mosi_mask_) | (mosi_value ? mosi_mask_ : 0);
           lastmosi = mosi_value;
         }
-        digitalWrite(clk_, HIGH);
-        clk.delay();
+        // Fast digitalWrite(clk_, HIGH);
+        *pad_ |= clk_mask_;
+
+        //clk.delay();
+        delayCycles(half_period_cyc_);
+        
+
         for (int i = 0; i < N; i++) {
-          rbyte[i] = (rbyte[i] << 1) | digitalRead(miso_[i]);
+          // Fast 
+          bool bit = digitalRead(miso_[i]);
+          // bool bit = (*pad_ & miso_masks_[i]) != 0;
+          rbyte[i] = (rbyte[i] << 1) | bit;
         }
-        digitalWrite(clk_, LOW);
-        clk.delay();
+        // Fast digitalWrite(clk_, LOW);
+        *pad_ ^= clk_mask_;
+
+        //clk.delay();
+        delayCycles(half_period_cyc_);
       }
       for (int i = 0; i < N; i++) {
         rbuf[r_idx++] = rbyte[i];
       }
       bits_to_transmit -= 8;
     }
-    Serial.print("Overshoot count: ");
-    Serial.println(clk.overshoot_count());
+    // Serial.print("Overshoot count: ");
+    // Serial.print(clk.overshoot_count());
+    // Serial.print(" (");
+    // Serial.print(clk.half_period_cyc());
+    // Serial.println(" cycles)");
   }
 };
 
 template <unsigned int N>
-class MCP3008Array { 
+class MCP3008Array {
   SPIArray<N> spi_array_;
   std::array<uint8_t, 3> w_buffer_ = {0x01, 0x00, 0x00};
   std::array<uint8_t, 3 * N> r_buffer_;
