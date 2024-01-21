@@ -129,7 +129,7 @@ The tutorial showcase python code, fortunately Adafruit also made
 commes with examples. I just have to set the number of the `CS` pin and it just
 works.
 
-```
+```c++
 adc.begin(13);
 ```
 
@@ -163,7 +163,7 @@ The
 [library source code](https://github.com/adafruit/Adafruit_BusIO/blob/master/Adafruit_SPIDevice.cpp)
 shows how to modify multiple output of a given port:
 
-```
+```c++
 BusIO_PortReg *mosiPort = (BusIO_PortReg *)portOutputRegister(digitalPinToPort(mosipin));
 BusIO_PortMask *mosiPinMask = digitalPinToBitMask(mosipin);
 
@@ -171,8 +171,10 @@ BusIO_PortMask *mosiPinMask = digitalPinToBitMask(mosipin);
 *mosiPort = *mosiPort | mosiPinMask;
 ```
 
+That will prove usefull to read measures from multiuple devices in parallel.
+
 The frequency control looks minimal. It just sleeps according the the frequency
-period.
+period without taking into acount the operations taking time.
 
 ```
 int bitdelay_us = (1000000 / _freq) / 2;
@@ -182,8 +184,174 @@ delayMicroseconds(bitdelay_us);
 It setup the library to [bit bang](https://en.wikipedia.org/wiki/Bit_banging)
 the but by setting each pin:
 
-```
+```c++
  adc.begin(10, 12, 11, 13);
 ```
 
 Again this works on the first attempt.
+
+# Bit-banging first step
+
+_2024/01/21_
+
+The following source implements software SPI. It writes the content of `wbuf` to
+the but while reading the content or `rbuf`. It is inspired from Adafruit
+implementation.
+
+```c++
+  template <unsigned int L>
+  void transfer(const std::array<uint8_t, L> &wbuf,
+                std::array<uint8_t, L> &rbuf) {
+    // Only MSB first is supported.
+    int r_idx = 0;
+    for (const uint8_t wbyte : wbuf) {
+      uint8_t rbyte;
+      for (uint8_t bit = 0x80; bit != 0; bit >>= 1) {
+        digitalWrite(mosi_, (wbyte & bit) != 0);
+        digitalWrite(clk_, HIGH);
+        delayMicroseconds(clk_period_us_);
+        rbyte = (rbyte << 1) | digitalRead(miso_[i]);
+
+        digitalWrite(clk_, LOW);
+        delayMicroseconds(clk_period_us_);
+      }
+      rbuf[r_idx++] = rbyte[i];
+    }
+  }
+```
+
+The ADC protocol uses 18 bus clock cycle to get a measure.
+
+<table>
+  <tr>
+   <td>
+   </td>
+   <td><strong>Bits</strong>
+   </td>
+   <td><strong>MOSI</strong>
+   </td>
+   <td><strong>MISO</strong>
+   </td>
+  </tr>
+  <tr>
+   <td>Start bit
+   </td>
+   <td>1
+   </td>
+   <td>“1”
+   </td>
+   <td>don’t care
+   </td>
+  </tr>
+  <tr>
+   <td>Single / Diff
+   </td>
+   <td>1
+   </td>
+   <td>“1”
+   </td>
+   <td>don’t care
+   </td>
+  </tr>
+  <tr>
+   <td>Channel select
+   </td>
+   <td>3
+   </td>
+   <td>D0, D1, D2
+   </td>
+   <td>don’t care
+   </td>
+  </tr>
+  <tr>
+   <td>Sample Period
+   </td>
+   <td>2
+   </td>
+   <td>don’t care
+   </td>
+   <td>don’t care
+   </td>
+  </tr>
+  <tr>
+   <td>Null bit
+   </td>
+   <td>1
+   </td>
+   <td>don’t care
+   </td>
+   <td>“0”
+   </td>
+  </tr>
+  <tr>
+   <td>Sample
+   </td>
+   <td>10
+   </td>
+   <td>don’t care
+   </td>
+   <td>data
+   </td>
+  </tr>
+</table>
+
+This code runs at 11.48 ksps (87 μs/sample).
+
+There is some headroom for improvement, as the
+[MCP3008 datasheet](datasheets\MCP3004-MCP3008-Data-Sheet-DS20001295.pdf)
+proposes 120 ksps at 3.3V.
+
+Here are the leads:
+
+- Firstly the most accurate delay function is `delayMicroseconds` which can only
+  implement an SPI buss of 500 KHz, wheras we need 2.16 MHz to achieve 120ksps
+- Then the current codes transmits 3 bytes (24 bit) per sample, wheras the
+  minimal is 18bits, which is 33% more than needed.
+- The delays do not take into account the latentency of the operation in between
+  the `delays` which comes on top of the delays.
+- Control the output using ports registers rahter than `digitalWrite`
+- There is fastpath implemented by Adafruit possible when the MOSI pin sends
+  consecutive identical values, that consist is bypassing the
+  `digitalWrite(mosi_, (wbyte & bit) != 0)`. Surprisingly, this optimization
+  makes posible ot run at 12.65 ksp (79 μs per sample), which is a improvement
+  of 10%.
+
+# Precision counter on ATSAMD51J19A
+
+_2023/01/21_
+
+`ATSAMD51J19A`
+[Arduino API implementation by Adafruit](https://github.com/adafruit/ArduinoCore-samd/blob/e2b78cbd3608fd5969d50c550a314db913a1a9e9/cores/arduino/delay.c#L64)
+uses a hardware cycle counter `CYCCNT` of the `Data Watchpoint and Trace`
+(a.k.a. DWT). This is exptemely precise has the processor clock runs at 120 MHz.
+The processor clock frequency chang be change, and the current value is given by
+`SystemCoreClock`.
+
+```c++
+void delayCycles(uint32_t count) {
+  // This value takes into account the time spent in the function
+  // itself. It has been determined experimentally by comparing the
+  // delayCycles() function with the micro().
+  constexpr uint32_t experimental_bias = 16;
+  const uint32_t start = DWT->CYCCNT - experimental_bias;
+  while (1) {
+    // The DWT->CYCCNT register is a 32 bits counter that counts the
+    // number of cycles since the last reset. It is incremented every
+    // cycle. It wraps around every 2^32 cycles (~37 secs at 120MHz).
+    const uint32_t elapsed = DWT->CYCCNT - start;
+    if (elapsed >= count) return;
+  }
+}
+
+```
+
+Replacing `delayMicros()` with `delayCycles()` improves  the sample rate to 23.7
+ksps (+87%).
+
+# Related project/ Further readings
+
+- JS Application to learn the bandoneon layout
+  https://github.com/nicokaiser/bandoneon
+- Lekker keyboard
+  [design note](https://wooting.io/post/validation-tests-lekker-update-8) and
+  [teardown video](https://www.youtube.com/watch?v=LpKBC1tWXws).
