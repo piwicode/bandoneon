@@ -342,11 +342,44 @@ void delayCycles(uint32_t count) {
     if (elapsed >= count) return;
   }
 }
-
 ```
 
-Replacing `delayMicros()` with `delayCycles()` improves  the sample rate to 23.7
+Replacing `delayMicros()` with `delayCycles()` improves the sample rate to 23.7
 ksps (+87%).
+
+It seems that writing values to the port is time consuming.
+
+```c++
+uint32_t start = micros();
+for (int i = 0; i < 1000000; i++) {
+  digitalWrite(12, HIGH);
+  digitalWrite(13, HIGH);
+  digitalWrite(12, LOW);
+  digitalRead(13);
+}
+uint32_t end = micros();
+// Display the cycle frequency.
+Serial.print("Cycle frequency: ");
+Serial.print(1000000.0 / (end - start));
+Serial.println("MHz");
+```
+
+This returns 0.70 MHz in `-Ofast` and .61 MHz in `-OSmall`. The low performance
+does not make possible to drive the bus at 2.16 MHz.
+
+Controlling the the GPIO via the port is much faster.
+
+```c++
+// Get port and mask from pin number.
+auto reg = portOutputRegister(digitalPinToPort(12));
+auto mask = digitalPinToBitMask(12);
+uint32_t start = micros();
+for (int i = 0; i < 1000000; i++) {
+  *reg |= mask;
+}
+```
+
+This returns 13.31 MHz `-Ofast` and 3.64 MHz for 4 register update.
 
 # Related project/ Further readings
 

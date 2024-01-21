@@ -23,14 +23,36 @@ void delayCycles(uint32_t count) {
   // delayCycles() function with the micro().
   constexpr uint32_t experimental_bias = 16;
   const uint32_t start = DWT->CYCCNT - experimental_bias;
-  while (1) {
-    // The DWT->CYCCNT register is a 32 bits counter that counts the
-    // number of cycles since the last reset. It is incremented every
-    // cycle. It wraps around every 2^32 cycles (~37 secs at 120MHz).
-    const uint32_t elapsed = DWT->CYCCNT - start;
-    if (elapsed >= count) return;
+  // The DWT->CYCCNT register is a 32 bits counter that counts the
+  // number of cycles since the last reset. It is incremented every
+  // cycle. It wraps around every 2^32 cycles (~37 secs at 120MHz).
+  while (DWT->CYCCNT - start < count) {
   }
 }
+
+class Clock {
+  uint32_t half_period_cyc_;
+  uint32_t last_cyc_;
+  uint32_t overshoot_count_;
+
+ public:
+  Clock(uint32_t half_period_cyc)
+      : half_period_cyc_(half_period_cyc),
+        last_cyc_(DWT->CYCCNT),
+        overshoot_count_(0) {}
+  inline void delay() {
+    const uint32_t now = DWT->CYCCNT;
+    if (now - last_cyc_ >= half_period_cyc_) {
+      last_cyc_ = now;  // We overshoot. We need to reset the counter.
+      overshoot_count_++;
+      return;
+    }
+    while (DWT->CYCCNT - last_cyc_ < half_period_cyc_) {
+    }
+    last_cyc_ += half_period_cyc_;
+  }
+  uint32_t overshoot_count() const { return overshoot_count_; }
+};
 
 template <int N>
 class SPIArray {
@@ -100,36 +122,40 @@ class SPIArray {
   void select(bool value) { digitalWrite(cs_, value ? LOW : HIGH); }
 
   template <unsigned int L>
-  void transfer(const std::array<uint8_t, L> &wbuf,
+  void transfer(const std::array<uint8_t, L> &wbuf, uint32_t bits_to_transmit,
                 std::array<uint8_t, L * N> &rbuf) {
     // Only MSB first is supported.
     int r_idx = 0;
     int lastmosi = -1;
+    Clock clk(half_period_cyc_);
     for (const uint8_t wbyte : wbuf) {
       uint8_t rbyte[N];
-      for (uint8_t bit = 0x80; bit != 0; bit >>= 1) {
+      for (uint8_t bit = 0x80; bit != 0x80 >> bits_to_transmit; bit >>= 1) {
         const bool mosi_value = (wbyte & bit) != 0;
         if (mosi_value != lastmosi) {
           digitalWrite(mosi_, mosi_value);
           lastmosi = mosi_value;
         }
         digitalWrite(clk_, HIGH);
-        delayCycles(half_period_cyc_);
+        clk.delay();
         for (int i = 0; i < N; i++) {
           rbyte[i] = (rbyte[i] << 1) | digitalRead(miso_[i]);
         }
         digitalWrite(clk_, LOW);
-        delayCycles(half_period_cyc_);
+        clk.delay();
       }
       for (int i = 0; i < N; i++) {
         rbuf[r_idx++] = rbyte[i];
       }
+      bits_to_transmit -= 8;
     }
+    Serial.print("Overshoot count: ");
+    Serial.println(clk.overshoot_count());
   }
 };
 
 template <unsigned int N>
-class MCP3008Array {
+class MCP3008Array { 
   SPIArray<N> spi_array_;
   std::array<uint8_t, 3> w_buffer_ = {0x01, 0x00, 0x00};
   std::array<uint8_t, 3 * N> r_buffer_;
@@ -145,7 +171,7 @@ class MCP3008Array {
     assert(channel < 8);
     spi_array_.select(true);
     w_buffer_[1] = channel << 4;
-    spi_array_.transfer(w_buffer_, r_buffer_);
+    spi_array_.transfer(w_buffer_, 18, r_buffer_);
     spi_array_.select(false);
     for (int i = 0; i < spi_array_.size(); i++) {
       values[i] = (r_buffer_[i + N] & 0x03) << 8 | r_buffer_[i + 2 * N];
