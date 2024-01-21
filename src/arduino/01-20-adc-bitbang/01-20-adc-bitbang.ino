@@ -230,4 +230,5 @@ void loop() {
   Serial.print("ADC0: ");
   Serial.println(measures[0]);
   delay(1000);
+
 }
