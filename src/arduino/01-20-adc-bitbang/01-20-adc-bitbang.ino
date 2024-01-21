@@ -88,10 +88,15 @@ class SPIArray {
                 std::array<uint8_t, L * N> &rbuf) {
     // Only MSB first is supported.
     int r_idx = 0;
+    int lastmosi = -1;
     for (const uint8_t wbyte : wbuf) {
       uint8_t rbyte[N];
       for (uint8_t bit = 0x80; bit != 0; bit >>= 1) {
-        digitalWrite(mosi_, (wbyte & bit) != 0);
+        const bool mosi_value = (wbyte & bit) != 0;
+        if(mosi_value != lastmosi) {
+          digitalWrite(mosi_, mosi_value);
+          lastmosi = mosi_value;
+        }        
         digitalWrite(clk_, HIGH);
         delayMicroseconds(clk_period_us_);
         for (int i = 0; i < N; i++) {
@@ -120,21 +125,21 @@ class MCP3008Array {
 
   void begin() { spi_array_.begin(); }
 
-  void read(uint8_t channel, uint16_t *value) {
+  void read(uint8_t channel, std::array<uint16_t, N> &values) {
     assert(channel < 8);
     spi_array_.select(true);
     w_buffer_[1] = channel << 4;
     spi_array_.transfer(w_buffer_, r_buffer_);
     spi_array_.select(false);
     for (int i = 0; i < spi_array_.size(); i++) {
-      *value++ = (r_buffer_[i + N] & 0x03) << 8 | r_buffer_[i + 2 * N];
+      values[i] = (r_buffer_[i + N] & 0x03) << 8 | r_buffer_[i + 2 * N];
     }
   }
 };
 
 MCP3008Array<1> adc_array(10, 12, {11}, 13, 1);
 
-uint16_t measures[1] = {0};
+std::array<uint16_t, 1> measures;
 uint32_t count = 0;
 
 void setup() {
@@ -146,11 +151,20 @@ void setup() {
 void loop() {
   // put your main code here, to run repeatedly:
   count++;
+
+  size_t sample_size=1000;
+  const uint32_t start_time = micros();
+  for(int i = 0; i < sample_size; i++) {
+    adc_array.read(0, measures);
+  }
+  const uint32_t end_time = micros();
+  Serial.println((end_time - start_time));
+
   Serial.print("[");
   Serial.print(count);
   Serial.print("] ");
   Serial.print("ADC0: ");
-  adc_array.read(0, measures);
   Serial.println(measures[0]);
   delay(1000);
+
 }
