@@ -2,7 +2,27 @@
 	"folders": [
 		{
 			"path": "."
+		},
+		{
+			"path": "../Users/Pierre/AppData/Local/Arduino15"
 		}
 	],
-	"settings": {}
+	"settings": {
+		"files.associations": {
+			"array": "cpp",
+			"deque": "cpp",
+			"forward_list": "cpp",
+			"list": "cpp",
+			"string": "cpp",
+			"unordered_map": "cpp",
+			"unordered_set": "cpp",
+			"vector": "cpp",
+			"string_view": "cpp",
+			"rope": "cpp",
+			"slist": "cpp",
+			"initializer_list": "cpp",
+			"regex": "cpp",
+			"valarray": "cpp"
+		}
+	}
 }

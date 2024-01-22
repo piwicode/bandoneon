@@ -384,7 +384,56 @@ update.
 
 Replacing `digital*` with pad manimulation makes possible to reach 90.1 ksps.
 
-# Related project/ Further readings
+# Optimize the IO manipulation further
+
+_2024/01/22_
+
+`*ioreg |= mask;` requires to read modify and write bakc the result. Because
+this is time consuming the `ATSAMD51J19A` comes with special register that set
+or clear pins when a bit mask is written to them.
+
+I had to read the code to find the member names. Onw Windows it is located in
+`\Users\$USER\AppData\Local\Arduino15\packages\adafruit\tools\CMSIS-Atmel\1.2.2\CMSIS\Device\ATMEL\samd51\include\instance\port.h`
+
+For reference:
+
+`digitalWrite(13, HIGH)` takes 41 cycles
+
+`*ioreg |= 0x800000` takes 10 cycles
+
+Here is a verbose way to access `OUTSET`.
+
+```c++
+digitalPinToPort(13)->OUTSET.reg = digitalPinToBitMask(13);
+```
+
+Runs in 8 cycles, which is slow because the `digital*` takes some time to
+execute. However they return a constant which can be cached.
+
+```c++
+auto port = digitalPinToPort(13); // Once for all.
+
+port->OUTSET.reg = 0x800000;
+```
+
+Is much faster and runs in 3 cycles.
+
+```c++
+REG_PORT_OUTSET0 = 0x800000
+```
+
+Is the most straight forward, and runs in 3 cycles, which is 3 times faster than
+writing to the IO REgister an 13 times faster than the `digitalWrite`! With this
+new way to control IO, the SPI bitbang reaches 105.96 ksps which is close to the
+ADC specificed limit of 120 ksps at 3.3V. But we are still not running at speed.
+
+I should be able to squeze by avoinding writing and reading the don't care bits 
+in the protocol, and by rewriting the throttler. Without throttler the bus runs
+at 186.96 ksps, and looks to return correct values.
+
+[profiler code here](src\arduino\01_18_blink_sodr_test\01_18_blink_sodr_test.ino)
+
+# Related project / Further readings
 
 - JS Application to learn the bandoneon layout
   https://github.com/nicokaiser/bandoneon

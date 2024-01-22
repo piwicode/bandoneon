@@ -72,6 +72,7 @@ class SPIArray {
   uint8_t cs_;
 
   // Hardware mapping.
+  PortGroup *port_;
   volatile PadValue *output_reg_;
   volatile PadValue *input_reg_;
   PadValue cs_mask_, clk_mask_, mosi_mask_;
@@ -87,16 +88,17 @@ class SPIArray {
         cs_(cs),
         half_period_cyc_(SystemCoreClock / frequency_hz / 2) {
     // Asserts that all specified pins are in the same port.
-    auto port = digitalPinToPort(cs);
-    assert(port == digitalPinToPort(clk));
-    assert(port == digitalPinToPort(mosi));
+    port_ = digitalPinToPort(cs);
+
+    assert(port_ == digitalPinToPort(clk));
+    assert(port_ == digitalPinToPort(mosi));
     for (auto pin : miso) {
-      assert(port == digitalPinToPort(pin));
+      assert(port_ == digitalPinToPort(pin));
     }
 
     // Get hardware mapping.
-    output_reg_ = portOutputRegister(port);
-    input_reg_ = portInputRegister(port);
+    output_reg_ = portOutputRegister(port_);
+    input_reg_ = portInputRegister(port_);
     clk_mask_ = digitalPinToBitMask(clk_);
     mosi_mask_ = digitalPinToBitMask(mosi_);
     for (auto pin : miso_) {
@@ -141,7 +143,11 @@ class SPIArray {
   int size() const { return miso_.size(); }
   inline void select(bool value) {
     // Fast digitalWrite(cs_, value ? LOW : HIGH);
-    *output_reg_ = (*output_reg_ & ~cs_mask_) | (value ? 0 : cs_mask_);
+    if (!value) {
+      REG_PORT_OUTSET0 = cs_mask_;
+    } else {
+      REG_PORT_OUTCLR0 = cs_mask_;
+    }
   }
 
   template <unsigned int L>
@@ -149,34 +155,34 @@ class SPIArray {
                 std::array<uint8_t, L * N> &rbuf) {
     // Only MSB first is supported.
     int r_idx = 0;
-    int lastmosi = -1;
     Clock clk(half_period_cyc_);
     for (const uint8_t wbyte : wbuf) {
       uint8_t rbyte[N];
       for (uint8_t bit = 0x80; bit != 0x80 >> bits_to_transmit; bit >>= 1) {
         const bool mosi_value = (wbyte & bit) != 0;
-        if (mosi_value != lastmosi) {
-          // Fast digitalWrite(mosi_, mosi_value);
-          *output_reg_ = (*output_reg_ & ~mosi_mask_) | (mosi_value ? mosi_mask_ : 0);
-          lastmosi = mosi_value;
+        // Fast digitalWrite(mosi_, mosi_value);
+        if (mosi_value) {
+          REG_PORT_OUTSET0 = mosi_mask_;
+        } else {
+          REG_PORT_OUTCLR0 = mosi_mask_;
         }
+
         // Fast digitalWrite(clk_, HIGH);
-        *output_reg_ |= clk_mask_;
+        REG_PORT_OUTSET0 = clk_mask_;
 
         clk.delay();
-        //delayCycles(half_period_cyc_);
+        // delayCycles(half_period_cyc_);
 
         for (int i = 0; i < N; i++) {
-          // Fast
-          //bool bit = digitalRead(miso_[i]);
+          // Fast bool bit = digitalRead(miso_[i]);
           bool bit = (*input_reg_ & miso_masks_[i]) != 0;
           rbyte[i] = (rbyte[i] << 1) | bit;
         }
         // Fast digitalWrite(clk_, LOW);
-        *output_reg_ ^= clk_mask_;
+        REG_PORT_OUTCLR0 = clk_mask_;
 
         clk.delay();
-        //delayCycles(half_period_cyc_);
+        // delayCycles(half_period_cyc_);
       }
       for (int i = 0; i < N; i++) {
         rbuf[r_idx++] = rbyte[i];
@@ -230,7 +236,7 @@ void setup() {
 
 void loop() {
   adc_array.show();
-  
+
   size_t sample_size = 1000;
   const uint32_t start_time = micros();
   uint32_t count = 0;
