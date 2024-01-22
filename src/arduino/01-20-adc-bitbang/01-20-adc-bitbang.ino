@@ -72,7 +72,8 @@ class SPIArray {
   uint8_t cs_;
 
   // Hardware mapping.
-  volatile PadValue *pad_;
+  volatile PadValue *output_reg_;
+  volatile PadValue *input_reg_;
   PadValue cs_mask_, clk_mask_, mosi_mask_;
   std::vector<PadValue> miso_masks_;
 
@@ -94,7 +95,8 @@ class SPIArray {
     }
 
     // Get hardware mapping.
-    pad_ = portOutputRegister(port);
+    output_reg_ = portOutputRegister(port);
+    input_reg_ = portInputRegister(port);
     clk_mask_ = digitalPinToBitMask(clk_);
     mosi_mask_ = digitalPinToBitMask(mosi_);
     for (auto pin : miso_) {
@@ -103,12 +105,29 @@ class SPIArray {
     cs_mask_ = digitalPinToBitMask(cs_);
   }
 
+  void show() {
+    Serial.print("output_reg_: ");
+    Serial.println((uint32_t)output_reg_, HEX);
+    Serial.print("input_reg_: ");
+    Serial.println((uint32_t)input_reg_, HEX);
+    Serial.print("CS mask: ");
+    Serial.println(cs_mask_, HEX);
+    Serial.print("CLK mask: ");
+    Serial.println(clk_mask_, HEX);
+    Serial.print("MOSI mask: ");
+    Serial.println(mosi_mask_, HEX);
+    for (auto mask : miso_masks_) {
+      Serial.print("MISO mask: ");
+      Serial.println(mask, HEX);
+    }
+  }
+
   void begin() {
     pinMode(cs_, OUTPUT);
     digitalWrite(cs_, HIGH);
 
     pinMode(clk_, OUTPUT);
-    // Only mode 0 is supported: idle low on mode 0 and 1
+    // Only Spi mode 0 is supported: idle low on mode 0 and 1
     digitalWrite(clk_, LOW);
 
     pinMode(mosi_, OUTPUT);
@@ -121,9 +140,8 @@ class SPIArray {
 
   int size() const { return miso_.size(); }
   inline void select(bool value) {
-    // Fast
-    digitalWrite(cs_, value ? LOW : HIGH);
-    // *pad_ = (*pad_ & ~cs_mask_) | (value ? 0 : cs_mask_);
+    // Fast digitalWrite(cs_, value ? LOW : HIGH);
+    *output_reg_ = (*output_reg_ & ~cs_mask_) | (value ? 0 : cs_mask_);
   }
 
   template <unsigned int L>
@@ -139,27 +157,26 @@ class SPIArray {
         const bool mosi_value = (wbyte & bit) != 0;
         if (mosi_value != lastmosi) {
           // Fast digitalWrite(mosi_, mosi_value);
-          *pad_ = (*pad_ & ~mosi_mask_) | (mosi_value ? mosi_mask_ : 0);
+          *output_reg_ = (*output_reg_ & ~mosi_mask_) | (mosi_value ? mosi_mask_ : 0);
           lastmosi = mosi_value;
         }
         // Fast digitalWrite(clk_, HIGH);
-        *pad_ |= clk_mask_;
+        *output_reg_ |= clk_mask_;
 
-        //clk.delay();
-        delayCycles(half_period_cyc_);
-        
+        clk.delay();
+        //delayCycles(half_period_cyc_);
 
         for (int i = 0; i < N; i++) {
-          // Fast 
-          bool bit = digitalRead(miso_[i]);
-          // bool bit = (*pad_ & miso_masks_[i]) != 0;
+          // Fast
+          //bool bit = digitalRead(miso_[i]);
+          bool bit = (*input_reg_ & miso_masks_[i]) != 0;
           rbyte[i] = (rbyte[i] << 1) | bit;
         }
         // Fast digitalWrite(clk_, LOW);
-        *pad_ ^= clk_mask_;
+        *output_reg_ ^= clk_mask_;
 
-        //clk.delay();
-        delayCycles(half_period_cyc_);
+        clk.delay();
+        //delayCycles(half_period_cyc_);
       }
       for (int i = 0; i < N; i++) {
         rbuf[r_idx++] = rbyte[i];
@@ -197,12 +214,13 @@ class MCP3008Array {
       values[i] = (r_buffer_[i + N] & 0x03) << 8 | r_buffer_[i + 2 * N];
     }
   }
+
+  void show() { spi_array_.show(); }
 };
 
 MCP3008Array<1> adc_array(10, 12, {11}, 13, 2.16e6);
 
 std::array<uint16_t, 1> measures;
-uint32_t count = 0;
 
 void setup() {
   // Enable logging through the serial port.
@@ -211,9 +229,8 @@ void setup() {
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  count++;
-
+  adc_array.show();
+  
   size_t sample_size = 1000;
   const uint32_t start_time = micros();
   uint32_t count = 0;
@@ -230,5 +247,4 @@ void loop() {
   Serial.print("ADC0: ");
   Serial.println(measures[0]);
   delay(1000);
-
 }
