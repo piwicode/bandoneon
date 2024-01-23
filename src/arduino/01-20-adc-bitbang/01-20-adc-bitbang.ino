@@ -4,6 +4,26 @@
 #include <cassert>
 #include <vector>
 
+#define digitalPinToBitShift(P) (g_APinDescription[P].ulPin)
+
+// This is assuing the clear register is contiguous with the set.
+// Static assertion complains when testing the pointers.
+#define SET_PORT_BIT(P, mask, value)       \
+  do {                                     \
+    *(&REG_PORT_OUTCLR##P + value) = mask; \
+  } while (0)
+
+#define PROFILE(x)                    \
+  {                                   \
+    DWT->CYCCNT = 0;                  \
+    x;                                \
+    const uint32_t end = DWT->CYCCNT; \
+    Serial.print(#x);                 \
+    Serial.print(" took ");           \
+    Serial.print(end);                \
+    Serial.println(" cycles");        \
+  }
+
 #undef assert
 #define assert(x)                      \
   do {                                 \
@@ -55,6 +75,8 @@ class Clock {
   uint32_t half_period_cyc() const { return half_period_cyc_; }
 };
 
+constexpr RwReg &port_to_clr(RwReg &port) { return *(&port + 1); }
+
 template <int N>
 class SPIArray {
  private:
@@ -72,11 +94,8 @@ class SPIArray {
   uint8_t cs_;
 
   // Hardware mapping.
-  PortGroup *port_;
-  volatile PadValue *output_reg_;
-  volatile PadValue *input_reg_;
   PadValue cs_mask_, clk_mask_, mosi_mask_;
-  std::vector<PadValue> miso_masks_;
+  std::array<uint32_t, N> miso_shifts_;
 
  public:
   uint32_t half_period_cyc_;
@@ -88,40 +107,12 @@ class SPIArray {
         cs_(cs),
         half_period_cyc_(SystemCoreClock / frequency_hz / 2) {
     // Asserts that all specified pins are in the same port.
-    port_ = digitalPinToPort(cs);
-
-    assert(port_ == digitalPinToPort(clk));
-    assert(port_ == digitalPinToPort(mosi));
-    for (auto pin : miso) {
-      assert(port_ == digitalPinToPort(pin));
-    }
-
-    // Get hardware mapping.
-    output_reg_ = portOutputRegister(port_);
-    input_reg_ = portInputRegister(port_);
     clk_mask_ = digitalPinToBitMask(clk_);
     mosi_mask_ = digitalPinToBitMask(mosi_);
-    for (auto pin : miso_) {
-      miso_masks_.push_back(digitalPinToBitMask(pin));
+    for (int i = 0; i < N; i++) {
+      miso_shifts_[i] = digitalPinToBitShift(miso[i]);
     }
     cs_mask_ = digitalPinToBitMask(cs_);
-  }
-
-  void show() {
-    Serial.print("output_reg_: ");
-    Serial.println((uint32_t)output_reg_, HEX);
-    Serial.print("input_reg_: ");
-    Serial.println((uint32_t)input_reg_, HEX);
-    Serial.print("CS mask: ");
-    Serial.println(cs_mask_, HEX);
-    Serial.print("CLK mask: ");
-    Serial.println(clk_mask_, HEX);
-    Serial.print("MOSI mask: ");
-    Serial.println(mosi_mask_, HEX);
-    for (auto mask : miso_masks_) {
-      Serial.print("MISO mask: ");
-      Serial.println(mask, HEX);
-    }
   }
 
   void begin() {
@@ -141,67 +132,32 @@ class SPIArray {
   }
 
   int size() const { return miso_.size(); }
-  inline void select(bool value) {
-    // Fast digitalWrite(cs_, value ? LOW : HIGH);
-    if (!value) {
-      REG_PORT_OUTSET0 = cs_mask_;
-    } else {
-      REG_PORT_OUTCLR0 = cs_mask_;
-    }
-  }
+  inline void select(bool value) { SET_PORT_BIT(0, cs_mask_, !value); }
 
-  template <unsigned int L>
-  void transfer(const std::array<uint8_t, L> &wbuf, uint32_t bits_to_transmit,
-                std::array<uint8_t, L * N> &rbuf) {
-    // Only MSB first is supported.
-    int r_idx = 0;
+  inline void transfer(const uint32_t wbuf, const uint32_t lsb_bits_to_transmit,
+                       std::array<uint32_t, N> &rbuf) {
     Clock clk(half_period_cyc_);
-    for (const uint8_t wbyte : wbuf) {
-      uint8_t rbyte[N];
-      for (uint8_t bit = 0x80; bit != 0x80 >> bits_to_transmit; bit >>= 1) {
-        const bool mosi_value = (wbyte & bit) != 0;
-        // Fast digitalWrite(mosi_, mosi_value);
-        if (mosi_value) {
-          REG_PORT_OUTSET0 = mosi_mask_;
-        } else {
-          REG_PORT_OUTCLR0 = mosi_mask_;
-        }
+    rbuf = {};
+    for (int8_t shift = lsb_bits_to_transmit - 1; shift >= 0; shift--) {
+      const bool mosi_value = (wbuf >> shift) & 0x1;
+      SET_PORT_BIT(0, mosi_mask_, mosi_value);
 
-        // Fast digitalWrite(clk_, HIGH);
-        REG_PORT_OUTSET0 = clk_mask_;
+      REG_PORT_OUTSET0 = clk_mask_;
+      clk.delay();
 
-        clk.delay();
-        // delayCycles(half_period_cyc_);
-
-        for (int i = 0; i < N; i++) {
-          // Fast bool bit = digitalRead(miso_[i]);
-          bool bit = (*input_reg_ & miso_masks_[i]) != 0;
-          rbyte[i] = (rbyte[i] << 1) | bit;
-        }
-        // Fast digitalWrite(clk_, LOW);
-        REG_PORT_OUTCLR0 = clk_mask_;
-
-        clk.delay();
-        // delayCycles(half_period_cyc_);
-      }
       for (int i = 0; i < N; i++) {
-        rbuf[r_idx++] = rbyte[i];
+        const bool bit = (REG_PORT_IN0 >> miso_shifts_[i]) & 0x1;
+        rbuf[i] = (rbuf[i] << 1) | bit;
       }
-      bits_to_transmit -= 8;
+      REG_PORT_OUTCLR0 = clk_mask_;
+      clk.delay();
     }
-    // Serial.print("Overshoot count: ");
-    // Serial.print(clk.overshoot_count());
-    // Serial.print(" (");
-    // Serial.print(clk.half_period_cyc());
-    // Serial.println(" cycles)");
   }
 };
 
 template <unsigned int N>
 class MCP3008Array {
   SPIArray<N> spi_array_;
-  std::array<uint8_t, 3> w_buffer_ = {0x01, 0x00, 0x00};
-  std::array<uint8_t, 3 * N> r_buffer_;
 
  public:
   MCP3008Array(uint8_t clk, uint8_t mosi, std::array<uint8_t, N> miso,
@@ -210,23 +166,19 @@ class MCP3008Array {
 
   void begin() { spi_array_.begin(); }
 
-  void read(uint8_t channel, std::array<uint16_t, N> &values) {
+  void read(uint8_t channel, std::array<uint32_t, N> &values) {
     assert(channel < 8);
     spi_array_.select(true);
-    w_buffer_[1] = channel << 4;
-    spi_array_.transfer(w_buffer_, 18, r_buffer_);
+    uint32_t write = 0x18000 | (channel << 12);
+    spi_array_.transfer(write, 17, values);
     spi_array_.select(false);
-    for (int i = 0; i < spi_array_.size(); i++) {
-      values[i] = (r_buffer_[i + N] & 0x03) << 8 | r_buffer_[i + 2 * N];
+    for (auto &v : values) {
+      v &= 0x3ff;
     }
   }
-
-  void show() { spi_array_.show(); }
 };
 
 MCP3008Array<1> adc_array(10, 12, {11}, 13, 2.16e6);
-
-std::array<uint16_t, 1> measures;
 
 void setup() {
   // Enable logging through the serial port.
@@ -235,15 +187,15 @@ void setup() {
 }
 
 void loop() {
-  adc_array.show();
+  std::array<uint32_t, 1> measures;
 
-  size_t sample_size = 1000;
   const uint32_t start_time = micros();
   uint32_t count = 0;
   while (micros() - start_time < 1000000) {
     adc_array.read(0, measures);
     count++;
   }
+
   Serial.print("Number of samples per seconds: ");
   Serial.println(count);
 

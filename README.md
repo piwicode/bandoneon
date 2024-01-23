@@ -265,7 +265,7 @@ The ADC protocol uses 18 bus clock cycle to get a measure.
   <tr>
    <td>Sample Period
    </td>
-   <td>2
+   <td>1
    </td>
    <td>don’t care
    </td>
@@ -431,6 +431,22 @@ in the protocol, and by rewriting the throttler. Without throttler the bus runs
 at 186.96 ksps, and looks to return correct values.
 
 [profiler code here](src\arduino\01_18_blink_sodr_test\01_18_blink_sodr_test.ino)
+
+# Optimizing further
+
+```c++
+*(mosi_value ? &REG_PORT_OUTSET0 : &REG_PORT_OUTCLR0) = mosi_mask_;
+// 6 cycles
+
+REG_PORT_OUT0 = (REG_PORT_OUT0 & ~mosi_mask_) | (mosi_value << mosi_shift_);
+// 15 cycles
+
+*(&REG_PORT_OUTCLR0 + mosi_value) = mosi_mask
+// 3 cycles
+```
+
+With this new we are stating to see the code requires to be throttled, otherwise
+the buss goes too fast for the MPC3008.
 
 # Related project / Further readings
 
