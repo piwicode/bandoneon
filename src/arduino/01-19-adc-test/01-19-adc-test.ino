@@ -22,7 +22,7 @@ void setup() {
   // adc.begin(13); 
 
   // Software SPI.git 
-  adc.begin(10, 12, 11, 13);
+  adc.begin(10, 12, 21, 13);
 }
 
 void loop() {

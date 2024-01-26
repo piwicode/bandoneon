@@ -448,6 +448,11 @@ REG_PORT_OUT0 = (REG_PORT_OUT0 & ~mosi_mask_) | (mosi_value << mosi_shift_);
 With this new we are stating to see the code requires to be throttled, otherwise
 the buss goes too fast for the MPC3008.
 
+https://developer.arm.com/documentation/ddi0439/b/Programmers-Model/Bit-banding is not presetn
+
+Target is 130 KSPS = 
+1/130e3/18 = 4.27350427E-7 = 427 ns
+
 # Related project / Further readings
 
 - JS Application to learn the bandoneon layout
