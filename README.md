@@ -9,17 +9,16 @@ These boards can be powered via USB or battery and utilize a voltage regulator
 to maintain a 3.3V operation.
 
 [Adafruit Feather M4 Express](https://learn.adafruit.com/adafruit-feather-m4-express-atsamd51)
-appears to be an excellent choice because:
+is built around the
+[ATSAMD51J19A](datasheets\SAM-D5x-E5x-Family-Data-Sheet-DS60001507.pdf). It look
+like excellent choice because:
 
 - it has plenty (21) input-output pins
 - it runs at high clock speed of 120 MHz which will make possible
   [bitbang](https://en.wikipedia.org/wiki/Bit_banging) many analog-to-digital
-  SPI busses at 3.6 MHz
+  SPI busses at 3.6 MHz. I also have 32 floating point hardware.
 - it has a single core which keeps the temptation to write concurent code away
 - it does not have any extraneous wireless features.
-
-The ATSAMD51J19A controler documentation is available
-[there](datasheets\SAM-D5x-E5x-Family-Data-Sheet-DS60001507.pdf).
 
 The first thing to do it to check the bootloader version.
 
@@ -50,26 +49,31 @@ the board's LED is blinking. Hello world!
 
 _2024/01/19_
 
-Musical Instrument Digital Interface (a.k.a. midi) is a communication protocol
-to send notes over a serial interface. Those notes are received by a synthetizer
-that generates a waveform.
+Musical Instrument Digital Interface, better known as MIDI, is a communication
+protocol used for transmitting musical notes over a serial interface. These
+notes are received by a synthesizer, which then produces the corresponding
+waveforms.
 
-There are two hardware solutions 5 pin
+There are two hardware solutions: 5 pin
 [DIN connector](https://fr.wikipedia.org/wiki/Connecteur_DIN) or USB Midi.
 
 ## Midi via 5 pin DIN
 
-[5 pin din electrical midi specs](datasheets\MCP3004-MCP3008-Data-Sheet-DS20001295.pdf)
-says ut is a UART serial bus plus power. Fortunately most microcontroler now
-support UART.
+The
+[electrical specifications for the 5-pin DIN MIDI](datasheets\MCP3004-MCP3008-Data-Sheet-DS20001295.pdf),
+reveal that it utilizes a UART serial bus along with power. Fortunately, most
+modern microcontrollers now support UART.
 
-Only four wires out of five are in use for GND, 3V3, UART RX and TX.
-[UART](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter)
-is a thrifty serial that only use two wires TX and RX. In abscence of a clock
-the devices synchronize on the transmited signal. For it to work reliably,
-parity bit are also transmited.
+Out of the five wires, only four are used: these are for Ground (GND), 3.3 volts
+(3V3), UART receive (RX), and UART transmit (TX).
 
-<a href="images\Screen_Shot_2020-07-18_at_12.20.08_PM.png"><img src="images\Screen_Shot_2020-07-18_at_12.20.08_PM.png" height="100" /></a>
+[UART (Universal Asynchronous Receiver-Transmitter)](https://en.wikipedia.org/wiki/Universal_asynchronous_receiver-transmitter)
+is an efficient serial communication protocol that uses just two wires: TX
+(transmit) and RX (receive). Without a dedicated clock signal, devices
+synchronize based on the transmitted signal itself. To ensure reliable
+communication, parity bits are also transmitted.
+
+<a href="images\Screen_Shot_2020-07-18_at_12.20.08_PM.png"><img src="images\Screen_Shot_2020-07-18_at_12.20.08_PM.png" height="300" /></a>
 
 The
 [Arduino Midi library](https://github.com/FortySevenEffects/arduino_midi_library)
@@ -81,30 +85,35 @@ for prototyping and it works like a charm.
 
 ## Midi via USB
 
-Here the midi information transit throught the same USB chord used pro power,
-program and get logs from the board.
+In this setup, MIDI information travels through the same USB cable that is used
+for power, programming, and retrieving logs from the board.
 
-It requires use [TinyUSB](https://docs.tinyusb.org/en/latest/index.html) in
-`Tools > UsbStack`. By default the USB driver is built with the program is
-`ArduinoUSB`. TinyUSB makes possible to support more protocol and act as a Midi
-device.
+To enable MIDI via USB, you need to use
+[TinyUSB](https://docs.tinyusb.org/en/latest/index.html), which can be selected
+from the `Tools > USB` Stack menu in the `Arduino IDE`. By default, the USB
+driver that is built with the program is ArduinoUSB. TinyUSB allows for the
+support of additional protocols and enables the device to function as a MIDI
+interface.
 
-<a href="images\Screenshot 2024-01-19 183334.png"><img src="images\Screenshot 2024-01-19 183334.png" height="100" /></a>
+<a href="images\Screenshot 2024-01-19 183334.png"><img src="images\Screenshot 2024-01-19 183334.png" height="150" /></a>
 
 The boards shows up as `Feather M4 Express` in my Digital Audio Workstation and
 output midi notes.
 
-<a href="images\Screenshot 2024-01-19 135625.png"><img src="images\Screenshot 2024-01-19 135625.png" height="100" /></a>
-<a href="images\Screenshot 2024-01-19 135826.png"><img src="images\Screenshot 2024-01-19 135826.png" height="100" /></a>
+<a href="images\Screenshot 2024-01-19 135625.png"><img src="images\Screenshot 2024-01-19 135625.png" height="150" /></a>
+<a href="images\Screenshot 2024-01-19 135826.png"><img src="images\Screenshot 2024-01-19 135826.png" height="150" /></a>
 
-This does not prevent the serial loging to work perfectly.
+Even with this setup, serial logging still works just fine.
 
 # Talking to the Analog-Digital-Conveter
 
 _2024/01/19_
 
-Analog to digital converters (a.h.a. ADC) measure a voltage from a pin and
-output the result as numerical data on a serial bus.
+Analog to Digital Converters, also known as ADCs, measure voltage from a pin and
+convert it to numerical data for transmission over a serial bus. Those
+components usualy have multiple input channels connected to a unique
+[Successive-approximation ADC](https://en.wikipedia.org/wiki/Successive-approximation_ADC)
+by a MUX.
 
 I selected the [MCP3008](datasheets\MCP3004-MCP3008-Data-Sheet-DS20001295.pdf)
 which looks popular. There is a
@@ -113,26 +122,30 @@ and the [midi_hammer](https://github.com/aleathwick/midi_hammer) project has
 successfully integrated it with hall sensors to create a keyboard
 ([demo](https://youtu.be/tgWXtYCHDI4)).
 
-The MCP3008 measures one of its 8 inputs and writes the result to an SPI serial
-bus. As opposito to UART, the SPI serial bus has an explicit clock. Hence it
-uses 3 wires names:
+The [MCP3008](datasheets\MCP3004-MCP3008-Data-Sheet-DS20001295.pdf) can measure
+voltage from one of its eight inputs and then transmit the result via an SPI
+(Serial Peripheral Interface) serial bus. Unlike UART, SPI includes an explicit
+clock signal, which means it uses three wires, named:
 
-- clock
+- Clock
 - MOSI (Master output slave input)
 - MISO (Master input slave output)
 
-A fourth pin `CS` is used to activate, or deactivate and silence the peripheral.
+A fourth pin `CS` (Chip Select), is used to activate or deactivate the
+peripheral, effectively controlling when it can send or receive data.
 
-The tutorial showcase python code, fortunately Adafruit also made
-[an Arduino library](https://github.com/adafruit/Adafruit_MCP3008). And it
-commes with examples. I just have to set the number of the `CS` pin and it just
-works.
+The tutorial features Python code, but luckily, Adafruit also offers
+[an Arduino library](https://github.com/adafruit/Adafruit_MCP3008), complete
+with examples. All I need to do is set the number for the CS pin, and it works
+seamlessly.
 
 ```c++
 adc.begin(13);
 ```
 
-Again a huge timesaver.
+Again, this is a huge time-saver.
+
+<a href="images\Screenshot 2024-01-19 212708.jpg"><img src="images\Screenshot 2024-01-19 212708.jpg" height="400" /></a>
 
 I can read the 8 channels:
 
@@ -143,24 +156,25 @@ I can read the 8 channels:
 522	0	1023	4	3	3	4	8	[153]
 ```
 
-- The first is the sensor output. In abscence of manetic fields it returns an
-  intermediate value. As the MCP3008 is a 10bit converter, the maximal value is
-  1023, and 522 is close to the half.
-- The second is grounded, and we can read 0 as expected.
-- The third is fed with `3V3`, and we can read the maximal value: 1023.
-- With manget touching the sensor, I can reach the value of 788 and 254 when the
-  magnet is turned by 180°.
+- The first channel shows the sensor output. In the absence of magnetic fields,
+  it returns a mid-range value. Since the MCP3008 is a 10-bit converter, the
+  maximum value is 1023, making 522 close to half of this.
+- The second is grounded, and as expected, it reads 0.
+- The third channel is connected to 3V3 and shows the maximum reading of 1023.
+- When a magnet touches the sensor, the readings vary significantly: I can get a
+  value of 788 and, interestingly, 254 when the magnet is rotated 180°.
 
-<a href="images\Screenshot 2024-01-19 212708.jpg"><img src="images\Screenshot 2024-01-19 212708.jpg" height="100" /></a>
-
-Interestingly it Adafruit_MCP3008 is built on top of
-[Adafruit_BusIO](https://github.com/adafruit/Adafruit_BusIO) which abstracts SPI
-communication. It is able to implement a software bus, which is exaclt what I
-plan to do to read from multime MCP3008.
+Interestingly, the
+[`Adafruit_MCP3008`](https://github.com/adafruit/Adafruit_MCP3008) library is
+built on top of [`Adafruit_BusIO`](https://github.com/adafruit/Adafruit_BusIO)
+which abstracts SPI communication. This is particularly useful because it can
+implement a software bus, exactly what I need for reading from multiple
+`MCP3008` units.
 
 The
 [library source code](https://github.com/adafruit/Adafruit_BusIO/blob/master/Adafruit_SPIDevice.cpp)
-shows how to modify multiple output of a given port:
+demonstrates how to modify multiple outputs of a given port by writing to the
+register:
 
 ```c++
 BusIO_PortReg *mosiPort = (BusIO_PortReg *)portOutputRegister(digitalPinToPort(mosipin));
@@ -170,32 +184,40 @@ BusIO_PortMask *mosiPinMask = digitalPinToBitMask(mosipin);
 *mosiPort = *mosiPort | mosiPinMask;
 ```
 
-That will prove usefull to read measures from multiuple devices in parallel.
+This technique will be useful for reading measurements from multiple devices
+simultaneously.
 
-The frequency control looks minimal. It just sleeps according the the frequency
-period without taking into acount the operations taking time.
+However, the approach to frequency control appears quite basic. It simply sleeps
+according to the frequency period, without accounting for the time taken by
+operations.
 
-```
+```c++
 int bitdelay_us = (1000000 / _freq) / 2;
 delayMicroseconds(bitdelay_us);
 ```
 
-It setup the library to [bit bang](https://en.wikipedia.org/wiki/Bit_banging)
-the but by setting each pin:
+I configured the library to use
+[bit banging](https://en.wikipedia.org/wiki/Bit_banging) for the bus by
+specifying each pin:
 
 ```c++
  adc.begin(10, 12, 11, 13);
 ```
 
-Again this works on the first attempt.
+Remarkably, this setup worked perfectly on the first try.
+
+It runs at `65300 sps` (samples per second), which is half of the specified
+throughtput at 3.3 V.
+
+<a href="images\Screenshot 2024-01-27 221911.png"><img src="images\Screenshot 2024-01-27 221911.png" height="400" /></a>
 
 # Bit-banging first step
 
 _2024/01/21_
 
-The following source implements software SPI. It writes the content of `wbuf` to
-the but while reading the content or `rbuf`. It is inspired from Adafruit
-implementation.
+The source code below implements software SPI. It writes the content of `wbuf`
+to the bus while simultaneously reading into `rbuf`. This approach is inspired
+by Adafruit's implementation.
 
 ```c++
   template <unsigned int L>
@@ -219,7 +241,7 @@ implementation.
   }
 ```
 
-The ADC protocol uses 18 bus clock cycle to get a measure.
+The ADC protocol uses 17 bus clocks cycle to get a measure.
 
 <table>
   <tr>
@@ -294,26 +316,29 @@ The ADC protocol uses 18 bus clock cycle to get a measure.
   </tr>
 </table>
 
-This code runs at 11.48 ksps (87 μs/sample).
+Your analysis of the code's performance and potential improvements is
+insightful. Here's a slightly restructured version for enhanced clarity and
+conciseness:
 
-There is some headroom for improvement, as the
-[MCP3008 datasheet](datasheets\MCP3004-MCP3008-Data-Sheet-DS20001295.pdf)
-proposes 120 ksps at 3.3V.
+This code currently runs at `11.48 ksps`` (kilosamples per second), which
+translates to 87 μs (microseconds) per sample. However, there's room for
+improvement. According to the MCP3008 datasheet, it can achieve up to 130 ksps
+at 3.3V. Here are some potential optimization strategies:
 
-Here are the leads:
-
-- Firstly the most accurate delay function is `delayMicroseconds` which can only
-  implement an SPI buss of 500 KHz, wheras we need 2.16 MHz to achieve 120ksps
-- Then the current codes transmits 3 bytes (24 bit) per sample, wheras the
-  minimal is 18bits, which is 33% more than needed.
-- The delays do not take into account the latentency of the operation in between
-  the `delays` which comes on top of the delays.
-- Control the output using ports registers rahter than `digitalWrite`
-- There is fastpath implemented by Adafruit possible when the MOSI pin sends
-  consecutive identical values, that consist is bypassing the
+- The most accurate delay function available is delayMicroseconds, but it limits
+  the SPI bus to a maximum of 500 KHz. To reach the desired 120 ksps, a bus
+  speed of 2.16 MHz is required.
+- The current codes transmits 3 bytes (24 bit) per sample, wheras the minimal is
+  17 bits, which is 30% more than needed.
+- The existing delays don't account for the latency of operations between the
+  delays, which adds to the total delay time.
+- Using port registers to control output instead of digitalWrite could be more
+  efficient.
+- Adafruit has implemented a fast path for cases where the MOSI pin sends
+  consecutive identical values. This bypasses
   `digitalWrite(mosi_, (wbyte & bit) != 0)`. Surprisingly, this optimization
-  makes posible ot run at 12.65 ksp (79 μs per sample), which is a improvement
-  of 10%.
+  increases the rate to 12.65 ksps (79 μs per sample), an improvement of 10%,
+  which makes me think `digitalWrite` is very slow.
 
 # Precision counter on ATSAMD51J19A
 
@@ -321,10 +346,10 @@ _2023/01/21_
 
 `ATSAMD51J19A`
 [Arduino API implementation by Adafruit](https://github.com/adafruit/ArduinoCore-samd/blob/e2b78cbd3608fd5969d50c550a314db913a1a9e9/cores/arduino/delay.c#L64)
-uses a hardware cycle counter `CYCCNT` of the `Data Watchpoint and Trace`
-(a.k.a. DWT). This is exptemely precise has the processor clock runs at 120 MHz.
-The processor clock frequency chang be change, and the current value is given by
-`SystemCoreClock`.
+utilizes a hardware cycle counter `CYCCNT` of the `Data Watchpoint and Trace`
+(DWT). This method is extremely precise, as the processor clock operates at 120
+MHz. It's important to note that the processor clock frequency can be altered,
+and the current frequency is accessible through `SystemCoreCloc`k.
 
 ```c++
 void delayCycles(uint32_t count) {
@@ -333,20 +358,19 @@ void delayCycles(uint32_t count) {
   // delayCycles() function with the micro().
   constexpr uint32_t experimental_bias = 16;
   const uint32_t start = DWT->CYCCNT - experimental_bias;
-  while (1) {
-    // The DWT->CYCCNT register is a 32 bits counter that counts the
-    // number of cycles since the last reset. It is incremented every
-    // cycle. It wraps around every 2^32 cycles (~37 secs at 120MHz).
-    const uint32_t elapsed = DWT->CYCCNT - start;
-    if (elapsed >= count) return;
+  // The DWT->CYCCNT register is a 32 bits counter that counts the
+  // number of cycles since the last reset. It is incremented every
+  // cycle. It wraps around every 2^32 cycles (~37 secs at 120MHz).
+  while (DWT->CYCCNT - start < count) {
   }
 }
 ```
 
-Replacing `delayMicros()` with `delayCycles()` improves the sample rate to 23.7
-ksps (+87%).
+By replacing `delayMicros()` with `delayCycles()`, the sample rate has been
+significantly improved to 23.7 ksps, which is an increase of +87%.
 
-It seems that writing values to the port is time consuming.
+It seems that writing values to the port is time consuming. In a benchmark test
+using the following code:
 
 ```c++
 uint32_t start = micros();
@@ -363,10 +387,14 @@ Serial.print(1000000.0 / (end - start));
 Serial.println("MHz");
 ```
 
-This returns 0.70 MHz in `-Ofast` and .61 MHz in `-OSmall`. The low performance
-does not make possible to drive the bus at 2.16 MHz.
+The results indicate a cycle frequency of 0.70 MHz when compiled with the
+`-Ofast` optimization and 0.61 MHz with `-Os` (optimize for size). These
+performance levels are insufficient for driving the bus at the desired speed of
+2.16 MHz. However, controlling the GPIO directly via the port registers
+demonstrates a much faster performance.
 
-Controlling the the GPIO via the port is much faster.
+Direct control of the GPIO via port registers significantly boosts performance.
+Consider this code snippet:
 
 ```c++
 // Get port and mask from pin number.
@@ -378,27 +406,34 @@ for (int i = 0; i < 1000000; i++) {
 }
 ```
 
-This returns 13.31 MHz `-Ofast`, and without surprise 3.64 MHz for 4 register
-update.
+Running this code yields a frequency of 13.31 MHz when compiled with `-Ofast``.
+As expected, a lower frequency of 3.64 MHz is observed for four register
+updates.
 
-Replacing `digital*` with pad manimulation makes possible to reach 90.1 ksps.
+By replacing `digital*` functions with direct pad manipulation, the sample rate
+can be increased to an impressive 90.1 ksps. However, there's still room for
+further improvement to reach our target.
 
 # Optimize the IO manipulation further
 
 _2024/01/22_
 
-`*ioreg |= mask;` requires to read modify and write bakc the result. Because
-this is time consuming the `ATSAMD51J19A` comes with special register that set
-or clear pins when a bit mask is written to them.
+The operation `*ioreg |= mask;` involves reading, modifying, and then writing
+back the result, which can be time-consuming. To address this, the
+`ATSAMD51J19A` features specialized registers that allow for setting or clearing
+pins directly by writing a bitmask to them. This functionality significantly
+streamlines the process.
 
-I had to read the code to find the member names. Onw Windows it is located in
-`\Users\$USER\AppData\Local\Arduino15\packages\adafruit\tools\CMSIS-Atmel\1.2.2\CMSIS\Device\ATMEL\samd51\include\instance\port.h`
+To find the specific member names required, I had to delve into the code. On
+Windows, this can be located in the following path:
+`\Users\$USER\AppData\Local\Arduino15\packages\adafruit\tools\CMSIS-Atmel\1.2.2\CMSIS\Device\ATMEL\samd51\include\instance\port.h`.
+This file is part of the CMSIS (Cortex Microcontroller Software Interface
+Standard) package provided by Adafruit for the SAMD51 microcontroller.
 
-For reference:
+For reference, in terms of performance:
 
-`digitalWrite(13, HIGH)` takes 41 cycles
-
-`*ioreg |= 0x800000` takes 10 cycles
+- The function call digitalWrite(13, HIGH) consumes 41 cycles.
+- Direct register manipulation with \*ioreg |= 0x800000 takes only 10 cycles.
 
 Here is a verbose way to access `OUTSET`.
 
@@ -406,8 +441,10 @@ Here is a verbose way to access `OUTSET`.
 digitalPinToPort(13)->OUTSET.reg = digitalPinToBitMask(13);
 ```
 
-Runs in 8 cycles, which is slow because the `digital*` takes some time to
-execute. However they return a constant which can be cached.
+This operation runs in 8 cycles. While it's slower compared to direct register
+manipulation, this is mainly because the digital\* functions take additional
+time to execute. However, these functions return a constant value, which offers
+the possibility of caching for improved efficiency.
 
 ```c++
 auto port = digitalPinToPort(13); // Once for all.
@@ -415,24 +452,33 @@ auto port = digitalPinToPort(13); // Once for all.
 port->OUTSET.reg = 0x800000;
 ```
 
-Is much faster and runs in 3 cycles.
+This method is significantly faster, completing the operation in just 3 cycles.
 
 ```c++
 REG_PORT_OUTSET0 = 0x800000
 ```
 
-Is the most straight forward, and runs in 3 cycles, which is 3 times faster than
-writing to the IO REgister an 13 times faster than the `digitalWrite`! With this
-new way to control IO, the SPI bitbang reaches 105.96 ksps which is close to the
-ADC specificed limit of 120 ksps at 3.3V. But we are still not running at speed.
+This is the most straight forward, and it runs in 3 cycles, which is 3 times
+faster than writing to the IO Register an 13 times faster than the
+`digitalWrite`! . With this efficient method of controlling IO, the SPI bitbang
+speed now reaches 105.96 ksps, which is quite close to the MCP3008 ADC's
+specified limit of 120 ksps at 3.3V. However, we have yet to achieve the maximum
+possible speed.
 
-I should be able to squeze by avoinding writing and reading the don't care bits
-in the protocol, and by rewriting the throttler. Without throttler the bus runs
-at 186.96 ksps, and looks to return correct values.
+I should be able to squeze by rewriting the throttler. Without throttler the bus
+runs at 186.96 ksps, and looks to return correct values.
 
-[profiler code here](src\arduino\01_18_blink_sodr_test\01_18_blink_sodr_test.ino)
+Profiler code can be found
+[here](src\arduino\01_18_blink_sodr_test\01_18_blink_sodr_test.ino)
 
-# Optimizing further
+# Optimizing further data write
+
+_2024/01/23_
+
+For the `clock` or `CS`, the code involves either clearing or setting a bit. In
+contrast, the MOSI pin requires setting it to correspond with a specific bit of
+the data. Here are several methods for handling the MOSI pin, by increasing
+efficiency:
 
 ```c++
 *(mosi_value ? &REG_PORT_OUTSET0 : &REG_PORT_OUTCLR0) = mosi_mask_;
@@ -445,15 +491,88 @@ REG_PORT_OUT0 = (REG_PORT_OUT0 & ~mosi_mask_) | (mosi_value << mosi_shift_);
 // 3 cycles
 ```
 
-With this new we are stating to see the code requires to be throttled, otherwise
-the buss goes too fast for the MPC3008.
+With this new method, we're beginning to observe that the code needs to be
+throttled. Otherwise, the bus operates at a speed that exceeds the capabilities
+of the `MCP3008`.
 
-https://developer.arm.com/documentation/ddi0439/b/Programmers-Model/Bit-banding is not presetn
+For the record I also considered
+[bit-banding](https://developer.arm.com/documentation/ddi0439/b/Programmers-Model/Bit-banding),
+but the featue is not available on the `ATSAMD51J19A`
 
-Target is 130 KSPS = 
-1/130e3/18 = 4.27350427E-7 = 427 ns
+Target is 130 KSPS = 1/130e3/18 = 4.27350427E-7 = 427 ns
+
+# Precise timing
+
+Up until now, we've been handling time control with a simple busy loop. The
+catch is that this method isn't super precise because each cycle includes
+multiple instructions, and it can only wait for multiples of this cycle
+duration.
+
+To make things more accurate, we started using the `__NOP();` instruction. It's
+like a little pause button for the processor, letting it wait for just one
+cycle. But here's the kicker: getting the timing spot on with this method means
+doing some manual tuning. You have to measure the timing precisely, which can be
+a bit of a hassle.
+
+One way to do this measurement is by keeping an eye on `DWT->CYCCNT`. But
+remember, this approach can be a bit intrusive.
+
+I ordered
+[`AZ Delivey Logic Analyzer`](https://www.az-delivery.de/en/products/saleae-logic-analyzer).
+It is an innexpensive device able to capture the binary state of 8 channels at
+24 MHz, the data is then analyzed with
+[Salae Logic](https://www.saleae.com/downloads/).
+
+<a href="images\Screenshot 2024-01-27 230825.png"><img src="images\Screenshot 2024-01-27 230825.png" height="400" /></a>
+
+That is a delight to use, the software decodes and displays the SPI data as
+hexadecimal, and display precise cycle timings for the clock.
+
+<a href="images\Screenshot 2024-01-24 084300.png"><img src="images\Screenshot 2024-01-24 084300.png" /></a>
+
+After adding a few `__NOP();` instructions and dividing the unpacking of `MOSI`
+into two parts, one before and one after clearing the `CLK`:
+
+<a href="images\Screenshot 2024-01-24 085408.png"><img src="images\Screenshot 2024-01-24 085408.png" /></a>
+
+The target is `130 KSPS = 1/130e3/18 = 4.27350427E-7 = 427 ns` is reached. Yay!
+
+# Looking at the generated assembly
+
+I was able to identify the compiler used by enabeling `verbose compiler output`
+in `Arduino IDE` preferences:
+
+```
+$ Arduino15\packages\adafruit\tools\arm-none-eabi-gcc\9-2019q4/bin/arm-none-eabi-g++ --version
+arm-none-eabi-g++ (GNU Tools for Arm Embedded Processors 9-2019-q4-major) 9.2.1 20191025 (release) [ARM/arm-9-branch revision 277599]
+```
+
+Looking at https://godbolt.org/ with compiler `ARM gcc 9.2.1 (none)` with
+`-Ofast`.
+
+Here is a
+[decompiled code sample](https://godbolt.org/#z:OYLghAFBqd5QCxAYwPYBMCmBRdBLAF1QCcAaPECAMzwBtMA7AQwFtMQByARg9KtQYEAysib0QXACx8BBAKoBnTAAUAHpwAMvAFYTStJg1DIApACYAQuYukl9ZATwDKjdAGFUtAK4sGEgKykrgAyeAyYAHI%2BAEaYxBIaAGykAA6oCoRODB7evgGp6ZkCoeFRLLHxXEm2mPaOAkIETMQEOT5%2BXIF2mA5Zjc0EJZExcQnJCk0tbXmdtpODYcPlo1WJAJS2qF7EyOwc5gDMYcjeWADUJgduyBP4gpfYJhoAgofHp5gXV83ETACeDyerxeXjCBAOZgA%2BgQzvhgIQxMowgAVVAWQgAWSYCgA1hAwWcbmsTAB2KwvM6Us7ETAEbYMQkKC7%2BbBnLhmA6XcmvEkAESBoMEEOhsLw8KatCRDFR6OECDwVAI%2BMEjOJZKBVOptPpjOZrPZnIO3NJ/JeQPNHKwNHCZ0hkOeQgxmudLtdbs12JYQIIfxSmCtZwAbp4mI56K7BeCoTCAEqoGOYYBcqkAegAVGnLm4zgmmOgzgJaH8zhCALTRQha%2BETOJnCDBgxhz5oBgTM5eVti8L5sFrM5plPe33%2BzBUIMhpsRsHC2MAdwTSaNqYzWZzmDzpYA6sRCJ8yxWYTTqwRa/WJ3RPh2MsBu2de/3B2bLaPFrbIREAPLKCB991/912g6ToNqGF51uYZgMKgKQQcST4HFar4xtgADikLKB%2BMbIpCH5yMibjBDGGj/hAaYQDG86JpSaZrBoqiSFUGgABwaFIcjBH26aZlczJuNEO6jnWGFYX2vKhkwZwfl4BApNJZwAGpiF4nxuPQzRnMRA4WghL42shaHCdhuHIkI2DIsRf6keRlHANRtH0YxLFcEx7GcSuPEmP4fECWOECGaJ4mSdJskwop3ifEItIaQ%2B2mIXpqHoZh2EAJIRBZ/6UlZcYLnZdEMRozEaGYGiuWcXGrp53l4IJflJQFTRnMlDAhQpSmfJpj7Aq8z7WhFZmJVhkIWMlyJ%2BaQZwsNiOLjYGbW/s6lUarCqAXGSGXrRli0UlSZHmIk%2BkDUZeEETGhyHMoFyWEGc1fLyE1TcmW3PJSJpnLO8rhhAGhwV1J4sCkjafFmBIRICLwnNiTJCMoyXPMQvzFqS3JnCkO6zSeIBLYwPhnBiGBA2tyW8sE2CQsEH6buNRPYMEkIABLJShdOrfyRpLV4GRGGcyh5mFym3e207Rly5rbSmKZnIotao6ggZ4Fg%2BYtjQwDbKBAgAHTs2CTEiicOKQiL22RjrMIsIUBts9ttwgCAPz/FmxvQuNoMHKyLB4AoqAW8jguCCbjLe6Lz1lRLdPNOgs7NJ8k0pCkYTAJr208%2BgfPNgokKTbikLjXrGdTdnE3m5n%2BuG8H1u2/D9tXJGM7Ow8E0e17Cjyoq6elxqsnRLQeDIJjRtCyKCBiFQkJ%2BjuGCQsgfzIIH23Q7Dld/BAjswnr40r4XGTjeXdsAtX2tO2cLtu4368H6vCg/S6ICErQ%2BsQHrGyb3gkIQGbGRP%2B7nuv%2BXZuBpgb9G5rCfjcV%2BRJVo%2B0pOLM4zwFBKBaEyAgQ8YRiFoGcBQfpkAKmqvmOOrYzhRzvAyJBnwFCsE%2BGkFoidg6UlzsXSEAs4QIklCiNEmIpoPzvpCYklsaHPzzlnRhYpmFShlOw3Eb9zY8MgWcfgxA6wEjwALDQyYlGrhdhYO81hrB9iRktTUX8m4twIG3fw6JPJ3UuHdJhEpRFsLlAqJUhjPLmP8LyaR%2BiWaeNAfQoR4pESsNlFiCRoCPHbRNEHSkBIMgAC8AF9hbG2JGWo6TEAZIYyE6tYnxMenyJadpQwEB3NEaSmA7RQDEJHP46cwjd3CMAohdTPjBnlug2oPQlTRFQJ4a64VdFrVMthQyQ0RpfRzuneh40wBgFmn03JpoupRIYE08crSimGAUFQOID8BBthrtGN6JSqA512TCfZIpaAKGiJCA86ciDQl%2BK2d2BBSCeI2s6c5MI0zECOf0zRIdJZKHQQQdANsMGGAdgPF5R967vUYG895iKXTQKYLNOgTAu6YGoZqORCi/Yimbo4gWlzrm3OhF7dZTzKyljZMmQlioviPAOHdFRS56UEFLKWP5CLEkwi6T09%2BL9Zn8ysXWWcRzGX13ZboswiQNKqC4KXF0gzDojNGhocagqBH601ebYVmAwmLOdAdYZxlBnEVFXQ/O7dtqajtJ%2Bb8hqXT2q/D%2BJVzoXWOvdXa98rqnUet9V63hLpeW%2ByjCKMIAsTVJUhKlVlMilkwjUcyjS3qqS4ogKor42YIhlTOGYVR2jLDcttc6UN/K0EHgFsqSVrsG7f3ZaY1x7jLpyrooq4NrofleCoC4vAFjq3dt7WY/tbjs2ri4P07MB400vTyWaUtlJo2DWMidC1KarVZxtXwykGas3qMLZYHRECEW0NOWcCtF7KyiprYCOtGTG0GxHRYmVbaFWzqpEOvtA6b1fufWOrME6p1XoIB%2BiJpbwPB0gxE3h3pMD/UBtmq8XZ/REJhMfIEEM4G4zcMoA4BUmJwwRieueMMiNVzcMfdBcdIS71noszu3de5LQxLh/DzFyNLw3mvMN/tBXbxBTbXekL8XQqo4Y15i6/zccvgim%2BGCX50c4dNZ%2BmrT6qhPfOo1LT8yxHhAwH8EDqOKcXpkvTYQ3VLmg9tHTWo8wQB3ovET4axP9jOExeue19WXxI3wjN3Gh4MHCGg0V8bCSBeC9m9zyZkARdqEWiwJad3Gdo6ZrJ7SHAQCKcpaRFwpOhs%2BW9HcJ5lEKpYgVVa2YH5xZC1cCdZh/WagU6lhGmTKWbO2bOYrmBxpcBJONLzbUFAuNi4YSLaYYVuMa1SZrdH0t1GoGIJQ03d0kDrEwaSK0vNnBvt5pLbpAyttC6oA4VBe2ds1JBy7Wm50LJg8aF4rG8MEc41mfw9c8wz13hAKovWzCSeS0iqkeipNA5dGYLgAOwf/jMP9090OqSBHhwjs4yRkcI4AJxQ5R8Dvk2OcdsgOIaxzCNnO1zOP4NzHn73rgUNsTAw3YMvGiQARy8FHZUMIGA%2BH21ST7LX/jqxpPZtg2J6eyYuyknU3OWBuZl9uk0HANi0E4P4XgfgOBaFIKgTgbgEvoK2DsIGHIeCkAIJoJXGwcQgH8P4dWGhJBMQxxyRIJIMdJCSP1lXHBJDq4t9rzgvAFAgA1ebzXSvSBwFgEgNA/0LxkAoDsuP9B4jNBYM7yHNBaAnmIMHiA0R/cVmYMQP4nBTdF%2BaH8D80RtAdLL7wWPbBBAfmWaX8PpAsAlOAG4VBwfuC8CwJNIw4h2/4BpL0f%2BfeteYFUD0Up9fyCCFqP77u/FK8eCwP7opeAWD142FQAwwAFDyWqrOD8foNem/4IIEQYh2BSBkIIKWah/e6EhwYIwKAEv6DwNEYPkANhoJ6hWxOBSwPwqBsQCBeBZY4gdwsB/8fwag6gsgXAGB3BPB2g9AQhFgygKg9A0gMhgDpgOgChCCsghhcCVgkCOk%2Bh5hiC9BuhegGh5gKCRhKg5gBh6DIcJgBhWDlhKgNhPZthdgJBldVc/d28dcOAYEYwnRgBkBkAzgMd1YzB1YuA6woJ6k6xcBCA1tDhJ1eAw8tBgFSBrdJBJB1YMd/AqgSREgIQNAMcDhHCDhkhvdfdSANctcpCg8Q8zcLcTDvczAJCvDA8/Dw8TD/5c8UDJAgA%3D%3D).
+
+We can see there that:
+
+- `SPIArray::transfer` and `SPIArray::select` inlined.
+- The loops that unpack the measures are unrolled:
+  ```c++
+    for (; i < N / 2; i++) {
+      const bool bit = (in >> miso_shifts_[i]) & 0x1;
+      rbuf[i] = (rbuf[i] << 1) | bit;
+    }
+  ```
+
+It is tempting to make all the pin informations such as masks and shift part of
+the template argument to turn load instructions into immediates, but oveall the
+code is well optimized and run fast enough.
 
 # Related project / Further readings
+
+After touch, carton, pitchbend, pedal
+
+pio device monitor | tee
 
 - JS Application to learn the bandoneon layout
   https://github.com/nicokaiser/bandoneon
