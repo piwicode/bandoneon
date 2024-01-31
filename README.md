@@ -1,3 +1,9 @@
+# Bandoneon MIDI
+
+The goal of this DIY project is to build a
+[bandoneaon](https://en.wikipedia.org/wiki/Bandoneon) MIDI keyboard with
+velocity.
+
 # First steps with the microcontroler
 
 _2024/01/18_
@@ -568,14 +574,59 @@ It is tempting to make all the pin informations such as masks and shift part of
 the template argument to turn load instructions into immediates, but oveall the
 code is well optimized and run fast enough.
 
-# Related project / Further readings
+# Procesing samples
 
-After touch, carton, pitchbend, pedal
+_2024/01/28_
 
-pio device monitor | tee
+I recorded the following samples at 2 KHz.
+<a href="images\Screenshot 2024-01-31 201740.png"><img src="images\Screenshot 2024-01-31 201740.png" /></a>
+
+We can see that when it is pressed vigorously, the switch travels in 3.8 ms.
+Hence it is nice to be able to sustain a sample rate $>= 2 kHz$
+
+Notes are considered pressed and released on a different threshold to avoid
+repeated triggering. The velocity in $[1 .. 127]$ is compiled from a linear
+mapping of the discrete time serie $(x_i, t_i)$.
+
+When pressed slowly, the instant derivate
+$\dot x_i =\dfrac{ x_i - x_{i-1}}{t_i - t_{i-1}}$ is not accurate because of the
+combination of integer aliasing and high sample rated. Indeed, there can be
+multiple consecutive identical values. We don't necessarily want to keep
+previous sample in memory. To workaround this issue I filter the derivative with
+a geometrical decreasing weights based of factor $q$:
+
+$$
+\dot x_i = \begin{cases} \dot x_{-1}=0 & \text{for } i = 0 \\ ( 1 - q )\dot x_{i-1} + q  \dfrac{ x_i - x_{i-1}}{t_i - t_{i-1}} & \text{with } q \in [0, 1] \end{cases}
+$$
+
+- With $q = 1$ this is the instant derivate.
+
+- With $q < 1$ it takes into account the past samples by anoly accessing the
+  previous sample and the previous derivate.
+
+# Keyboard switches
+
+_2024/01/31_
+
+I plan to use Wooting 45 gf Hall keyboard switches, with 3d printed caps.
+
+<a href="images\Screenshot 2024-01-31 214452.png"><img src="images\Screenshot 2024-01-31 214452.png" /></a>
+
+# Related project
+
+- Inside a bandoneon [video 1](https://www.youtube.com/watch?v=u1KrLr4cBY0),
+  [2](https://www.youtube.com/watch?v=JJk-qPO4OpM)
+- Bandoneón MIDI [video](https://www.youtube.com/watch?v=HgcwFOrgt_w),
+  [site](https://hackaday.io/project/170753-bandomidi)
+- bandominedoni [video](https://www.youtube.com/watch?v=WzOsrSpjDgU),
+  [github](https://github.com/3araht/bandominedoni)
+- Bandonberry [github](https://github.com/jebentancour/Bandonberry)
+
+# Further readings
 
 - JS Application to learn the bandoneon layout
   https://github.com/nicokaiser/bandoneon
-- Lekker keyboard
-  [design note](https://wooting.io/post/validation-tests-lekker-update-8) and
+- [Hall effect keyboard listing](https://www.hlplanet.com/keyboards-hall-effect-switches)
+- Lekker keyboard [design note](https://
+  .io/post/validation-tests-lekker-update-8) and
   [teardown video](https://www.youtube.com/watch?v=LpKBC1tWXws).
