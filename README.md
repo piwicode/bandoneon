@@ -426,9 +426,10 @@ _2024/01/22_
 
 The operation `*ioreg |= mask;` involves reading, modifying, and then writing
 back the result, which can be time-consuming. To address this, the
-`ATSAMD51J19A` features specialized registers that allow for setting or clearing
-pins directly by writing a bitmask to them. This functionality significantly
-streamlines the process.
+[`ATSAMD51J19A`](datasheets\SAM-D5x-E5x-Family-Data-Sheet-DS60001507.pdf)
+features specialized registers that allow for setting or clearing pins directly
+by writing a bitmask to them. This functionality significantly streamlines the
+process.
 
 To find the specific member names required, I had to delve into the code. On
 Windows, this can be located in the following path:
@@ -503,7 +504,8 @@ of the `MCP3008`.
 
 For the record I also considered
 [bit-banding](https://developer.arm.com/documentation/ddi0439/b/Programmers-Model/Bit-banding),
-but the featue is not available on the `ATSAMD51J19A`
+but the featue is not available on the
+[`ATSAMD51J19A`](datasheets\SAM-D5x-E5x-Family-Data-Sheet-DS60001507.pdf).
 
 Target is 130 KSPS = 1/130e3/18 = 4.27350427E-7 = 427 ns
 
@@ -596,7 +598,7 @@ previous sample in memory. To workaround this issue I filter the derivative with
 a geometrical decreasing weights based of factor $q$:
 
 $$
-\dot x_i = \begin{cases} \dot x_{-1}=0 & \text{for } i = 0 \\ ( 1 - q )\dot x_{i-1} + q  \dfrac{ x_i - x_{i-1}}{t_i - t_{i-1}} & \text{with } q \in [0, 1] \end{cases}
+\dot x_i = \begin{cases} 0 & \text{for } i = -1 \\ ( 1 - q )\dot x_{i-1} + q  \dfrac{ x_i - x_{i-1}}{t_i - t_{i-1}} & \text{with } q \in [0, 1] \end{cases}
 $$
 
 - With $q = 1$ this is the instant derivate.
@@ -611,6 +613,25 @@ _2024/01/31_
 I plan to use Wooting 45 gf Hall keyboard switches, with 3d printed caps.
 
 <a href="images\Screenshot 2024-01-31 214452.png"><img src="images\Screenshot 2024-01-31 214452.png" /></a>
+
+# ADC source impedence
+
+The ADCs use a capacitor to sample the voltage and employ a dichotomy method to
+test various voltages in order to determine the measurement value. The input is
+characterised by a resistance and a capacity. The source impedence should be low
+enough for the capacity toy charge during the sampling period.
+
+- [`MCP3008`](datasheets\MCP3004-MCP3008-Data-Sheet-DS20001295.pdf) input
+  impedance 1 kΩ, capacity 20pf.
+- [`ATSAMD51J19A`](datasheets\SAM-D5x-E5x-Family-Data-Sheet-DS60001507.pdf)
+  input impedance 2kΩ, capacity 3pf
+
+  Texas instruments provides a technical document on
+  [ADC Source Impedance](https://www.ti.com/lit/an/spna061/spna061.pdf).
+
+# Resistive touch screent
+
+- Article [source](https://cdn-shop.adafruit.com/datasheets/AVR341.pdf)
 
 # Related project
 
