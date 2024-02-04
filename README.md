@@ -598,7 +598,9 @@ previous sample in memory. To workaround this issue I filter the derivative with
 a geometrical decreasing weights based of factor $q$:
 
 $$
-\dot x_i = \begin{cases} 0 & \text{for } i = -1 \\ ( 1 - q )\dot x_{i-1} + q  \dfrac{ x_i - x_{i-1}}{t_i - t_{i-1}} & \text{with } q \in [0, 1] \end{cases}
+\dot x_i = \begin{cases} 
+0 & \text{for } i = -1 \\
+( 1 - q )\dot x_{i-1} + q  \dfrac{ x_i - x_{i-1}}{t_i - t_{i-1}} & \text{with } q \in [0, 1] \end{cases}
 $$
 
 - With $q = 1$ this is the instant derivate.
