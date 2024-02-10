@@ -1,2 +1,4 @@
 boards/bandoneon/bandoneon-backups
 *.bak
+boards/bandoneon/#auto_saved_files#
+boards/bandoneon/*-backups
