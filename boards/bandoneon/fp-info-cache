@@ -1,4 +1,4 @@
-22644943020851441
+22644943896135496
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -62773,8 +62773,8 @@ Adafruit (512) Analog 2-axis Thumb Joystick with Select Button
 
 
 0
-2
-1
+15
+8
 Library
 Adafruit_Feather_M4_Express
 Footprint for the Adafruit Feather M0 Wifi board, https://learn.adafruit.com/adafruit-feather-m0-wifi-atwinc1500/

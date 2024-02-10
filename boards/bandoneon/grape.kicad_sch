@@ -438,7 +438,7 @@
   (symbol (lib_id "Library:SS39ET") (at 39.37 105.41 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 2a41f988-e0bc-4169-a500-de1d58afd676)
-    (property "Reference" "H7" (at 39.37 99.06 0)
+    (property "Reference" "H14" (at 39.37 99.06 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "~" (at 40.64 104.14 0)
@@ -455,32 +455,29 @@
     (pin "1" (uuid 2ab730d3-ae51-4f5a-8550-00288bb85791))
     (instances
       (project "bandoneon"
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/6c143dcb-6d9e-4b72-8b40-56f59ec6745c"
-          (reference "H7") (unit 1)
-        )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/281879d1-17d5-476a-8152-9052381f6dcd"
-          (reference "H15") (unit 1)
+          (reference "H14") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/c1331607-7beb-4328-8168-0ef2d7f0c3a8"
-          (reference "H23") (unit 1)
+          (reference "H22") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/37f02563-9dad-45dc-aef9-616762245c01"
-          (reference "H31") (unit 1)
+          (reference "H30") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/cbc0efbc-019d-423d-9c3b-01d851bb921b"
-          (reference "H39") (unit 1)
+          (reference "H38") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/e5cf261c-2dfa-405f-b40f-26adaf491a2b"
-          (reference "H47") (unit 1)
+          (reference "H46") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/0a8ae72f-05c4-432a-8f4c-17acfbc27e43"
-          (reference "H55") (unit 1)
+          (reference "H54") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/01fa17a4-91ce-4047-8069-8dd63b35a268"
-          (reference "H63") (unit 1)
+          (reference "H62") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/59d98d07-b4e7-4311-9e60-029d7a5b8da0"
-          (reference "H71") (unit 1)
+          (reference "H70") (unit 1)
         )
       )
     )
@@ -489,7 +486,7 @@
   (symbol (lib_id "Library:SS39ET") (at 39.37 54.61 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 2de9383e-5164-40d0-af19-68a1f8cbe8ea)
-    (property "Reference" "H3" (at 39.37 48.26 0)
+    (property "Reference" "H10" (at 39.37 48.26 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "~" (at 40.64 53.34 0)
@@ -506,32 +503,29 @@
     (pin "1" (uuid 44869995-e69f-42b5-b295-7ea78aad619d))
     (instances
       (project "bandoneon"
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/6c143dcb-6d9e-4b72-8b40-56f59ec6745c"
-          (reference "H3") (unit 1)
-        )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/281879d1-17d5-476a-8152-9052381f6dcd"
-          (reference "H11") (unit 1)
+          (reference "H10") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/c1331607-7beb-4328-8168-0ef2d7f0c3a8"
-          (reference "H19") (unit 1)
+          (reference "H18") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/37f02563-9dad-45dc-aef9-616762245c01"
-          (reference "H27") (unit 1)
+          (reference "H26") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/cbc0efbc-019d-423d-9c3b-01d851bb921b"
-          (reference "H35") (unit 1)
+          (reference "H34") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/e5cf261c-2dfa-405f-b40f-26adaf491a2b"
-          (reference "H43") (unit 1)
+          (reference "H42") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/0a8ae72f-05c4-432a-8f4c-17acfbc27e43"
-          (reference "H51") (unit 1)
+          (reference "H50") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/01fa17a4-91ce-4047-8069-8dd63b35a268"
-          (reference "H59") (unit 1)
+          (reference "H58") (unit 1)
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/59d98d07-b4e7-4311-9e60-029d7a5b8da0"
-          (reference "H67") (unit 1)
+          (reference "H66") (unit 1)
         )
       )
     )
@@ -540,7 +534,7 @@
   (symbol (lib_id "Analog_ADC:MCP3008") (at 87.63 67.31 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 4708017e-bda5-42fc-af74-e1267786030a)
-    (property "Reference" "U1" (at 94.9041 52.07 0)
+    (property "Reference" "U3" (at 94.9041 52.07 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
     (property "Value" "MCP3008" (at 94.9041 54.61 0)
@@ -570,32 +564,29 @@
     (pin "2" (uuid 5e8e02da-3e5d-4348-9652-c2b6dce4c509))
     (instances
       (project "bandoneon"
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/6c143dcb-6d9e-4b72-8b40-56f59ec6745c"
-          (reference "U1") (unit 1)
-        )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/281879d1-17d5-476a-8152-9052381f6dcd"
-          (reference "U2") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/c1331607-7beb-4328-8168-0ef2d7f0c3a8"
           (reference "U3") (unit 1)
         )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/37f02563-9dad-45dc-aef9-616762245c01"
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/c1331607-7beb-4328-8168-0ef2d7f0c3a8"
           (reference "U4") (unit 1)
         )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/cbc0efbc-019d-423d-9c3b-01d851bb921b"
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/37f02563-9dad-45dc-aef9-616762245c01"
           (reference "U5") (unit 1)
         )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/e5cf261c-2dfa-405f-b40f-26adaf491a2b"
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/cbc0efbc-019d-423d-9c3b-01d851bb921b"
           (reference "U6") (unit 1)
         )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/0a8ae72f-05c4-432a-8f4c-17acfbc27e43"
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/e5cf261c-2dfa-405f-b40f-26adaf491a2b"
           (reference "U7") (unit 1)
         )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/01fa17a4-91ce-4047-8069-8dd63b35a268"
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/0a8ae72f-05c4-432a-8f4c-17acfbc27e43"
           (reference "U8") (unit 1)
         )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/59d98d07-b4e7-4311-9e60-029d7a5b8da0"
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/01fa17a4-91ce-4047-8069-8dd63b35a268"
           (reference "U9") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/59d98d07-b4e7-4311-9e60-029d7a5b8da0"
+          (reference "U10") (unit 1)
         )
       )
     )
@@ -604,7 +595,7 @@
   (symbol (lib_id "Library:SS39ET") (at 39.37 41.91 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 50192057-c4ea-4d94-9020-cf6f5a70a30a)
-    (property "Reference" "H2" (at 39.37 35.56 0)
+    (property "Reference" "H9" (at 39.37 35.56 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "~" (at 40.64 40.64 0)
@@ -621,60 +612,6 @@
     (pin "1" (uuid 26d78fda-f527-4e0d-9c7e-24c58a422578))
     (instances
       (project "bandoneon"
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/6c143dcb-6d9e-4b72-8b40-56f59ec6745c"
-          (reference "H2") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/281879d1-17d5-476a-8152-9052381f6dcd"
-          (reference "H10") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/c1331607-7beb-4328-8168-0ef2d7f0c3a8"
-          (reference "H18") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/37f02563-9dad-45dc-aef9-616762245c01"
-          (reference "H26") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/cbc0efbc-019d-423d-9c3b-01d851bb921b"
-          (reference "H34") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/e5cf261c-2dfa-405f-b40f-26adaf491a2b"
-          (reference "H42") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/0a8ae72f-05c4-432a-8f4c-17acfbc27e43"
-          (reference "H50") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/01fa17a4-91ce-4047-8069-8dd63b35a268"
-          (reference "H58") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/59d98d07-b4e7-4311-9e60-029d7a5b8da0"
-          (reference "H66") (unit 1)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "Library:SS39ET") (at 39.37 29.21 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid 70e37a73-ae87-441a-96ce-130c62a41bfb)
-    (property "Reference" "H1" (at 39.37 22.86 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Value" "~" (at 40.64 27.94 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "Library:SS39ET" (at 40.64 27.94 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (at 40.64 27.94 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "2" (uuid 985282aa-36a7-4c50-bcc2-f353247ee615))
-    (pin "3" (uuid 608d1f02-81e5-405d-84a6-2503fc5d20c0))
-    (pin "1" (uuid 24fd5005-e08a-4b83-81ae-5f7507d41ab2))
-    (instances
-      (project "bandoneon"
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/6c143dcb-6d9e-4b72-8b40-56f59ec6745c"
-          (reference "H1") (unit 1)
-        )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/281879d1-17d5-476a-8152-9052381f6dcd"
           (reference "H9") (unit 1)
         )
@@ -703,10 +640,58 @@
     )
   )
 
+  (symbol (lib_id "Library:SS39ET") (at 39.37 29.21 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid 70e37a73-ae87-441a-96ce-130c62a41bfb)
+    (property "Reference" "H8" (at 39.37 22.86 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "~" (at 40.64 27.94 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "Library:SS39ET" (at 40.64 27.94 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 40.64 27.94 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "2" (uuid 985282aa-36a7-4c50-bcc2-f353247ee615))
+    (pin "3" (uuid 608d1f02-81e5-405d-84a6-2503fc5d20c0))
+    (pin "1" (uuid 24fd5005-e08a-4b83-81ae-5f7507d41ab2))
+    (instances
+      (project "bandoneon"
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/281879d1-17d5-476a-8152-9052381f6dcd"
+          (reference "H8") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/c1331607-7beb-4328-8168-0ef2d7f0c3a8"
+          (reference "H16") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/37f02563-9dad-45dc-aef9-616762245c01"
+          (reference "H24") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/cbc0efbc-019d-423d-9c3b-01d851bb921b"
+          (reference "H32") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/e5cf261c-2dfa-405f-b40f-26adaf491a2b"
+          (reference "H40") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/0a8ae72f-05c4-432a-8f4c-17acfbc27e43"
+          (reference "H48") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/01fa17a4-91ce-4047-8069-8dd63b35a268"
+          (reference "H56") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/59d98d07-b4e7-4311-9e60-029d7a5b8da0"
+          (reference "H64") (unit 1)
+        )
+      )
+    )
+  )
+
   (symbol (lib_id "Library:SS39ET") (at 39.37 92.71 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 7c7ba173-14d1-4998-b039-4dccf03d9917)
-    (property "Reference" "H6" (at 39.37 86.36 0)
+    (property "Reference" "H13" (at 39.37 86.36 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "~" (at 40.64 91.44 0)
@@ -723,111 +708,6 @@
     (pin "1" (uuid ea4efb3b-8669-4775-82f1-04eb8ccf16ff))
     (instances
       (project "bandoneon"
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/6c143dcb-6d9e-4b72-8b40-56f59ec6745c"
-          (reference "H6") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/281879d1-17d5-476a-8152-9052381f6dcd"
-          (reference "H14") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/c1331607-7beb-4328-8168-0ef2d7f0c3a8"
-          (reference "H22") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/37f02563-9dad-45dc-aef9-616762245c01"
-          (reference "H30") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/cbc0efbc-019d-423d-9c3b-01d851bb921b"
-          (reference "H38") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/e5cf261c-2dfa-405f-b40f-26adaf491a2b"
-          (reference "H46") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/0a8ae72f-05c4-432a-8f4c-17acfbc27e43"
-          (reference "H54") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/01fa17a4-91ce-4047-8069-8dd63b35a268"
-          (reference "H62") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/59d98d07-b4e7-4311-9e60-029d7a5b8da0"
-          (reference "H70") (unit 1)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "Library:SS39ET") (at 39.37 118.11 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid 9f15fdac-903f-4c51-b593-e63ee5582a0c)
-    (property "Reference" "H8" (at 39.37 111.76 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Value" "~" (at 40.64 116.84 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "Library:SS39ET" (at 40.64 116.84 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (at 40.64 116.84 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "2" (uuid a668f946-23f9-4522-bcba-83226cfbbd70))
-    (pin "3" (uuid 38a0bc9b-d883-4fc1-8c95-e605672b6e90))
-    (pin "1" (uuid 639adb17-d805-4a5e-83aa-5971c1513997))
-    (instances
-      (project "bandoneon"
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/6c143dcb-6d9e-4b72-8b40-56f59ec6745c"
-          (reference "H8") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/281879d1-17d5-476a-8152-9052381f6dcd"
-          (reference "H16") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/c1331607-7beb-4328-8168-0ef2d7f0c3a8"
-          (reference "H24") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/37f02563-9dad-45dc-aef9-616762245c01"
-          (reference "H32") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/cbc0efbc-019d-423d-9c3b-01d851bb921b"
-          (reference "H40") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/e5cf261c-2dfa-405f-b40f-26adaf491a2b"
-          (reference "H48") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/0a8ae72f-05c4-432a-8f4c-17acfbc27e43"
-          (reference "H56") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/01fa17a4-91ce-4047-8069-8dd63b35a268"
-          (reference "H64") (unit 1)
-        )
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/59d98d07-b4e7-4311-9e60-029d7a5b8da0"
-          (reference "H72") (unit 1)
-        )
-      )
-    )
-  )
-
-  (symbol (lib_id "Library:SS39ET") (at 39.37 80.01 0) (unit 1)
-    (in_bom yes) (on_board yes) (dnp no)
-    (uuid e5886362-8483-445e-b678-2962be4174f1)
-    (property "Reference" "H5" (at 39.37 73.66 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Value" "~" (at 40.64 78.74 0)
-      (effects (font (size 1.27 1.27)))
-    )
-    (property "Footprint" "Library:SS39ET" (at 40.64 78.74 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (property "Datasheet" "" (at 40.64 78.74 0)
-      (effects (font (size 1.27 1.27)) hide)
-    )
-    (pin "2" (uuid 0adb8b7f-cbe8-4f48-acc2-e7f27344d36b))
-    (pin "3" (uuid e4e7702e-7c56-423a-a54e-881efa12828f))
-    (pin "1" (uuid d94721f5-16e9-44c1-a22b-dad811d193b0))
-    (instances
-      (project "bandoneon"
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/6c143dcb-6d9e-4b72-8b40-56f59ec6745c"
-          (reference "H5") (unit 1)
-        )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/281879d1-17d5-476a-8152-9052381f6dcd"
           (reference "H13") (unit 1)
         )
@@ -856,29 +736,74 @@
     )
   )
 
-  (symbol (lib_id "Library:SS39ET") (at 39.37 67.31 0) (unit 1)
+  (symbol (lib_id "Library:SS39ET") (at 39.37 118.11 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
-    (uuid f28c8366-f79f-441e-9ff3-1cf50c7f34c6)
-    (property "Reference" "H4" (at 39.37 60.96 0)
+    (uuid 9f15fdac-903f-4c51-b593-e63ee5582a0c)
+    (property "Reference" "H15" (at 39.37 111.76 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Value" "~" (at 40.64 66.04 0)
+    (property "Value" "~" (at 40.64 116.84 0)
       (effects (font (size 1.27 1.27)))
     )
-    (property "Footprint" "Library:SS39ET" (at 40.64 66.04 0)
+    (property "Footprint" "Library:SS39ET" (at 40.64 116.84 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (property "Datasheet" "" (at 40.64 66.04 0)
+    (property "Datasheet" "" (at 40.64 116.84 0)
       (effects (font (size 1.27 1.27)) hide)
     )
-    (pin "2" (uuid 02fe21a8-c2d3-47e8-a8fb-836986d784c4))
-    (pin "3" (uuid 16b6ba71-288a-4b83-9f28-2f2c26480312))
-    (pin "1" (uuid 15813f49-6f12-4bf4-af95-ac8ed80df3e8))
+    (pin "2" (uuid a668f946-23f9-4522-bcba-83226cfbbd70))
+    (pin "3" (uuid 38a0bc9b-d883-4fc1-8c95-e605672b6e90))
+    (pin "1" (uuid 639adb17-d805-4a5e-83aa-5971c1513997))
     (instances
       (project "bandoneon"
-        (path "/3628cda3-bad1-4014-a851-91434ca52087/6c143dcb-6d9e-4b72-8b40-56f59ec6745c"
-          (reference "H4") (unit 1)
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/281879d1-17d5-476a-8152-9052381f6dcd"
+          (reference "H15") (unit 1)
         )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/c1331607-7beb-4328-8168-0ef2d7f0c3a8"
+          (reference "H23") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/37f02563-9dad-45dc-aef9-616762245c01"
+          (reference "H31") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/cbc0efbc-019d-423d-9c3b-01d851bb921b"
+          (reference "H39") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/e5cf261c-2dfa-405f-b40f-26adaf491a2b"
+          (reference "H47") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/0a8ae72f-05c4-432a-8f4c-17acfbc27e43"
+          (reference "H55") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/01fa17a4-91ce-4047-8069-8dd63b35a268"
+          (reference "H63") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/59d98d07-b4e7-4311-9e60-029d7a5b8da0"
+          (reference "H71") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_id "Library:SS39ET") (at 39.37 80.01 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid e5886362-8483-445e-b678-2962be4174f1)
+    (property "Reference" "H12" (at 39.37 73.66 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "~" (at 40.64 78.74 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "Library:SS39ET" (at 40.64 78.74 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 40.64 78.74 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "2" (uuid 0adb8b7f-cbe8-4f48-acc2-e7f27344d36b))
+    (pin "3" (uuid e4e7702e-7c56-423a-a54e-881efa12828f))
+    (pin "1" (uuid d94721f5-16e9-44c1-a22b-dad811d193b0))
+    (instances
+      (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087/281879d1-17d5-476a-8152-9052381f6dcd"
           (reference "H12") (unit 1)
         )
@@ -902,6 +827,54 @@
         )
         (path "/3628cda3-bad1-4014-a851-91434ca52087/59d98d07-b4e7-4311-9e60-029d7a5b8da0"
           (reference "H68") (unit 1)
+        )
+      )
+    )
+  )
+
+  (symbol (lib_id "Library:SS39ET") (at 39.37 67.31 0) (unit 1)
+    (in_bom yes) (on_board yes) (dnp no)
+    (uuid f28c8366-f79f-441e-9ff3-1cf50c7f34c6)
+    (property "Reference" "H11" (at 39.37 60.96 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Value" "~" (at 40.64 66.04 0)
+      (effects (font (size 1.27 1.27)))
+    )
+    (property "Footprint" "Library:SS39ET" (at 40.64 66.04 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (property "Datasheet" "" (at 40.64 66.04 0)
+      (effects (font (size 1.27 1.27)) hide)
+    )
+    (pin "2" (uuid 02fe21a8-c2d3-47e8-a8fb-836986d784c4))
+    (pin "3" (uuid 16b6ba71-288a-4b83-9f28-2f2c26480312))
+    (pin "1" (uuid 15813f49-6f12-4bf4-af95-ac8ed80df3e8))
+    (instances
+      (project "bandoneon"
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/281879d1-17d5-476a-8152-9052381f6dcd"
+          (reference "H11") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/c1331607-7beb-4328-8168-0ef2d7f0c3a8"
+          (reference "H19") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/37f02563-9dad-45dc-aef9-616762245c01"
+          (reference "H27") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/cbc0efbc-019d-423d-9c3b-01d851bb921b"
+          (reference "H35") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/e5cf261c-2dfa-405f-b40f-26adaf491a2b"
+          (reference "H43") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/0a8ae72f-05c4-432a-8f4c-17acfbc27e43"
+          (reference "H51") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/01fa17a4-91ce-4047-8069-8dd63b35a268"
+          (reference "H59") (unit 1)
+        )
+        (path "/3628cda3-bad1-4014-a851-91434ca52087/59d98d07-b4e7-4311-9e60-029d7a5b8da0"
+          (reference "H67") (unit 1)
         )
       )
     )
