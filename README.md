@@ -615,7 +615,7 @@ _2024/01/31_
 I plan to use [Wooting 60 gf](https://wooting.io/product/lekker-switch-linear60)
 Hall keyboard switches, with 3d printed caps.
 
-<a href="images\Screenshot 2024-01-31 214452.png"><img src="images\Screenshot 2024-01-31 214452.png" /></a>
+<a href="images\Screenshot 2024-02-16 225720.png"><img src="images\Screenshot 2024-02-16 225720.png"  height="300"/></a>
 
 # ADC source impedence
 
@@ -659,7 +659,7 @@ resulted in many learning:
   larger that the previous print with the same inner inner. I should reduce the
   inner diameter to $4.1mm$.
 - Assuming I stick to the .4 header, I should try a thicker sleeve by increasing
-  the outer diameter from $5.6mm$ to $4.1+.04*2*2 = 5.7mm$
+  the outer diameter from $5.6mm$ to $4.1+.04 * 2 * 2 = 5.7mm$
 - The sleve is slightly too short and should be extended by $.1mm$
 - It is unconvenient to remove the brims, and I should switch to skirts.
 
@@ -674,6 +674,11 @@ resulted in many learning:
 
 <a href="images\Screenshot 2024-02-16 190442.png"><img src="images\Screenshot 2024-02-16 190442.png" height="180"/></a>
 <a href="images\Screenshot 2024-02-16 190515.png"><img src="images\Screenshot 2024-02-16 190515.png" height="180"/></a>
+
+The new button has a long sleeve of $6mm$ which is $.04mm$ more than the measure
+from the surface of the keyboard and the pressed pushbutton.
+
+<a href="images\Screenshot 2024-02-16 230251.png"><img src="images\Screenshot 2024-02-16 230251.png" height="300"/></a>
 
 # Resistive touch screen
 
