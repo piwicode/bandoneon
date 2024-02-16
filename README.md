@@ -598,7 +598,7 @@ previous sample in memory. To workaround this issue I filter the derivative with
 a geometrical decreasing weights based of factor $q$:
 
 $$
-\dot x_i = \begin{cases} 
+\dot x_i = \begin{cases}
 0 & \text{for } i = -1 \\
 ( 1 - q )\dot x_{i-1} + q  \dfrac{ x_i - x_{i-1}}{t_i - t_{i-1}} & \text{with } q \in [0, 1] \end{cases}
 $$
@@ -612,7 +612,8 @@ $$
 
 _2024/01/31_
 
-I plan to use Wooting 45 gf Hall keyboard switches, with 3d printed caps.
+I plan to use [Wooting 60 gf](https://wooting.io/product/lekker-switch-linear60)
+Hall keyboard switches, with 3d printed caps.
 
 <a href="images\Screenshot 2024-01-31 214452.png"><img src="images\Screenshot 2024-01-31 214452.png" /></a>
 
@@ -621,19 +622,74 @@ I plan to use Wooting 45 gf Hall keyboard switches, with 3d printed caps.
 The ADCs use a capacitor to sample the voltage and employ a dichotomy method to
 test various voltages in order to determine the measurement value. The input is
 characterised by a resistance and a capacity. The source impedence should be low
-enough for the capacity toy charge during the sampling period.
+enough for the capacity to charge during the sampling period.
 
 - [`MCP3008`](datasheets\MCP3004-MCP3008-Data-Sheet-DS20001295.pdf) input
   impedance 1 kΩ, capacity 20pf.
 - [`ATSAMD51J19A`](datasheets\SAM-D5x-E5x-Family-Data-Sheet-DS60001507.pdf)
   input impedance 2kΩ, capacity 3pf
 
-  Texas instruments provides a technical document on
-  [ADC Source Impedance](https://www.ti.com/lit/an/spna061/spna061.pdf).
+Texas instruments provides a technical document on
+[ADC Source Impedance](https://www.ti.com/lit/an/spna061/spna061.pdf).
 
-# Resistive touch screent
+It shows what the input in voltage would look like if the source impedence is to
+high.
+
+<a href="images\Screenshot 2024-02-16 172553.png"><img src="images\Screenshot 2024-02-16 172553.png" height="250" /></a>
+
+# First pinted assembly attempts
+
+I printed caps with inner diameter of $4.2mm$ and $4.5mm$ on an Ultimaker MK3
+Extended with AA 0.4 headers and transparent PLA. The fist dimension resulted in
+a nice and tight adjustment, and the second was too lose.
+
+As second attempt to print a batch of 12 caps with inner diameter of $4.2mm$
+resulted in many learning:
+
+<a href="images\Screenshot 2024-02-16 174339.png"><img src="images\Screenshot 2024-02-16 174339.png" height="200"/></a>
+
+- When printed in batch the seams are not very clean. Stop using batch or ensure
+  cura
+  [print them one at a time](https://all3dp.com/2/cura-print-one-at-a-time-explained/)
+  which will require the part to be smaller than the gantry height ($60mm$) and
+  to set the number of extruders to 1 in the printers's settings. I should be
+  able to print 9 caps per batch.
+- This time the adjustement with the switch is too lose. This is confirmed by
+  measurement with a caliper, the outer diameter of $5.6mm$, which is $.1mm$
+  larger that the previous print with the same inner inner. I should reduce the
+  inner diameter to $4.1mm$.
+- Assuming I stick to the .4 header, I should try a thicker sleeve by increasing
+  the outer diameter from $5.6mm$ to $4.1+.04*2*2 = 5.7mm$
+- The sleve is slightly too short and should be extended by $.1mm$
+- It is unconvenient to remove the brims, and I should switch to skirts.
+
+<a href="images\Screenshot from 2024-02-16 18-17-40.png"><img src="images\Screenshot from 2024-02-16 18-17-40.png" height="180"/></a>
+→
+<a href="images\Screenshot from 2024-02-16 18-17-31.png"><img src="images\Screenshot from 2024-02-16 18-17-31.png" height="180"/></a>
+
+- The triangular infill looks like a radioactive symbol «☢» and Line, Concentric
+  or Gyroid should be prefered.
+- Once assembled the caps elevates at $11mm$, versus $9mm$ to $10mm$ for the
+  original instrument.
+
+<a href="images\Screenshot 2024-02-16 190442.png"><img src="images\Screenshot 2024-02-16 190442.png" height="180"/></a>
+<a href="images\Screenshot 2024-02-16 190515.png"><img src="images\Screenshot 2024-02-16 190515.png" height="180"/></a>
+
+# Resistive touch screen
 
 - Article [source](https://cdn-shop.adafruit.com/datasheets/AVR341.pdf)
+
+Pins are X- Y+ X+ Y- https://www.adafruit.com/product/3575
+
+[Datasheet](datasheets\P333+datasheet+TP035W4L2.pdf)
+
+# Expression pedals
+
+https://line6.com/support/topic/23057-why-is-an-m-audio-ex-p-expression-pedal-incompatible/
+
+# PCB
+
+Shift+S
 
 # Related project
 
