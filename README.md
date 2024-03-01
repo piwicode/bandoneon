@@ -656,7 +656,7 @@ resulted in many learning:
   able to print 9 caps per batch.
 - This time the adjustement with the switch is too lose. This is confirmed by
   measurement with a caliper, the outer diameter of $5.6mm$, which is $.1mm$
-  larger that the previous print with the same inner inner. I should reduce the
+  larger than the previous print with the same inner inner. I should reduce the
   inner diameter to $4.1mm$.
 - Assuming I stick to the .4 header, I should try a thicker sleeve by increasing
   the outer diameter from $5.6mm$ to $4.1+.04 * 2 * 2 = 5.7mm$
@@ -679,6 +679,11 @@ The new button has a long sleeve of $6mm$ which is $.04mm$ more than the measure
 from the surface of the keyboard and the pressed pushbutton.
 
 <a href="images\Screenshot 2024-02-16 230251.png"><img src="images\Screenshot 2024-02-16 230251.png" height="300"/></a>
+
+# New prototype
+
+- The new caps are to tight. Try an inner diameter of $4.15mm$
+- They are also too tall. Set the total height to $11mm$
 
 # Resistive touch screen
 
