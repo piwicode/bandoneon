@@ -1,4 +1,4 @@
-22644944850457364
+22646655819497776
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -62782,6 +62782,13 @@ Adafruit Feather M0 Wifi
 0
 28
 28
+Library
+Jack TRS
+
+
+0
+3
+3
 Library
 MCP3008T-I_SL
 SOIC, 16 Pin (JEDEC MS-012AC, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_16.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py

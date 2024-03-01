@@ -682,8 +682,21 @@ from the surface of the keyboard and the pressed pushbutton.
 
 # New prototype
 
-- The new caps are to tight. Try an inner diameter of $4.15mm$
-- They are also too tall. Set the total height to $11mm$
+<a href="images\Screenshot 2024-03-01 095530.png"><img src="images\Screenshot 2024-03-01 095530.png" height="300"/></a>
+<a href="images\Screenshot 2024-03-01 095839.pnh"><img src="images\Screenshot 2024-03-01 095839.pnh" height="300"/></a>
+
+- Caps:
+  - The new caps are to tight. Try an inner diameter of $4.15mm$
+  - They are also too tall. Set the total height to $11mm$
+- Joystick:
+  - It is well adjusted but offcentered bt 1mm South-East
+  - It is 1cm too far from the handle
+- Touches holes
+  - The switches are still moving because the carter is a bit flexible. I need
+    to add a stifener web to the top.
+  - When applying pressure holes above $⌀7.5$ are large engough to avoid
+    contact. Every hole below $⌀7$ and uncomfortable. $⌀8$ should be a good
+    compromise.
 
 # Resistive touch screen
 
