@@ -1122,7 +1122,7 @@
   (symbol (lib_id "Connector:Conn_01x03_Socket") (at 63.5 101.6 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 0cc18ded-5d1d-4d49-aa34-fbe88b364d7a)
-    (property "Reference" "J3" (at 64.77 92.71 0)
+    (property "Reference" "J6" (at 64.77 92.71 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "JST XH-3A" (at 63.5 95.25 0)
@@ -1140,7 +1140,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "J3") (unit 1)
+          (reference "J6") (unit 1)
         )
       )
     )
@@ -1149,7 +1149,7 @@
   (symbol (lib_id "power:GND") (at 240.03 95.25 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 0ff92b3f-d989-40b8-8d1d-a9322505e08c)
-    (property "Reference" "#PWR021" (at 246.38 95.25 0)
+    (property "Reference" "#PWR024" (at 246.38 95.25 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 243.84 95.25 90)
@@ -1165,7 +1165,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR021") (unit 1)
+          (reference "#PWR024") (unit 1)
         )
       )
     )
@@ -1199,7 +1199,7 @@
   (symbol (lib_id "power:GND") (at 240.03 111.76 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 1eabeacf-da8a-4f53-88f6-f12e09ac587d)
-    (property "Reference" "#PWR023" (at 246.38 111.76 0)
+    (property "Reference" "#PWR026" (at 246.38 111.76 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 243.84 111.76 90)
@@ -1215,7 +1215,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR023") (unit 1)
+          (reference "#PWR026") (unit 1)
         )
       )
     )
@@ -1224,7 +1224,7 @@
   (symbol (lib_id "Connector_Audio:AudioJack3") (at 53.34 67.31 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 2132d761-72f6-4a3e-ac48-4cd5a8d1025f)
-    (property "Reference" "J2" (at 51.435 58.42 0)
+    (property "Reference" "J5" (at 51.435 58.42 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "AudioJack3" (at 51.435 60.96 0)
@@ -1242,7 +1242,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "J2") (unit 1)
+          (reference "J5") (unit 1)
         )
       )
     )
@@ -1251,7 +1251,7 @@
   (symbol (lib_id "power:GND") (at 240.03 45.72 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 27b36a22-836c-41c0-80f0-46155f7e1736)
-    (property "Reference" "#PWR015" (at 246.38 45.72 0)
+    (property "Reference" "#PWR018" (at 246.38 45.72 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 243.84 45.72 90)
@@ -1267,7 +1267,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR015") (unit 1)
+          (reference "#PWR018") (unit 1)
         )
       )
     )
@@ -1276,7 +1276,7 @@
   (symbol (lib_id "Connector:Conn_01x03_Socket") (at 52.07 134.62 0) (mirror x) (unit 1)
     (in_bom yes) (on_board no) (dnp no)
     (uuid 28500dae-06f7-4d55-a495-502c2e188c2a)
-    (property "Reference" "J8" (at 50.8 125.73 0)
+    (property "Reference" "J3" (at 50.8 125.73 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "JST XH-3A" (at 52.07 128.27 0)
@@ -1294,7 +1294,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "J8") (unit 1)
+          (reference "J3") (unit 1)
         )
       )
     )
@@ -1328,7 +1328,7 @@
   (symbol (lib_id "power:+3.3V") (at 118.11 96.52 90) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 2d6a342b-02f2-4af3-9299-aef04d720089)
-    (property "Reference" "#PWR06" (at 121.92 96.52 0)
+    (property "Reference" "#PWR09" (at 121.92 96.52 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 114.3 96.52 90)
@@ -1344,7 +1344,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR06") (unit 1)
+          (reference "#PWR09") (unit 1)
         )
       )
     )
@@ -1353,7 +1353,7 @@
   (symbol (lib_id "power:GND") (at 118.11 132.08 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 32bea2c7-4553-4723-bd9e-0caed5562436)
-    (property "Reference" "#PWR011" (at 111.76 132.08 0)
+    (property "Reference" "#PWR014" (at 111.76 132.08 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 114.3 132.08 90)
@@ -1369,7 +1369,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR011") (unit 1)
+          (reference "#PWR014") (unit 1)
         )
       )
     )
@@ -1378,7 +1378,7 @@
   (symbol (lib_id "Device:R_Potentiometer") (at 40.64 101.6 0) (unit 1)
     (in_bom yes) (on_board no) (dnp no) (fields_autoplaced)
     (uuid 34e7508c-5b78-4ccb-9471-b3ad109d0845)
-    (property "Reference" "RV4" (at 38.1 100.33 0)
+    (property "Reference" "RV1" (at 38.1 100.33 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "R_Potentiometer" (at 38.1 102.87 0)
@@ -1396,7 +1396,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "RV4") (unit 1)
+          (reference "RV1") (unit 1)
         )
       )
     )
@@ -1405,7 +1405,7 @@
   (symbol (lib_id "power:GND") (at 118.11 99.06 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 3fabe349-fcf1-4f95-8be0-57b760325f85)
-    (property "Reference" "#PWR07" (at 111.76 99.06 0)
+    (property "Reference" "#PWR010" (at 111.76 99.06 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 114.3 99.06 90)
@@ -1421,7 +1421,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR07") (unit 1)
+          (reference "#PWR010") (unit 1)
         )
       )
     )
@@ -1430,7 +1430,7 @@
   (symbol (lib_id "power:GND") (at 240.03 128.27 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 42a6b260-ef66-4ef1-ab4b-d8e852723196)
-    (property "Reference" "#PWR025" (at 246.38 128.27 0)
+    (property "Reference" "#PWR028" (at 246.38 128.27 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 243.84 128.27 90)
@@ -1446,7 +1446,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR025") (unit 1)
+          (reference "#PWR028") (unit 1)
         )
       )
     )
@@ -1455,7 +1455,7 @@
   (symbol (lib_id "power:GND") (at 163.83 78.74 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 4c1c1f54-5076-4176-9b77-8042a756f880)
-    (property "Reference" "#PWR013" (at 157.48 78.74 0)
+    (property "Reference" "#PWR016" (at 157.48 78.74 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 160.02 78.74 90)
@@ -1471,7 +1471,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR013") (unit 1)
+          (reference "#PWR016") (unit 1)
         )
       )
     )
@@ -1480,7 +1480,7 @@
   (symbol (lib_id "Connector:Conn_01x03_Socket") (at 52.07 101.6 0) (mirror x) (unit 1)
     (in_bom yes) (on_board no) (dnp no)
     (uuid 51201468-0bdd-4482-ac7f-6e86e744a903)
-    (property "Reference" "J6" (at 50.8 92.71 0)
+    (property "Reference" "J2" (at 50.8 92.71 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "JST XH-3A" (at 52.07 95.25 0)
@@ -1498,7 +1498,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "J6") (unit 1)
+          (reference "J2") (unit 1)
         )
       )
     )
@@ -1507,7 +1507,7 @@
   (symbol (lib_id "power:GND") (at 63.5 27.94 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 590bd81a-801d-44fe-be57-cadf935b4f31)
-    (property "Reference" "#PWR028" (at 63.5 21.59 0)
+    (property "Reference" "#PWR07" (at 63.5 21.59 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 63.5 22.86 0)
@@ -1523,7 +1523,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR028") (unit 1)
+          (reference "#PWR07") (unit 1)
         )
       )
     )
@@ -1532,7 +1532,7 @@
   (symbol (lib_id "power:+3.3V") (at 163.83 73.66 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 598e9768-6fcb-45c4-b5d3-61b819edec0c)
-    (property "Reference" "#PWR012" (at 167.64 73.66 0)
+    (property "Reference" "#PWR015" (at 167.64 73.66 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 160.02 73.66 90)
@@ -1548,7 +1548,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR012") (unit 1)
+          (reference "#PWR015") (unit 1)
         )
       )
     )
@@ -1582,7 +1582,7 @@
   (symbol (lib_id "power:GND") (at 240.03 62.23 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 65ab7ccf-bf66-4240-86b0-4d4cf184dde2)
-    (property "Reference" "#PWR017" (at 246.38 62.23 0)
+    (property "Reference" "#PWR020" (at 246.38 62.23 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 243.84 62.23 90)
@@ -1598,7 +1598,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR017") (unit 1)
+          (reference "#PWR020") (unit 1)
         )
       )
     )
@@ -1607,7 +1607,7 @@
   (symbol (lib_id "power:+3.3V") (at 240.03 109.22 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 69a9e5f2-d1f6-4a11-8f89-992fc5f17612)
-    (property "Reference" "#PWR022" (at 236.22 109.22 0)
+    (property "Reference" "#PWR025" (at 236.22 109.22 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 243.84 109.22 90)
@@ -1623,7 +1623,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR022") (unit 1)
+          (reference "#PWR025") (unit 1)
         )
       )
     )
@@ -1657,7 +1657,7 @@
   (symbol (lib_id "Device:R_Potentiometer") (at 40.64 134.62 0) (unit 1)
     (in_bom yes) (on_board no) (dnp no) (fields_autoplaced)
     (uuid 831ef708-a764-4c5e-b554-482cdd640e8e)
-    (property "Reference" "RV5" (at 38.1 133.35 0)
+    (property "Reference" "RV2" (at 38.1 133.35 0)
       (effects (font (size 1.27 1.27)) (justify right))
     )
     (property "Value" "R_Potentiometer" (at 38.1 135.89 0)
@@ -1675,7 +1675,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "RV5") (unit 1)
+          (reference "RV2") (unit 1)
         )
       )
     )
@@ -1684,7 +1684,7 @@
   (symbol (lib_id "power:+3.3V") (at 240.03 59.69 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 9441aed9-f762-496d-af31-d812d389e8b7)
-    (property "Reference" "#PWR016" (at 236.22 59.69 0)
+    (property "Reference" "#PWR019" (at 236.22 59.69 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 243.84 59.69 90)
@@ -1700,7 +1700,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR016") (unit 1)
+          (reference "#PWR019") (unit 1)
         )
       )
     )
@@ -1709,7 +1709,7 @@
   (symbol (lib_id "power:+3.3V") (at 240.03 76.2 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid 9460a4a3-5c6b-407a-82a4-a04d2c67fbf2)
-    (property "Reference" "#PWR018" (at 236.22 76.2 0)
+    (property "Reference" "#PWR021" (at 236.22 76.2 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 243.84 76.2 90)
@@ -1725,7 +1725,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR018") (unit 1)
+          (reference "#PWR021") (unit 1)
         )
       )
     )
@@ -1734,7 +1734,7 @@
   (symbol (lib_id "Connector:Conn_01x03_Socket") (at 63.5 134.62 180) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid 95b0a3fa-edf5-45c5-be06-319509950c4b)
-    (property "Reference" "J4" (at 64.77 125.73 0)
+    (property "Reference" "J7" (at 64.77 125.73 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "JST XH-3A" (at 63.5 128.27 0)
@@ -1752,7 +1752,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "J4") (unit 1)
+          (reference "J7") (unit 1)
         )
       )
     )
@@ -1761,7 +1761,7 @@
   (symbol (lib_id "power:+3.3V") (at 118.11 129.54 90) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid a2cf21f3-6874-40ec-871e-ced01a2bf3af)
-    (property "Reference" "#PWR010" (at 121.92 129.54 0)
+    (property "Reference" "#PWR013" (at 121.92 129.54 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 114.3 129.54 90)
@@ -1777,7 +1777,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR010") (unit 1)
+          (reference "#PWR013") (unit 1)
         )
       )
     )
@@ -1786,7 +1786,7 @@
   (symbol (lib_id "power:GND") (at 240.03 78.74 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid abb00498-0b94-4c9e-a2a1-a213328d0d5d)
-    (property "Reference" "#PWR019" (at 246.38 78.74 0)
+    (property "Reference" "#PWR022" (at 246.38 78.74 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 243.84 78.74 90)
@@ -1802,7 +1802,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR019") (unit 1)
+          (reference "#PWR022") (unit 1)
         )
       )
     )
@@ -1836,7 +1836,7 @@
   (symbol (lib_id "power:+3.3V") (at 118.11 113.03 90) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid af12b839-c16c-427a-a89a-b38e19222926)
-    (property "Reference" "#PWR08" (at 121.92 113.03 0)
+    (property "Reference" "#PWR011" (at 121.92 113.03 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 114.3 113.03 90)
@@ -1852,7 +1852,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR08") (unit 1)
+          (reference "#PWR011") (unit 1)
         )
       )
     )
@@ -1861,7 +1861,7 @@
   (symbol (lib_id "Connector_Audio:AudioJack3") (at 53.34 35.56 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid af75491a-dab9-4cb8-bd9a-47bf5e2ae2a3)
-    (property "Reference" "J1" (at 51.435 26.67 0)
+    (property "Reference" "J4" (at 51.435 26.67 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "AudioJack3" (at 51.435 29.21 0)
@@ -1879,7 +1879,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "J1") (unit 1)
+          (reference "J4") (unit 1)
         )
       )
     )
@@ -1888,7 +1888,7 @@
   (symbol (lib_id "power:+3.3V") (at 240.03 43.18 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid b61bea96-6419-4bcb-8b07-accc4cac7759)
-    (property "Reference" "#PWR014" (at 236.22 43.18 0)
+    (property "Reference" "#PWR017" (at 236.22 43.18 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 243.84 43.18 90)
@@ -1904,7 +1904,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR014") (unit 1)
+          (reference "#PWR017") (unit 1)
         )
       )
     )
@@ -1913,7 +1913,7 @@
   (symbol (lib_id "power:+3.3V") (at 240.03 92.71 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid b7ec2625-82bf-48f6-90a1-cf2b003fe8a4)
-    (property "Reference" "#PWR020" (at 236.22 92.71 0)
+    (property "Reference" "#PWR023" (at 236.22 92.71 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 243.84 92.71 90)
@@ -1929,7 +1929,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR020") (unit 1)
+          (reference "#PWR023") (unit 1)
         )
       )
     )
@@ -1938,7 +1938,7 @@
   (symbol (lib_id "Library:2-Axis_Joystick") (at 49.53 172.72 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid cda66f69-78f7-4164-8570-a271a2e5ec9a)
-    (property "Reference" "J6" (at 49.53 160.02 0)
+    (property "Reference" "J1" (at 49.53 160.02 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "2D JOYSTICK" (at 49.53 162.56 0)
@@ -1961,7 +1961,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "J6") (unit 1)
+          (reference "J1") (unit 1)
         )
       )
     )
@@ -1970,7 +1970,7 @@
   (symbol (lib_id "power:+3.3V") (at 240.03 125.73 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid cdec339c-3b8f-4d17-9a61-1238d81f29c6)
-    (property "Reference" "#PWR024" (at 236.22 125.73 0)
+    (property "Reference" "#PWR027" (at 236.22 125.73 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 243.84 125.73 90)
@@ -1986,7 +1986,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR024") (unit 1)
+          (reference "#PWR027") (unit 1)
         )
       )
     )
@@ -1995,7 +1995,7 @@
   (symbol (lib_id "power:GND") (at 58.42 64.77 90) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid e4f460a4-06bd-4f7b-a2c8-9d336407bc7b)
-    (property "Reference" "#PWR027" (at 64.77 64.77 0)
+    (property "Reference" "#PWR06" (at 64.77 64.77 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 62.23 64.77 90)
@@ -2011,7 +2011,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR027") (unit 1)
+          (reference "#PWR06") (unit 1)
         )
       )
     )
@@ -2020,7 +2020,7 @@
   (symbol (lib_id "Library:Adafruit_Feather_M4_Express") (at 186.69 80.01 0) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid e8bf9d2d-939b-4c94-995e-701031db7562)
-    (property "Reference" "U10" (at 186.69 64.77 0)
+    (property "Reference" "U1" (at 186.69 64.77 0)
       (effects (font (size 1.27 1.27)))
     )
     (property "Value" "Feather M4 Express" (at 186.69 67.31 0)
@@ -2063,7 +2063,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "U10") (unit 1)
+          (reference "U1") (unit 1)
         )
       )
     )
@@ -2098,7 +2098,7 @@
   (symbol (lib_id "power:+3.3V") (at 67.31 38.1 270) (unit 1)
     (in_bom yes) (on_board yes) (dnp no)
     (uuid fbc2a0cc-1a21-4039-ab10-4130ccd9587f)
-    (property "Reference" "#PWR029" (at 63.5 38.1 0)
+    (property "Reference" "#PWR08" (at 63.5 38.1 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "+3.3V" (at 71.12 38.1 90)
@@ -2114,7 +2114,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR029") (unit 1)
+          (reference "#PWR08") (unit 1)
         )
       )
     )
@@ -2123,7 +2123,7 @@
   (symbol (lib_id "power:GND") (at 118.11 115.57 270) (mirror x) (unit 1)
     (in_bom yes) (on_board yes) (dnp no) (fields_autoplaced)
     (uuid fc117ea8-fb5a-441f-85dc-4c7b529db90e)
-    (property "Reference" "#PWR09" (at 111.76 115.57 0)
+    (property "Reference" "#PWR012" (at 111.76 115.57 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Value" "GND" (at 114.3 115.57 90)
@@ -2139,7 +2139,7 @@
     (instances
       (project "bandoneon"
         (path "/3628cda3-bad1-4014-a851-91434ca52087"
-          (reference "#PWR09") (unit 1)
+          (reference "#PWR012") (unit 1)
         )
       )
     )
