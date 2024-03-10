@@ -99,9 +99,9 @@
   (pad "26" thru_hole circle (at 20.32 15.24 180) (size 1.6 1.6) (drill 0.8) (layers "*.Cu" "*.Mask") (tstamp 04258907-2154-45d9-a060-e2436b841d8d))
   (pad "27" thru_hole circle (at 20.32 12.7 180) (size 1.6 1.6) (drill 0.8) (layers "*.Cu" "*.Mask") (tstamp 08f79c29-bb47-48f6-8704-31e345548ad2))
   (pad "28" thru_hole circle (at 20.32 10.16 180) (size 1.6 1.6) (drill 0.8) (layers "*.Cu" "*.Mask") (tstamp c1696859-44f6-4fa2-8e0d-632c6adf5cc0))
-  (model "${KICAD6_3DMODEL_DIR}/Module.3dshapes/Adafruit_Feather_M0_Wifi.wrl"
-    (offset (xyz 0 0 0))
+  (model "${KIPRJMOD}/Library.pretty/Adafruit Feather M4 Express.step"
+    (offset (xyz -1.28 6.35 2.5))
     (scale (xyz 1 1 1))
-    (rotate (xyz 0 0 0))
+    (rotate (xyz 0 0 90))
   )
 )

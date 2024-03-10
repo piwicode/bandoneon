@@ -82,4 +82,9 @@
   (pad "5" thru_hole circle (at -2.54 10.16) (size 1.8 1.8) (drill 0.889) (layers "*.Cu" "*.Mask") (tstamp c61b5613-6c2c-405a-88b0-3f5816da3fb8))
   (pad "6" thru_hole oval (at -3.175 -8.001) (size 3.2 1.8) (drill 0.889) (layers "*.Cu" "*.Mask") (tstamp 4fcb6f69-481b-4894-a2aa-f4b72c889496))
   (pad "7" thru_hole oval (at -3.175 -12.501) (size 3.2 1.8) (drill 0.889) (layers "*.Cu" "*.Mask") (tstamp a2698909-2729-41d6-93e3-1b888742d45a))
+  (model "${KIPRJMOD}/Library.pretty/512 Analog 2-axis Joystick.step"
+    (offset (xyz -19 -19 -1.5))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 0 0 0))
+  )
 )

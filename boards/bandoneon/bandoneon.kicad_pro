@@ -437,7 +437,7 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "+3.3V",
-        "pcb_color": "rgba(0, 0, 0, 0.000)",
+        "pcb_color": "rgb(142, 255, 6)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
         "track_width": 0.3,
         "via_diameter": 0.8,
