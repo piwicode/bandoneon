@@ -580,7 +580,7 @@
     (property "Value" "1uF" (at 128.905 68.58 0)
       (effects (font (size 1.27 1.27)) (justify left))
     )
-    (property "Footprint" "" (at 126.0602 71.12 0)
+    (property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 126.0602 71.12 0)
       (effects (font (size 1.27 1.27)) hide)
     )
     (property "Datasheet" "~" (at 125.095 67.31 0)
