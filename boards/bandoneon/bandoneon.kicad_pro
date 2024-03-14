@@ -172,7 +172,9 @@
         }
       ],
       "track_widths": [
-        0.0
+        0.0,
+        0.3,
+        1.6
       ],
       "via_dimensions": [
         {
@@ -437,9 +439,9 @@
         "microvia_diameter": 0.3,
         "microvia_drill": 0.1,
         "name": "+3.3V",
-        "pcb_color": "rgb(142, 255, 6)",
+        "pcb_color": "rgba(0, 0, 0, 0.000)",
         "schematic_color": "rgba(0, 0, 0, 0.000)",
-        "track_width": 0.3,
+        "track_width": 0.5,
         "via_diameter": 0.8,
         "via_drill": 0.4,
         "wire_width": 6
@@ -473,7 +475,7 @@
     "netclass_patterns": [
       {
         "netclass": "+3.3V",
-        "pattern": "+3.3v"
+        "pattern": "+3.3V"
       },
       {
         "netclass": "Digital",
@@ -515,7 +517,7 @@
     "meta": {
       "version": 1
     },
-    "net_format_name": "",
+    "net_format_name": "KiCad",
     "page_layout_descr_file": "",
     "plot_directory": "",
     "spice_current_sheet_as_root": false,
