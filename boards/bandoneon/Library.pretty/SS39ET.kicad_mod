@@ -175,4 +175,9 @@
     (scale (xyz 1 1 1))
     (rotate (xyz 0 0 0))
   )
+  (model "${KIPRJMOD}/Library.pretty/Pushbutton v1.step"
+    (offset (xyz 0 1.05 -6.41))
+    (scale (xyz 1 1 1))
+    (rotate (xyz 90 0 0))
+  )
 )

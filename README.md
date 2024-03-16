@@ -710,9 +710,16 @@ Pins are X- Y+ X+ Y- https://www.adafruit.com/product/3575
 
 https://line6.com/support/topic/23057-why-is-an-m-audio-ex-p-expression-pedal-incompatible/
 
-# PCB
+# PCB & Model
 
 Shift+S
+
+You can view the kicad board on
+[Kicanvas online viewer](https://kicanvas.org/?github=https%3A%2F%2Fgithub.com%2Fpiwicode%2Fbandoneon%2Ftree%2Fmain%2Fboards%2Fbandoneon).
+
+The enclosure can be seen here:
+
+<iframe src="https://gmail319357.autodesk360.com/shares/public/SHd38bfQT1fb47330c99409055e022d399e6?mode=embed" width="800" height="600" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  frameborder="0"></iframe>
 
 # Related project
 
