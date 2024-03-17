@@ -712,14 +712,20 @@ https://line6.com/support/topic/23057-why-is-an-m-audio-ex-p-expression-pedal-in
 
 # PCB & Model
 
-Shift+S
-
 You can view the kicad board on
 [Kicanvas online viewer](https://kicanvas.org/?github=https%3A%2F%2Fgithub.com%2Fpiwicode%2Fbandoneon%2Ftree%2Fmain%2Fboards%2Fbandoneon).
 
-The enclosure can be seen here:
+MCP3008-I/SL
+[jclpcb](https://jlcpcb.com/partdetail/MicrochipTech-MCP3008_ISL/C1520159)
 
-<iframe src="https://gmail319357.autodesk360.com/shares/public/SHd38bfQT1fb47330c99409055e022d399e6?mode=embed" width="800" height="600" allowfullscreen="true" webkitallowfullscreen="true" mozallowfullscreen="true"  frameborder="0"></iframe>
+The enclosure design can be
+[seen here](https://gmail319357.autodesk360.com/shares/public/SHd38bfQT1fb47330c99409055e022d399e6)
+
+# Electrostatic discharge protection
+
+I added pretection to the two jacks inputs, the potentiometer and the USB
+voltage input. The TVS diodes uni / bidirectional naming was confusing until I
+read [this document](https://www.mouser.com/pdfdocs/AND8424-D.PDF).
 
 # Related project
 
