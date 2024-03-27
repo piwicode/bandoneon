@@ -1,4 +1,4 @@
-22650083289812645
+22650090216695209
 Audio_Module
 Reverb_BTDR-1H
 Digital Reverberation Unit, http://www.belton.co.kr/inc/downfile.php?seq=17&file=pdf (footprint from http://www.uk-electronic.de/PDF/BTDR-1.pdf)
@@ -62790,13 +62790,6 @@ Jack TRS
 3
 3
 Library
-MCP3008T-I_SL
-SOIC, 16 Pin (JEDEC MS-012AC, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_16.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py
-SOIC SO
-0
-16
-16
-Library
 MountingHole_3.2mm_M3_large
 Mounting Hole 3.2mm, no annular, M3
 mounting hole 3.2mm no annular m3
@@ -62804,7 +62797,14 @@ mounting hole 3.2mm no annular m3
 0
 0
 Library
-SS39ET
+SOIC-16_MCP3008T-I_SL
+SOIC, 16 Pin (JEDEC MS-012AC, https://www.analog.com/media/en/package-pcb-resources/package/pkg_pdf/soic_narrow-r/r_16.pdf), generated with kicad-footprint-generator ipc_gullwing_generator.py
+SOIC SO
+0
+16
+16
+Library
+SOT-23_SS39ET
 SOT, 3 Pin (https://www.jedec.org/sites/default/files/docs/Mo-178D.PDF inferred 3-pin variant), generated with kicad-footprint-generator ipc_gullwing_generator.py
 SOT TO_SOT_SMD
 0
