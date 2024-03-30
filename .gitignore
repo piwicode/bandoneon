@@ -1,6 +1,7 @@
 boards/bandoneon/bandoneon-backups
+boards/bandoneon/fp-info-cache
 *.bak
 boards/bandoneon/#auto_saved_files#
-boards/bandoneon/fp-info-cache
+git 
 boards/bandoneon/*-backups
 ~*
