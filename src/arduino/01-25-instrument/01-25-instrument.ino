@@ -6,6 +6,56 @@
 #include <cassert>
 #include <vector>
 
+constexpr size_t kNotesCount = 12;
+constexpr char const *kNotesNames[kNotesCount] = {
+    "C",     "C#/Db", "D",     "D#/Eb", "E",     "F",
+    "F#/Gb", "G",     "G#/Ab", "A",     "A#/Bb", "B",
+};
+
+// Returns the midi note index for a given not and octave.
+enum { C, Cd, D, Dd, E, F, Fd, G, Gd, A, Ad, B };
+constexpr uint8_t n(int note, int octave) {
+  return (octave + 1) * kNotesCount + static_cast<int>(note);
+}
+
+// Maps measure position to a midi note index.
+// 0: close/push, 1: open/pull
+constexpr uint8_t keyboard_mapping[2][72] = {
+    {
+        /*00*/ 0,        n(Fd, 4), n(A, 6),  n(Ad, 4), n(A, 5),
+        /*05*/ n(E, 2),  n(G, 3),  n(Ad, 2), n(Gd, 3), n(G, 4),
+        /*10*/ n(E, 4),  n(G, 6),  n(B, 4),  n(E, 6),  n(A, 2),
+        /*15*/ n(A, 3),  n(C, 4),  n(Cd, 2), n(A, 3),  n(F, 5),
+        /*20*/ n(Gd, 4), n(E, 5),  n(F, 6),  n(E, 3),  n(Gd, 4),
+        /*25*/ n(D, 4),  n(Dd, 4), n(Ad, 3), n(C, 4),  n(G, 4),
+        /*30*/ n(B, 5),  n(Dd, 6), n(D, 2),  n(G, 2),  n(E, 4),
+        /*35*/ n(C, 3),  n(B, 3),  n(Cd, 4), n(Cd, 5), n(Fd, 6),
+        /*40*/ n(D, 6),  n(G, 2),  n(Ad, 3), n(F, 3),  n(Fd, 3),
+        /*45*/ n(F, 4),  n(Fd, 5), n(Gd, 5), n(C, 6),  n(G, 5),
+        /*50*/ n(E, 3),  n(B, 3),  n(Dd, 3), n(B, 2),  n(Dd, 4),
+        /*55*/ n(A, 4),  n(Gd, 6), n(C, 5),  n(Cd, 6), n(Fd, 4),
+        /*60*/ n(Cd, 4), n(Cd, 3), n(Fd, 2), n(D, 4),  n(E, 5),
+        /*65*/ n(Ad, 5), n(D, 5),  n(Dd, 5), n(D, 3),  n(B, 4),
+        /*70*/ n(F, 4),  n(F, 2),
+    },
+    {
+        /*00*/ 0,        n(E, 4),  n(B, 6),  n(Ad, 5), n(Gd, 5),
+        /*05*/ n(D, 2),  n(A, 3),  n(Ad, 2), n(Cd, 4), n(Gd, 4),
+        /*10*/ n(Ad, 4), n(A, 6),  n(A, 4),  n(Cd, 6), n(E, 3),
+        /*15*/ n(B, 3),  n(Dd, 3), n(Dd, 2), n(A, 3),  n(F, 5),
+        /*20*/ n(G, 4),  n(D, 5),  n(F, 6),  n(B, 2),  n(A, 4),
+        /*25*/ n(E, 4),  n(F, 3),  n(Ad, 3), n(Cd, 4), n(Fd, 4),
+        /*30*/ n(A, 5),  n(Dd, 6), n(E, 2),  n(Gd, 2), n(Fd, 4),
+        /*35*/ n(Ad, 3), n(B, 3),  n(D, 4),  n(B, 4),  n(G, 6),
+        /*40*/ n(D, 6),  n(D, 3),  n(G, 3),  n(Fd, 3), n(G, 2),
+        /*45*/ n(F, 4),  n(Cd, 5), n(Fd, 5), n(E, 6),  n(E, 5),
+        /*50*/ n(Gd, 3), n(C, 4),  n(Cd, 3), n(Fd, 2), n(Dd, 4),
+        /*55*/ n(Gd, 4), n(Gd, 6), n(C, 6),  n(B, 5),  n(G, 4),
+        /*60*/ n(D, 4),  n(F, 4),  n(F, 2),  n(C, 4),  n(Dd, 5),
+        /*65*/ n(Fd, 6), n(C, 5),  n(G, 5),  n(A, 2),  n(Dd, 4),
+        /*70*/ n(C, 3),  n(C, 2),
+    }};
+
 // USB MIDI object
 Adafruit_USBD_MIDI usb_midi;
 
@@ -46,20 +96,6 @@ MIDI_CREATE_INSTANCE(Adafruit_USBD_MIDI, usb_midi, MIDI);
     }                                  \
   } while (0);
 
-void delayCycles(uint32_t count) {
-  // This value takes into account the time spent in the function
-  // itself. It has been determined experimentally by comparing the
-  // delayCycles() function with the micro().
-  constexpr uint32_t experimental_bias = 16;
-  const uint32_t start = DWT->CYCCNT - experimental_bias;
-  // The DWT->CYCCNT register is a 32 bits counter that counts the
-  // number of cycles since the last reset. It is incremented every
-  // cycle. It wraps around every 2^32 cycles (~37 secs at 120MHz).
-  while (DWT->CYCCNT - start < count) {
-  }
-}
-
-constexpr RwReg &port_to_clr(RwReg &port) { return *(&port + 1); }
 template <typename... A>
 struct TT {};
 template <size_t N>
@@ -150,8 +186,8 @@ class MCP3008Array {
   SPIArray<N> spi_array_;
 
  public:
-  typedef std::array<uint32_t, N * 8> Values; 
-  
+  typedef std::array<uint32_t, N * 8> Values;
+
   // Use digital pin index as visible on the Feather pinout.
   MCP3008Array(uint8_t clk, uint8_t mosi, std::array<uint8_t, N> miso,
                uint8_t cs)
@@ -173,19 +209,7 @@ class MCP3008Array {
   }
 };
 
-MCP3008Array<9> adc_array(13, 12,
-                          {
-                              10,
-                              9,
-                              6,
-                              5,
-                              22,
-                              21,
-                              4,
-                              25,
-                              19
-                          },
-                          11);
+MCP3008Array<9> adc_array(13, 12, {10, 9, 6, 5, 22, 21, 4, 25, 19}, 11);
 uint32_t count = 0;
 
 void setup() {
@@ -223,9 +247,8 @@ class Heartbit {
   }
 };
 
-
-class Devices {  
-  public:
+class Devices {
+ public:
   struct Pinout {
     uint32_t p1_analog;
     uint32_t p2_analog;
@@ -264,8 +287,8 @@ class Devices {
       Serial.println();
     }
   };
-  
-  Devices(Pinout pinout):pinout_(pinout) {
+
+  Devices(Pinout pinout) : pinout_(pinout) {
     pinMode(pinout_.p1_analog, INPUT);
     pinMode(pinout_.p2_analog, INPUT);
     pinMode(pinout_.expression_pedal_analog, INPUT);
@@ -275,7 +298,7 @@ class Devices {
     pinMode(pinout_.joy_bt_digital, INPUT_PULLUP);
   }
 
-  void read (Value& value) {
+  void read(Value &value) {
     value.p1 = analogRead(pinout_.p1_analog);
     value.p2 = analogRead(pinout_.p2_analog);
     value.expression_pedal = analogRead(pinout_.expression_pedal_analog);
@@ -287,114 +310,126 @@ class Devices {
 };
 
 Devices devices({
-  .p1_analog=A1, 
-  .p2_analog=A0, 
-  .expression_pedal_analog=A2, 
-  .joy_x_analog=A3,
-  .joy_y_analog=A4,
-  .joy_bt_digital=1,
-  .sustain_pedal_digital=0,
+    .p1_analog = A1,
+    .p2_analog = A0,
+    .expression_pedal_analog = A2,
+    .joy_x_analog = A3,
+    .joy_y_analog = A4,
+    .joy_bt_digital = 1,
+    .sustain_pedal_digital = 0,
 });
 
-constexpr bool kPrintKey = false;
+constexpr bool kPrintKey = true;
 // Low pass filter on the derivate of the signal.
 // The current derivate is merged in the previous one with a factor.
 // 1 ignore the past, and 0 ignore the present.
 constexpr float kDecayFactor = 0.25;
 // Velocity profile.
-constexpr float kMinVelocity = -0.0065;
-constexpr float kMaxVelocity = -0.0570;
+constexpr float kMinVelocity = 0.26;
+constexpr float kMaxVelocity = 12.47;
 
-// Measure below which one a key is considered pressed.
-constexpr int32_t kThreshold = 370;
-// Percentage of the value used for hysteresis, to avoid bouncing.
-constexpr float kHysteresisFactor = 0.06;
+// Measure above which one a key is considered pressed.
+constexpr int32_t kPressThreshold = 600;
+constexpr int32_t kReleaseThreshold = 570;
 
-// Holds current and previous reading for each key.
-decltype(adc_array)::Values measures[2] = {{}, {}};
-std::array<float, measures[0].size()> derivatives{};
+constexpr int32_t kMeasuresSize = 16;
+
+// Holds reading for each key, with some history.
+decltype(adc_array)::Values measures[kMeasuresSize] = {};
+// Time just before staring the corresponding reading.
+int32_t measures_us[kMeasuresSize] = {};
+
 std::array<bool, measures[0].size()> isPressed{};
 
 template <size_t N>
 void printKeyboardState(const std::array<uint32_t, N> &values) {
   Serial.print("=== Keyboard state ===");
   for (uint32_t i = 0; i < values.size(); i++) {
-    if(i % (N/8) == 0) Serial.println();
+    if (i % (N / 8) == 0) Serial.println();
     size_t len = Serial.print(values[i]);
-    for(int c = max(0, 5 - len); c--;) Serial.print(' ');
+    for (int c = max(0, 5 - len); c--;) Serial.print(' ');
   }
   Serial.println();
+}
+
+void printNoteName(uint8_t midi_code) {
+  const int note_idx = midi_code % kNotesCount;
+  const int octave = midi_code / kNotesCount - 1;
+  Serial.print(kNotesNames[note_idx]);
+  Serial.print(octave);
 }
 
 void loop() {
   Heartbit heartbit;
   // Capture time and measures.
   uint32_t last_measure_time = micros();
-  auto &fist_measures = measures[1];
-  delay(2000);
-  adc_array.read(fist_measures);
 
-  for (uint32_t measure_id = 0;; measure_id = 1 - measure_id) {
-    auto &current_measures = measures[measure_id];
-    const auto &last_measures = measures[1 - measure_id];
+  // Initialises all the measure histroy from an initial reading.
+  for (uint32_t t = 1; t < kMeasuresSize; t++) {
+    measures_us[t] = micros();
+    adc_array.read(measures[t]);
+  }
+
+  for (uint32_t t1_id = 0;;) {
+    // TODO: Be carefull with micros() overflow.
+    static_assert(sizeof(long) == 4);
 
     // Capture time and measures.
-    uint32_t current_measure_time = micros();
-    adc_array.read(current_measures);
+    auto t1 = measures_us[t1_id] = micros();
+    auto &measures_t1 = measures[t1_id];
+    adc_array.read(measures_t1);
 
-    // Compute derivatives.
-    float inv_delta_t_us =
-        1. / static_cast<float>(current_measure_time - last_measure_time);
-    last_measure_time = current_measure_time;
+    // Use the oldest available record as reference point.
+    auto t0_id = t1_id = (t1_id + 1) % kMeasuresSize;
 
-    for (int i = 0; i < current_measures.size(); i++) {
-      const float instant_derivative =
-          (static_cast<float>(current_measures[i]) - last_measures[i]) *
-          inv_delta_t_us;
-      derivatives[i] = instant_derivative * kDecayFactor +
-                       derivatives[i] * (1. - kDecayFactor);
+    const auto t0 = measures_us[t0_id];
+    const auto &measures_t0 = measures[t0_id];
 
-      constexpr int32_t kThresholdLow = kThreshold * (1. - kHysteresisFactor);
-      constexpr int32_t kThresholdHigh = kThreshold * (1. + kHysteresisFactor);
+    // The oldest value is also the next to write to.
+    t1_id = t0_id;
 
-      if (current_measures[i] < kThresholdLow && !isPressed[i]) {
+    for (int i = 0; i < measures_t1.size(); i++) {
+      if (measures_t1[i] > kPressThreshold && !isPressed[i]) {
         isPressed[i] = true;
 
-        // Compute the velocity.
-        float derivate =
-            min(max(derivatives[i], min(kMinVelocity, kMaxVelocity)),
-                max(kMinVelocity, kMaxVelocity));
-        int32_t velocity = 1. + (derivate - kMinVelocity) /
+        float derivate = 1000.f * (measures_t1[i] - measures_t0[i]) / (t1 - t0);
+        // Clamp the derivative.
+        derivate = min(max(derivate, min(kMinVelocity, kMaxVelocity)),
+                       max(kMinVelocity, kMaxVelocity));
+        // Compute the velocity from 1 to 127.
+        const int32_t velocity = 1. + (derivate - kMinVelocity) /
                                     (kMaxVelocity - kMinVelocity) * 126.;
+
         // Send Note On for current position at full velocity (127) on
         // channel 1.
-        MIDI.sendNoteOn(74 + i, velocity, 1);
+        MIDI.sendNoteOn(keyboard_mapping[1][i], velocity, 1);
 
-        if(kPrintKey) {
+        if (kPrintKey) {
           Serial.print(">>> Key ");
           Serial.print(i);
+          Serial.print(" mapping: ");
+          Serial.print(keyboard_mapping[1][i]);
+          Serial.print("=");
+          printNoteName(keyboard_mapping[1][i]);
+
+          Serial.print(" derivate: ");
+          Serial.print(derivate);
           Serial.print(" velocity: ");
           Serial.print(velocity);
-          Serial.print(" pressed, instant_derivative: ");
-          Serial.print("instant_derivative: ");
-          Serial.print(instant_derivative, 4);
-          Serial.print(", derivative: ");
-          Serial.print(derivatives[i], 4);
           Serial.print(", measures: ");
-          Serial.print(current_measures[i]);
+          Serial.print(measures_t1[i]);
           Serial.print(" -> ");
-          Serial.print(last_measures[i]);
+          Serial.print(measures_t0[i]);
           Serial.print(" delta:");
-          Serial.print(
-              (static_cast<float>(current_measures[i]) - last_measures[i]));
+          Serial.print((static_cast<float>(measures_t1[i]) - measures_t0[i]));
           Serial.println();
         }
-      } else if (current_measures[i] > kThresholdHigh && isPressed[i]) {
+      } else if (measures_t1[i] < kReleaseThreshold && isPressed[i]) {
         isPressed[i] = false;
 
         // Send Note Off for previous note.
-        MIDI.sendNoteOff(74 + i, 0, 1);
-        if(kPrintKey) {
+        MIDI.sendNoteOff(keyboard_mapping[1][i], 0, 1);
+        if (kPrintKey) {
           Serial.print(">>> Key ");
           Serial.print(i);
           Serial.println(" released.");
@@ -403,9 +438,9 @@ void loop() {
     }
     Devices::Value device_values;
     devices.read(device_values);
-    device_values.print();
-    // printKeyboardState(current_measures);
-    delay(500);
+    // device_values.print();
+    // printKeyboardState(measures_t1);
+    // delay(500);
     yield();
     heartbit.tick();
   }
