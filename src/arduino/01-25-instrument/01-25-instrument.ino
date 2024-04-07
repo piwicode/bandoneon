@@ -12,13 +12,13 @@ constexpr char const *kNotesNames[kNotesCount] = {
     "F#/Gb", "G",     "G#/Ab", "A",     "A#/Bb", "B",
 };
 
-// Returns the midi note index for a given not and octave.
+// Returns the MIDI note index for a given not and octave.
 enum { C, Cd, D, Dd, E, F, Fd, G, Gd, A, Ad, B };
 constexpr uint8_t n(int note, int octave) {
   return (octave + 1) * kNotesCount + static_cast<int>(note);
 }
 
-// Maps measure position to a midi note index.
+// Maps measure position to a MIDI note index.
 // 0: close/push, 1: open/pull
 constexpr uint8_t keyboard_mapping[2][72] = {
     {
@@ -213,7 +213,7 @@ MCP3008Array<9> adc_array(13, 12, {10, 9, 6, 5, 22, 21, 4, 25, 19}, 11);
 uint32_t count = 0;
 
 void setup() {
-  // usb_midi.setStringDescriptor("BandoNeon MIDI");
+  usb_midi.setStringDescriptor("Bandoneon");
 
   // Initialize MIDI, and listen to all MIDI channels
   // This will also call usb_midi's begin()
@@ -230,11 +230,11 @@ void setup() {
 class Heartbit {
   uint32_t last_display_ms_;
   uint32_t tick_count_;
-  static constexpr uint32_t kHeartbitPeriodMs = 10000;
+  static constexpr uint32_t kHeartbitPeriodMs = 1000;
 
  public:
   Heartbit() : last_display_ms_(millis()), tick_count_(0) {}
-  void tick() {
+  bool tick() {
     tick_count_++;
     uint32_t delay = millis() - last_display_ms_;
     if (delay > kHeartbitPeriodMs) {
@@ -243,7 +243,9 @@ class Heartbit {
       Serial.print(tick_count_ * 1000 / delay);
       Serial.println(" Hz");
       tick_count_ = 0;
+      return true;
     }
+    return false;
   }
 };
 
@@ -319,7 +321,111 @@ Devices devices({
     .sustain_pedal_digital = 0,
 });
 
+struct HysteresisFilter {
+  const int32_t gap = 5;
+  bool increasing = true;
+  int32_t previous_value = 0;
+
+  uint32_t apply(int32_t new_value) {
+    if (increasing) {
+      if (new_value > previous_value) {
+        previous_value = new_value;
+      } else if (new_value < previous_value - gap) {
+        increasing = false;
+        previous_value = new_value;
+      }
+    } else {
+      if (new_value < previous_value) {
+        previous_value = new_value;
+
+      } else if (new_value > previous_value - gap) {
+        increasing = true;
+        previous_value = new_value;
+      }
+    }
+    return previous_value;
+  }
+};
+
+struct AxisMapper {
+  uint32_t min;
+  uint32_t max;
+
+  uint32_t out_min;
+  uint32_t out_max;
+
+  uint32_t remap(uint32_t value) const {
+    if (value < min) {
+      return out_min;
+    }
+    if (value < max) {
+      return out_min + (value - min) * (out_max - out_min) / (max - min);
+    }
+    return out_max;
+  }
+};
+
+struct JoystickAxisMapper {
+  uint32_t min;
+  uint32_t max;
+  uint32_t dead_min;  // inclusive
+  uint32_t dead_max;
+
+  uint32_t out_min;
+  uint32_t out_max;
+  uint32_t out_center;
+
+  uint32_t remap(uint32_t value) const {
+    if (value < min) {
+      return out_min;
+    }
+    if (value < dead_min) {
+      return out_center -
+             (dead_min - value) * (out_center - out_min) / (dead_min - min);
+    }
+    if (value <= dead_max) {
+      return out_center;
+    }
+    if (value < max) {
+      return out_center +
+             (value - dead_max) * (out_max - out_center) / (max - dead_max);
+    }
+    return out_max;
+  }
+};
+
+constexpr AxisMapper expression_mapper{
+    .min = 92,
+    .max = 515,
+    .out_min = 0x0,
+    .out_max = 0x7f,
+};
+
+constexpr AxisMapper p1_mapper{
+    .min = 3 + 1,
+    .max = 1021 - 1,
+    .out_min = 0x0,
+    .out_max = 0x7f,
+};
+
+constexpr AxisMapper p2_mapper{
+    .min = 3 + 1,
+    .max = 1021 - 1,
+    .out_min = 0x0,
+    .out_max = 0x7f,
+};
+
+constexpr JoystickAxisMapper y_axis_mapper{.min = 3 + 1,
+                                           .max = 1023 - 1,
+                                           .dead_min = 515 - 2,
+                                           .dead_max = 515 + 2,
+                                           .out_min = 0x0,
+                                           .out_max = 0x7f,
+                                           .out_center = 0x40};
+
 constexpr bool kPrintKey = true;
+constexpr bool kPrintMidiEvents = true;
+
 // Low pass filter on the derivate of the signal.
 // The current derivate is merged in the previous one with a factor.
 // 1 ignore the past, and 0 ignore the present.
@@ -333,6 +439,8 @@ constexpr int32_t kPressThreshold = 600;
 constexpr int32_t kReleaseThreshold = 570;
 
 constexpr int32_t kMeasuresSize = 16;
+
+constexpr int32_t kMidiChannel = 1;
 
 // Holds reading for each key, with some history.
 decltype(adc_array)::Values measures[kMeasuresSize] = {};
@@ -361,8 +469,6 @@ void printNoteName(uint8_t midi_code) {
 
 void loop() {
   Heartbit heartbit;
-  // Capture time and measures.
-  uint32_t last_measure_time = micros();
 
   // Initialises all the measure histroy from an initial reading.
   for (uint32_t t = 1; t < kMeasuresSize; t++) {
@@ -370,10 +476,14 @@ void loop() {
     adc_array.read(measures[t]);
   }
 
-  for (uint32_t t1_id = 0;;) {
-    // TODO: Be carefull with micros() overflow.
-    static_assert(sizeof(long) == 4);
+  uint32_t t1_id = 0;
+  uint32_t previous_bend = 0x40;  // center
+  uint32_t previous_expression = 0;
+  uint32_t previous_p1 = 0;
+  uint32_t previous_p2 = 0;
+  HysteresisFilter p1_filter, p2_filter;
 
+  for (;;) {
     // Capture time and measures.
     auto t1 = measures_us[t1_id] = micros();
     auto &measures_t1 = measures[t1_id];
@@ -398,12 +508,11 @@ void loop() {
                        max(kMinVelocity, kMaxVelocity));
         // Compute the velocity from 1 to 127.
         const int32_t velocity = 1. + (derivate - kMinVelocity) /
-                                    (kMaxVelocity - kMinVelocity) * 126.;
+                                          (kMaxVelocity - kMinVelocity) * 126.;
 
         // Send Note On for current position at full velocity (127) on
         // channel 1.
-        MIDI.sendNoteOn(keyboard_mapping[1][i], velocity, 1);
-
+        MIDI.sendNoteOn(keyboard_mapping[1][i], velocity, kMidiChannel);
         if (kPrintKey) {
           Serial.print(">>> Key ");
           Serial.print(i);
@@ -428,7 +537,7 @@ void loop() {
         isPressed[i] = false;
 
         // Send Note Off for previous note.
-        MIDI.sendNoteOff(keyboard_mapping[1][i], 0, 1);
+        MIDI.sendNoteOff(keyboard_mapping[1][i], 0, kMidiChannel);
         if (kPrintKey) {
           Serial.print(">>> Key ");
           Serial.print(i);
@@ -436,12 +545,58 @@ void loop() {
         }
       }
     }
+
     Devices::Value device_values;
     devices.read(device_values);
-    // device_values.print();
-    // printKeyboardState(measures_t1);
-    // delay(500);
+
+    const uint32_t bend = y_axis_mapper.remap(device_values.joy_y);
+    if (bend != previous_bend) {
+      MIDI.send(midi::MidiType::PitchBend, 0, bend, kMidiChannel);
+      previous_bend = bend;
+      if (kPrintMidiEvents) {
+        Serial.print("joy: ");
+        Serial.print(device_values.joy_y);
+        Serial.print(" bend:");
+        Serial.println(bend);
+      }
+    }
+
+    const uint32_t expression =
+        expression_mapper.remap(device_values.expression_pedal);
+    if (expression != previous_expression) {
+      MIDI.send(midi::MidiType::ControlChange, 1, expression, kMidiChannel);
+      previous_expression = expression;
+    }
+    const uint32_t p1 = p1_mapper.remap(p1_filter.apply(device_values.p1));
+    if (p1 != previous_p1) {
+      MIDI.send(midi::MidiType::ControlChange, 12, p1, kMidiChannel);
+      previous_p1 = p1;
+      if (kPrintMidiEvents) {
+        Serial.print("device_values.p1: ");
+        Serial.print(device_values.p1);
+        Serial.print(" p1: ");
+        Serial.print(p1);
+        Serial.println();
+      }
+    }
+
+    const uint32_t p2 = p2_mapper.remap(p2_filter.apply(device_values.p2));
+    if (p2 != previous_p2) {
+      MIDI.send(midi::MidiType::ControlChange, 13, p2, kMidiChannel);
+      previous_p2 = p2;
+      if (kPrintMidiEvents) {
+        Serial.print("device_values.p2: ");
+        Serial.print(device_values.p2);
+        Serial.print(" p2: ");
+        Serial.print(p2);
+        Serial.println();
+      }
+    }
+    // Let the USB stack opeate if needed.
     yield();
-    heartbit.tick();
+    if (heartbit.tick()) {
+      device_values.print();
+      // printKeyboardState(measures_t1);
+    }
   }
 }
