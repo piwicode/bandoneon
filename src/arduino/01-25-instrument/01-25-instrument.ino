@@ -56,11 +56,24 @@ constexpr uint8_t keyboard_mapping[2][72] = {
         /*70*/ n(C, 3),  n(C, 2),
     }};
 
-constexpr uint8_t keyboard_channel[72] = {
-    0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0,
-    0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1,
-    1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0,
-};
+// 1 for the right hand and 0 for the left hand.
+ constexpr uint8_t keyboard_channel[72] = {
+    /*00*/ 0, 1, 1, 1, 1,
+    /*05*/ 0, 0, 0, 0, 0,
+    /*10*/ 1, 1, 1, 1, 0,
+    /*15*/ 0, 0, 0, 1, 1,
+    /*20*/ 1, 1, 1, 0, 0,
+    /*25*/ 0, 0, 1, 1, 1,
+    /*30*/ 1, 1, 0, 0, 0,
+    /*35*/ 0, 1, 1, 1, 1,
+    /*40*/ 1, 0, 0, 0, 0,
+    /*45*/ 1, 1, 1, 1, 1,
+    /*50*/ 0, 0, 0, 0, 1,
+    /*55*/ 1, 1, 1, 1, 0,
+    /*60*/ 0, 0, 0, 1, 1,
+    /*65*/ 1, 1, 1, 0, 0,
+    /*70*/ 0, 0};
+
 // USB MIDI object
 Adafruit_USBD_MIDI usb_midi;
 
@@ -235,7 +248,7 @@ void setup() {
 class Heartbit {
   uint32_t last_display_ms_;
   uint32_t tick_count_;
-  static constexpr uint32_t kHeartbitPeriodMs = 1000;
+  static constexpr uint32_t kHeartbitPeriodMs = 10000;
 
  public:
   Heartbit() : last_display_ms_(millis()), tick_count_(0) {}
@@ -518,8 +531,8 @@ void loop() {
 
         // Send Note On for current position at full velocity (127) on
         // channel 1.
-        MIDI.sendNoteOn(keyboard_mapping[1][i], velocity,
-                        kMidiChannel + keyboard_channel[i]);
+        uint8_t channel = kMidiChannel + keyboard_channel[i];
+        MIDI.sendNoteOn(keyboard_mapping[1][i], velocity, channel);
         if (kPrintKey) {
           Serial.print(">>> Key ");
           Serial.print(i);
@@ -527,7 +540,8 @@ void loop() {
           Serial.print(keyboard_mapping[1][i]);
           Serial.print("=");
           printNoteName(keyboard_mapping[1][i]);
-
+          Serial.print(" channel: ");
+          Serial.print(channel);
           Serial.print(" derivate: ");
           Serial.print(derivate);
           Serial.print(" velocity: ");
@@ -559,7 +573,7 @@ void loop() {
 
     const uint32_t bend = y_axis_mapper.remap(device_values.joy_y);
     if (bend != previous_bend) {
-      MIDI.send(midi::MidiType::PitchBend, 0, bend, kMidiChannel);
+      MIDI.send(midi::MidiType::PitchBend, 0, bend, kMidiChannel + 1);
       previous_bend = bend;
       if (kPrintMidiEvents) {
         Serial.print("joy: ");
@@ -590,7 +604,7 @@ void loop() {
 
     const uint32_t p2 = p2_mapper.remap(p2_filter.apply(device_values.p2));
     if (p2 != previous_p2) {
-      MIDI.send(midi::MidiType::ControlChange, 13, p2, kMidiChannel);
+      MIDI.send(midi::MidiType::ControlChange, 13, p2, kMidiChannel + 1);
       previous_p2 = p2;
       if (kPrintMidiEvents) {
         Serial.print("device_values.p2: ");
@@ -604,7 +618,7 @@ void loop() {
     yield();
     if (heartbit.tick()) {
       // device_values.print();
-      printKeyboardState(measures_t1);
+      // printKeyboardState(measures_t1);
     }
   }
 }
