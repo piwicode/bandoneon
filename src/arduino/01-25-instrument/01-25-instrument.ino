@@ -56,6 +56,11 @@ constexpr uint8_t keyboard_mapping[2][72] = {
         /*70*/ n(C, 3),  n(C, 2),
     }};
 
+constexpr uint8_t keyboard_channel[72] = {
+    0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0,
+    0, 0, 0, 0, 1, 1, 0, 1, 0, 0, 0, 0, 1, 1, 1, 1, 0, 0, 0, 0, 0, 1, 1, 1,
+    1, 0, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 1, 0, 0, 0, 0,
+};
 // USB MIDI object
 Adafruit_USBD_MIDI usb_midi;
 
@@ -423,8 +428,8 @@ constexpr JoystickAxisMapper y_axis_mapper{.min = 3 + 1,
                                            .out_max = 0x7f,
                                            .out_center = 0x40};
 
-constexpr bool kPrintKey = true;
-constexpr bool kPrintMidiEvents = true;
+constexpr bool kPrintKey = false;
+constexpr bool kPrintMidiEvents = false;
 
 // Low pass filter on the derivate of the signal.
 // The current derivate is merged in the previous one with a factor.
@@ -432,11 +437,11 @@ constexpr bool kPrintMidiEvents = true;
 constexpr float kDecayFactor = 0.25;
 // Velocity profile.
 constexpr float kMinVelocity = 0.26;
-constexpr float kMaxVelocity = 12.47;
+constexpr float kMaxVelocity = 10.47;
 
 // Measure above which one a key is considered pressed.
 constexpr int32_t kPressThreshold = 600;
-constexpr int32_t kReleaseThreshold = 570;
+constexpr int32_t kReleaseThreshold = 580;
 
 constexpr int32_t kMeasuresSize = 16;
 
@@ -454,8 +459,9 @@ void printKeyboardState(const std::array<uint32_t, N> &values) {
   Serial.print("=== Keyboard state ===");
   for (uint32_t i = 0; i < values.size(); i++) {
     if (i % (N / 8) == 0) Serial.println();
-    size_t len = Serial.print(values[i]);
+    size_t len = Serial.print(values[i] > 600 ? 1 : 0);
     for (int c = max(0, 5 - len); c--;) Serial.print(' ');
+    Serial.print(',');
   }
   Serial.println();
 }
@@ -512,7 +518,8 @@ void loop() {
 
         // Send Note On for current position at full velocity (127) on
         // channel 1.
-        MIDI.sendNoteOn(keyboard_mapping[1][i], velocity, kMidiChannel);
+        MIDI.sendNoteOn(keyboard_mapping[1][i], velocity,
+                        kMidiChannel + keyboard_channel[i]);
         if (kPrintKey) {
           Serial.print(">>> Key ");
           Serial.print(i);
@@ -537,7 +544,8 @@ void loop() {
         isPressed[i] = false;
 
         // Send Note Off for previous note.
-        MIDI.sendNoteOff(keyboard_mapping[1][i], 0, kMidiChannel);
+        MIDI.sendNoteOff(keyboard_mapping[1][i], 0,
+                         kMidiChannel + keyboard_channel[i]);
         if (kPrintKey) {
           Serial.print(">>> Key ");
           Serial.print(i);
@@ -595,8 +603,8 @@ void loop() {
     // Let the USB stack opeate if needed.
     yield();
     if (heartbit.tick()) {
-      device_values.print();
-      // printKeyboardState(measures_t1);
+      // device_values.print();
+      printKeyboardState(measures_t1);
     }
   }
 }

@@ -683,7 +683,7 @@ from the surface of the keyboard and the pressed pushbutton.
 # New prototype
 
 <a href="images\Screenshot 2024-03-01 095530.png"><img src="images\Screenshot 2024-03-01 095530.png" height="300"/></a>
-<a href="images\Screenshot 2024-03-01 095839.pnh"><img src="images\Screenshot 2024-03-01 095839.pnh" height="300"/></a>
+<a href="images\Screenshot 2024-03-01 095839.png"><img src="images\Screenshot 2024-03-01 095839.png" height="300"/></a>
 
 - Caps:
   - The new caps are to tight. Try an inner diameter of $4.15mm$
@@ -700,15 +700,11 @@ from the surface of the keyboard and the pressed pushbutton.
 
 # Resistive touch screen
 
+I considered to use a resistive screen ([Datasheet](datasheets\P333+datasheet+TP035W4L2.pdf) to send MIDI control signals. This works well but takes too much space and the intrgration with the 3D printed case would require to much work. I decided to remove it.
+
 - Article [source](https://cdn-shop.adafruit.com/datasheets/AVR341.pdf)
 
 Pins are X- Y+ X+ Y- https://www.adafruit.com/product/3575
-
-[Datasheet](datasheets\P333+datasheet+TP035W4L2.pdf)
-
-# Expression pedals
-
-https://line6.com/support/topic/23057-why-is-an-m-audio-ex-p-expression-pedal-incompatible/
 
 # PCB & Model
 
@@ -719,13 +715,70 @@ MCP3008-I/SL
 [jclpcb](https://jlcpcb.com/partdetail/MicrochipTech-MCP3008_ISL/C1520159)
 
 The enclosure design can be
-[seen here](https://gmail319357.autodesk360.com/shares/public/SHd38bfQT1fb47330c99409055e022d399e6)
+[seen here](https://gmail319357.autodesk360.com/shares/public/SHd38bfQT1fb47330c99409055e022d399e6).
+
+# 3D printing
+
+I printed the model with PLA on Prusa mk4, and inserted M3 bolts.
+
+<a href="images\Screenshot 2024-04-13 213430.png"><img src="images\Screenshot 2024-04-13 213430.png" height="300"/></a>
+
+<a href="images\Screenshot 2024-04-13 214124.png"><img src="images\Screenshot 2024-04-13 214124.png" height="300"/></a>
+
+I also printed the PCB model to validate the component footprints and the assebly:
+
+<a href="images\Screenshot 2024-04-13 214628.png"><img src="images\Screenshot 2024-04-13 214628.png" height="300"/></a>
+
+Assembly is done with 23 x M3 screws with flat heads, and brass bolts:
+
+<a href="datasheets\CM-M1-6-M2-M2-5-M3-figur-M5-M6-M8-304-A2-70-En-Acier.jpg_.webp"><img src="datasheets\CM-M1-6-M2-M2-5-M3-figur-M5-M6-M8-304-A2-70-En-Acier.jpg_.webp" height="300"/></a>
 
 # Electrostatic discharge protection
 
 I added pretection to the two jacks inputs, the potentiometer and the USB
 voltage input. The TVS diodes uni / bidirectional naming was confusing until I
 read [this document](https://www.mouser.com/pdfdocs/AND8424-D.PDF).
+
+I selected [SRV05-4](http://www.onsemi.com/pub/Collateral/SRV05-4-D.PDF)
+packages.
+
+# Adding an expression pedal M-Audio EX-P
+
+Expression pedals wiring is not standatd. I measured the resistance between the
+tip rig and sleeve on the innexpensive M-Audio EX-P. This pedal has a
+configuration switch and a potentiometer.
+
+- Switch mode set to "M-AUDIO":
+  - Potentiometer set to min: R<->S [11.1kΩ, 11.1kΩ], T<->S: [0.9kΩ, 12.1kΩ],
+    R<->T: [12.1kΩ, 0.9kΩ]
+  - Potentiometer set to max: R<->S [63.3kΩ, 63.3kΩ], T<->S: [52.14kΩ, 62.8kΩ],
+    R<->T: [12.1kΩ, 0.9kΩ]
+- Switch set to "Other":
+
+  - Potentiometer set to min: T<->S [11.1kΩ, 11.1kΩ], R<->S: [0.9kΩ, 12.1kΩ],
+    R<->T: [12.1kΩ, 0.9kΩ]
+  - Potentiometer set to max: T<->S [63.3kΩ, 63.3kΩ], R<->S: [52.14kΩ, 62.8kΩ],
+    R<->T: [12.1kΩ, 0.9kΩ]
+
+  The behavior between the tip and the ring is not affected bu the potentiometer
+  and the switch, which is convenient to avoid missuses.
+
+# Production
+
+I ordered 2 assembled PCB on JCLPCB. Exporting the production files was
+reasonably easy using the tutorials. I had to add the `LCSC Part` numbers to the
+schematic and to export the bom with custom scripts.
+
+The the pick and place file, JCLPCB assumes that 0 degree is the posiition of
+the part on a reel tape with the punctures on the left. This was not the case
+for my footprint. I wrote a script to postprocess the components orientation.
+
+# What to improve
+
+- Use pcb mounted potentimeter: simpler to assemble and to test.
+- Use pcb mounted tactile button for the tow unused pins
+- Have the sensonrs and ADC run with 5V for better sensitivity of the hall
+  sersors.
 
 # Related project
 
