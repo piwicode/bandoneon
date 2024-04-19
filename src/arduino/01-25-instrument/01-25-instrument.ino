@@ -57,7 +57,7 @@ constexpr uint8_t keyboard_mapping[2][72] = {
     }};
 
 // 1 for the right hand and 0 for the left hand.
- constexpr uint8_t keyboard_channel[72] = {
+constexpr uint8_t keyboard_channel[72] = {
     /*00*/ 0, 1, 1, 1, 1,
     /*05*/ 0, 0, 0, 0, 0,
     /*10*/ 1, 1, 1, 1, 0,
@@ -127,10 +127,10 @@ class SPIArray {
       "the pad size looks incorrect. Please fix to match your architecture.");
 
   // User provided configuration.
-  uint8_t clk_;
-  uint8_t mosi_;
-  std::array<uint8_t, N> miso_;
-  uint8_t cs_;
+  const uint8_t clk_;
+  const uint8_t mosi_;
+  const std::array<uint8_t, N> miso_;
+  const uint8_t cs_;
 
   // Hardware mapping.
   PadValue cs_mask_, clk_mask_, mosi_mask_;
