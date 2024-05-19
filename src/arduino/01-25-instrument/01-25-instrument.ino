@@ -386,7 +386,8 @@ struct AxisMapper {
 struct JoystickAxisMapper {
   uint32_t min;
   uint32_t max;
-  uint32_t dead_min;  // inclusive
+  // Central deadzone, inclusive
+  uint32_t dead_min;
   uint32_t dead_max;
 
   uint32_t out_min;
@@ -415,17 +416,19 @@ struct JoystickAxisMapper {
 constexpr AxisMapper expression_mapper{
     .min = 92,
     .max = 515,
-    .out_min = 0x0,
-    .out_max = 0x7f,
+    .out_min = 0x7f,
+    .out_max = 0x0,
 };
 
+// proto 2: min=2 max=1021
 constexpr AxisMapper p1_mapper{
     .min = 3 + 1,
     .max = 1021 - 1,
-    .out_min = 0x0,
-    .out_max = 0x7f,
+    .out_min = 0x7f,
+    .out_max = 0x0,
 };
 
+// proto 2: min=2 max=1021
 constexpr AxisMapper p2_mapper{
     .min = 3 + 1,
     .max = 1021 - 1,
@@ -449,8 +452,8 @@ constexpr bool kPrintMidiEvents = false;
 // 1 ignore the past, and 0 ignore the present.
 constexpr float kDecayFactor = 0.25;
 // Velocity profile.
-constexpr float kMinVelocity = 0.26;
-constexpr float kMaxVelocity = 10.47;
+constexpr float kMinVelocity = 0.35;
+constexpr float kMaxVelocity = 12.47;
 
 // Measure above which one a key is considered pressed.
 constexpr int32_t kPressThreshold = 600;
@@ -497,6 +500,7 @@ void loop() {
 
   uint32_t t1_id = 0;
   uint32_t previous_bend = 0x40;  // center
+  uint32_t previous_sustain = 0;
   uint32_t previous_expression = 0;
   uint32_t previous_p1 = 0;
   uint32_t previous_p2 = 0;
@@ -589,6 +593,15 @@ void loop() {
       MIDI.send(midi::MidiType::ControlChange, 1, expression, kMidiChannel);
       previous_expression = expression;
     }
+
+    if (device_values.sustain_pedal != previous_sustain) {
+      MIDI.send(midi::MidiType::ControlChange, 64,
+                device_values.sustain_pedal ? 0 : 127, kMidiChannel);
+      MIDI.send(midi::MidiType::ControlChange, 64,
+                device_values.sustain_pedal ? 0 : 127, kMidiChannel + 1);
+      previous_sustain = device_values.sustain_pedal;
+    }
+
     const uint32_t p1 = p1_mapper.remap(p1_filter.apply(device_values.p1));
     if (p1 != previous_p1) {
       MIDI.send(midi::MidiType::ControlChange, 12, p1, kMidiChannel);
