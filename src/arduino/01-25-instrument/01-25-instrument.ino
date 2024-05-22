@@ -1,4 +1,5 @@
 #include <Adafruit_TinyUSB.h>
+#include <Adafruit_NeoPixel.h>
 #include <Arduino.h>
 #include <MIDI.h>
 
@@ -76,6 +77,7 @@ constexpr uint8_t keyboard_channel[72] = {
 
 // USB MIDI object
 Adafruit_USBD_MIDI usb_midi;
+Adafruit_NeoPixel pixels(1, 8);
 
 // Create a new instance of the Arduino MIDI Library,
 // and attach usb_midi as the transport.
@@ -241,8 +243,15 @@ void setup() {
   Serial.begin(115200);
   adc_array.begin();
 
-  // wait until device mounted
+  // Wait until device mounted
   while (!TinyUSBDevice.mounted()) delay(1);
+
+  // Light the pixel.
+  pixels.begin();  
+  pixels.show(); 
+  pixels.clear();  
+  pixels.setPixelColor(0, pixels.Color(0,1,2));
+  pixels.show(); 
 }
 
 class Heartbit {
@@ -366,13 +375,13 @@ struct HysteresisFilter {
 };
 
 struct AxisMapper {
-  uint32_t min;
-  uint32_t max;
+  int32_t min;
+  int32_t max;
 
-  uint32_t out_min;
-  uint32_t out_max;
+  int32_t out_min;
+  int32_t out_max;
 
-  uint32_t remap(uint32_t value) const {
+  int32_t remap(int32_t value) const {
     if (value < min) {
       return out_min;
     }
@@ -432,8 +441,8 @@ constexpr AxisMapper p1_mapper{
 constexpr AxisMapper p2_mapper{
     .min = 3 + 1,
     .max = 1021 - 1,
-    .out_min = 0x0,
-    .out_max = 0x7f,
+    .out_min = 0x7f, 
+    .out_max = 0x0,
 };
 
 constexpr JoystickAxisMapper y_axis_mapper{.min = 3 + 1,
@@ -577,6 +586,7 @@ void loop() {
 
     const uint32_t bend = y_axis_mapper.remap(device_values.joy_y);
     if (bend != previous_bend) {
+      MIDI.send(midi::MidiType::PitchBend, 0, bend, kMidiChannel);
       MIDI.send(midi::MidiType::PitchBend, 0, bend, kMidiChannel + 1);
       previous_bend = bend;
       if (kPrintMidiEvents) {
@@ -591,6 +601,7 @@ void loop() {
         expression_mapper.remap(device_values.expression_pedal);
     if (expression != previous_expression) {
       MIDI.send(midi::MidiType::ControlChange, 1, expression, kMidiChannel);
+      MIDI.send(midi::MidiType::ControlChange, 1, expression, kMidiChannel+1);
       previous_expression = expression;
     }
 
@@ -603,8 +614,9 @@ void loop() {
     }
 
     const uint32_t p1 = p1_mapper.remap(p1_filter.apply(device_values.p1));
-    if (p1 != previous_p1) {
+    if (p1 != previous_p1) {      
       MIDI.send(midi::MidiType::ControlChange, 12, p1, kMidiChannel);
+      MIDI.send(midi::MidiType::ControlChange, 12, p1, kMidiChannel + 1);
       previous_p1 = p1;
       if (kPrintMidiEvents) {
         Serial.print("device_values.p1: ");
@@ -617,6 +629,7 @@ void loop() {
 
     const uint32_t p2 = p2_mapper.remap(p2_filter.apply(device_values.p2));
     if (p2 != previous_p2) {
+      MIDI.send(midi::MidiType::ControlChange, 13, p2, kMidiChannel);
       MIDI.send(midi::MidiType::ControlChange, 13, p2, kMidiChannel + 1);
       previous_p2 = p2;
       if (kPrintMidiEvents) {
@@ -630,7 +643,7 @@ void loop() {
     // Let the USB stack opeate if needed.
     yield();
     if (heartbit.tick()) {
-      // device_values.print();
+      //device_values.print();
       // printKeyboardState(measures_t1);
     }
   }
