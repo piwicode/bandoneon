@@ -114,11 +114,11 @@ For a detailed breakdown of the firmware behavior and controls, see [`documentat
 
 ## Sound
 
-The best match so far is the **SWAM** family of simulation instruments from [Audio Modeling](https://audiomodeling.com/): they are physically modelled rather than sampled, so CC#11 continuously drives the model itself. Bellows intensity comes out as real dynamics — timbre changing with pressure, notes swelling and dying under the bellows — instead of a volume fade over a fixed sample. [Native Instruments Session Strings](https://www.native-instruments.com/en/products/komplete/orchestral/session-strings-2/) also works very well.
+The best match so far is the **SWAM** family of simulation instruments from [Audio Modeling](https://audiomodeling.com/): they are physically modelled rather than sampled, so CC#11 continuously drives the model itself. Bellows intensity comes out as real dynamics — timbre changing with pressure, notes swelling and dying under the bellows — instead of a volume fade over a fixed sample. [Native Instruments Session Strings](https://www.native-instruments.com/en/products/komplete/cinematic/session-strings-2) also works very well.
 
 Modern bandoneon libraries, oddly enough, work poorly for us. They either assume the wrong keyboard layout — chromatic or accordion mappings, with no push/pull distinction — or offer only shallow CC#11 support, with dynamics baked into velocity-triggered samples that the bellows cannot reshape once a note has started.
 
-For practice — and especially on a phone — a plain GM soundfont goes a long way: [European Bandoneon V2.5 by Jörg Bleymehl](https://musical-artifacts.com/artifacts/1862) gives good results. It loads in any SF2-capable player, costs almost nothing in CPU, and turns a phone or tablet into a usable practice rig without a laptop or a plugin host.
+For practice — and especially on a phone — a simple bandoneon soundfont is enough: [European Bandoneon V2.5 by Jörg Bleymehl](https://musical-artifacts.com/artifacts/1862) gives good results. It loads in any SF2-capable player, costs almost nothing in CPU, and turns a phone or tablet into a usable practice rig without a laptop or a plugin host.
 
 So we are actively looking for virtual instruments with deep expressive support — rich polyphony and CC#11 as a primary articulation driver. If you know of one, or want to help build something tailored to the bandoneon, suggestions and contributions are very welcome.
 
