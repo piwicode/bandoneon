@@ -49,13 +49,15 @@ References
 ## Bandolica
 
 Author
-: Unknwon
+: Mariano Godoy, Sebastián Barbui
 
 Year
 : 2022 - 2024
 
 Notes
-: Apparenlty has only the right keyboard and no bellow sensing.
+: Apparently has only the right keyboard and no bellow sensing. Sold as a
+  practice device paired with a learning application; connects over USB to a
+  computer, later to a phone.
 
 License
 : None known — likely closed source.
