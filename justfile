@@ -1,7 +1,7 @@
 default:
     @just --list
 
-# Monitor the Bandoneo MIDI port, reconnecting across reboots
+# Monitor the Bandolibre MIDI port, reconnecting across reboots
 midimon:
     tools/midimon.sh
 

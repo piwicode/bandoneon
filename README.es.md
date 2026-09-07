@@ -61,8 +61,8 @@ Construir un Bandolibre cuesta aproximadamente lo mismo que un buen teclado MIDI
 
 | Pieza | Cant. | Notas |
 |-------|-------|-------|
-| Piezas impresas en 3D + 71 teclas | — | ~880 g de filamento, ~24 h de impresión, [archivos STEP](https://github.com/piwicode/bandoneo/releases)|
-| Placas electrónicas: principal, izquierda y derecha | 1 | [Diseño EasyEDA](boards), [archivos Gerber](https://github.com/piwicode/bandoneo/releases) |
+| Piezas impresas en 3D + 71 teclas | — | ~880 g de filamento, ~24 h de impresión, [archivos STEP](https://github.com/bandolibre/bandolibre.github.io/releases)|
+| Placas electrónicas: principal, izquierda y derecha | 1 | [Diseño EasyEDA](boards), [archivos Gerber](https://github.com/bandolibre/bandolibre.github.io/releases) |
 | Interruptores de efecto Hall | 71 | [GATERON Low Profile Magnetic Jade HE](https://www.gateron.com/products/gateron-low-profile-magnetic-jade-switch?VariantsId=10872) |
 | Lámina resorte para fuelle | 1 | [Acero para resorte 65Mn, 1,2 × 40 × 300 mm](https://fr.aliexpress.com/item/1005006952720032.html?spm=a2g0o.order_list.order_list_main.17.3cfd1802U67eT2&gatewayAdapt=glo2fra) |
 | Imanes permanentes 14,5 × 6 × 2 mm | 2 | |
@@ -97,7 +97,7 @@ Los PCB están diseñados con EasyEDA.
 
 El fuelle es reemplazado por una **lámina de resorte equipada con dos sensores de efecto Hall** que leen su flexión. Las soluciones basadas en celdas de carga fueron descartadas — demasiado rígidas, eliminan el feedback táctil que los bandoneonistas necesitan para sentir y modular su esfuerzo — es como presionar contra una pared. La lámina resorte preserva ese feedback propioceptivo siendo a la vez simple y duradera. El grosor de la lámina puede elegirse para ajustar la rigidez del instrumento, de suave a firme.
 
-![lámina resorte](documentation/images/bandoneo_blade.webp)
+![lámina resorte](documentation/images/bandolibre_blade.webp)
 
 Un botón selector de sensibilidad permite selectionar entre tres niveles de amplificación para ajustar cuánto recorrido de fuelle se necesita para alcanzar la máxima expresión — útil para tocar suave.
 
@@ -127,8 +127,8 @@ Por eso estamos buscando activamente instrumentos virtuales con soporte expresiv
 ## ¿Cómo queda?
 
 <p>
-  <img src="documentation/images/bandoneo_overview.webp" alt="Bandolibre overview" width="49%">
-  <img src="documentation/images/bandoneo_main_module.webp" alt="Bandolibre main module" width="49%">
+  <img src="documentation/images/bandolibre_overview.webp" alt="Bandolibre overview" width="49%">
+  <img src="documentation/images/bandolibre_main_module.webp" alt="Bandolibre main module" width="49%">
 </p>
 
 Cinco unidades fueron construidas y están funcionando. El firmware maneja las 142 teclas, el fuelle empuje/tracción, los pedales y la salida MIDI de forma confiable. Estos cinco instrumentos están actualmente prestados a profesores de bandoneón que nos dan retroalimentación práctica mientras pulimos el software.

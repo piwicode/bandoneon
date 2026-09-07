@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Re-arrange a single-object PrusaSlicer 3MF into a regular grid of instances.
 
-The input is expected to be a 3MF such as ``BandoNeo - Key - slice.3mf`` that
+The input is expected to be a 3MF such as ``Bandolibre - Key - slice.3mf`` that
 contains exactly one real mesh (object id 1) plus a number of component-wrapper
 objects, one build <item> per printed instance.
 
@@ -115,8 +115,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     here = Path(__file__).resolve().parent
-    ap.add_argument("-i", "--input", default=here / "BandoNeo - Key - slice.3mf", type=Path)
-    ap.add_argument("-o", "--output", default=here / "BandoNeo - Key - 72.3mf", type=Path)
+    ap.add_argument("-i", "--input", default=here / "Bandolibre - Key - slice.3mf", type=Path)
+    ap.add_argument("-o", "--output", default=here / "Bandolibre - Key - 72.3mf", type=Path)
     ap.add_argument("--plates", type=int, default=3)
     ap.add_argument("--cols", type=int, default=6)
     ap.add_argument("--rows", type=int, default=4)

@@ -5,7 +5,7 @@ The Bandolibre is meant to be built. It exists so that anyone, anywhere in the
 world, can make one if they want to — this page walks you through everything it
 takes.
 
-<a href="https://cad.onshape.com/documents/313e70e978bf056a8dd7d76c/v/5c5fbc4088ac379c1bd1b53a/e/c6a89cb028bdc195ff70596f" target="_blank" rel="noopener"><img src="images/bandoneo_turntable.webp" alt="Bandolibre 3D model"></a>
+<a href="https://cad.onshape.com/documents/313e70e978bf056a8dd7d76c/v/5c5fbc4088ac379c1bd1b53a/e/c6a89cb028bdc195ff70596f" target="_blank" rel="noopener"><img src="images/bandolibre_turntable.webp" alt="Bandolibre 3D model"></a>
 
 <a href="https://cad.onshape.com/documents/313e70e978bf056a8dd7d76c/v/5c5fbc4088ac379c1bd1b53a/e/c6a89cb028bdc195ff70596f" target="_blank" rel="noopener">Open OnShape CAD model</a>
 
@@ -30,7 +30,7 @@ planet.
 
 | Part | Qty | Notes |
 |------|-----|-------|
-| Main PCB | 1 | [EasyEDA design](../boards), [Production files](https://github.com/piwicode/bandoneo/releases) |
+| Main PCB | 1 | [EasyEDA design](../boards), [Production files](https://github.com/bandolibre/bandolibre.github.io/releases) |
 | Left wing PCB | 1 | idem |
 | Right wing PCB | 1 | idem |
 
@@ -156,9 +156,9 @@ voltage drop).
 
 All the parts are printed with 15% density with no support.
 
-The printable files are attached to the [GitHub releases](https://github.com/piwicode/bandoneo/releases):
+The printable files are attached to the [GitHub releases](https://github.com/bandolibre/bandolibre.github.io/releases):
 
-- `bandoneo-models-xxx.zip` — STEP files exported from the [Onshape model](https://cad.onshape.com/documents/313e70e978bf056a8dd7d76c/v/5c5fbc4088ac379c1bd1b53a/e/c6a89cb028bdc195ff70596f).
+- `bandolibre-models-xxx.zip` — STEP files exported from the [Onshape model](https://cad.onshape.com/documents/313e70e978bf056a8dd7d76c/v/5c5fbc4088ac379c1bd1b53a/e/c6a89cb028bdc195ff70596f).
 - `xxxx - slice.3mf` — PrusaSlicer projects that reference the models already arranged on the plate.
 
 The projects print with "Complete individual objects" enabled, so each part is

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Monitor the Bandoneo MIDI port with aseqdump, reconnecting across reboots.
+# Monitor the Bandolibre MIDI port with aseqdump, reconnecting across reboots.
 #
 # aseqdump exits (or prints "Port unsubscribed") when the device disappears,
 # e.g. on a firmware reboot. This wrapper detects that, then polls the ALSA

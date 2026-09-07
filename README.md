@@ -61,8 +61,8 @@ Building one costs about as much as a decent MIDI keyboard or a good pair of stu
 
 | Part | Qty | Notes |
 |------|-----|-------|
-| 3D-printed body parts + 71 keys | — | ~880 g filament, ~24 h print time, [STEP files](https://github.com/piwicode/bandoneo/releases)|
-| Electronics board: Main, left and right PCBs  | 1 | [EasyEDA design](boards), [Gerber files](https://github.com/piwicode/bandoneo/releases) |
+| 3D-printed body parts + 71 keys | — | ~880 g filament, ~24 h print time, [STEP files](https://github.com/bandolibre/bandolibre.github.io/releases)|
+| Electronics board: Main, left and right PCBs  | 1 | [EasyEDA design](boards), [Gerber files](https://github.com/bandolibre/bandolibre.github.io/releases) |
 | Hall-effect switches | 71 | [GATERON Low Profile Magnetic Jade HE](https://www.gateron.com/products/gateron-low-profile-magnetic-jade-switch?VariantsId=10872) |
 | Bellows spring strip | 1 | [65Mn spring steel, 1.2 × 40 × 300 mm](https://fr.aliexpress.com/item/1005006952720032.html?spm=a2g0o.order_list.order_list_main.17.3cfd1802U67eT2&gatewayAdapt=glo2fra) |
 | Permanent magnets 14.5 × 6 × 2 mm | 2 |  |
@@ -97,7 +97,7 @@ The PCBs are designed with EasyEDA.
 
 The bellows is replaced by a **blade spring instrumented with two Hall-effect sensors** that read its flexion. Load cell solutions were ruled out early — they are too rigid and remove the tactile feedback players rely on to feel and modulate their effort — it plays like pressing on a wall. The blade spring preserves that proprioceptive feedback while being simple and durable. Blade thickness can be chosen to tune the instrument's stiffness, from light to firm.
 
-![blade spring](documentation/images/bandoneo_blade.webp)
+![blade spring](documentation/images/bandolibre_blade.webp)
 
 A sensitivity selector button cycles through three amplification levels so the player can adjust how much bellows travel is needed to reach full expression — useful for quiet practice or a stiffer spring.
 
@@ -127,8 +127,8 @@ So we are actively looking for virtual instruments with deep expressive support 
 ## Where we are
 
 <p>
-  <img src="documentation/images/bandoneo_overview.webp" alt="Bandolibre overview" width="49%">
-  <img src="documentation/images/bandoneo_main_module.webp" alt="Bandolibre main module" width="49%">
+  <img src="documentation/images/bandolibre_overview.webp" alt="Bandolibre overview" width="49%">
+  <img src="documentation/images/bandolibre_main_module.webp" alt="Bandolibre main module" width="49%">
 </p>
 
 Five units are built and working. The firmware handles all 142 keys, bellows push/pull, pedals, and MIDI output reliably. These instruments are currently on loan to bandoneon teachers who are giving us hands-on feedback while we polish the software.

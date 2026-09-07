@@ -61,8 +61,8 @@ Construire un Bandolibre coûte à peu près autant qu'un bon clavier MIDI ou un
 
 | Pièce | Qté | Notes |
 |-------|-----|-------|
-| Pièces imprimées 3D + 71 touches | — | ~880 g de filament, ~24 h d'impression, [fichiers STEP](https://github.com/piwicode/bandoneo/releases)|
-| Cartes électroniques : principale, gauche et droite | 1 | [Conception EasyEDA](boards), [fichiers Gerber](https://github.com/piwicode/bandoneo/releases) |
+| Pièces imprimées 3D + 71 touches | — | ~880 g de filament, ~24 h d'impression, [fichiers STEP](https://github.com/bandolibre/bandolibre.github.io/releases)|
+| Cartes électroniques : principale, gauche et droite | 1 | [Conception EasyEDA](boards), [fichiers Gerber](https://github.com/bandolibre/bandolibre.github.io/releases) |
 | Interrupteurs à effet Hall | 71 | [GATERON Low Profile Magnetic Jade HE](https://www.gateron.com/products/gateron-low-profile-magnetic-jade-switch?VariantsId=10872) |
 | Lame-ressort soufflet | 1 | [Acier à ressort 65Mn, 1,2 × 40 × 300 mm](https://fr.aliexpress.com/item/1005006952720032.html?spm=a2g0o.order_list.order_list_main.17.3cfd1802U67eT2&gatewayAdapt=glo2fra) |
 | Aimants permanents 14,5 × 6 × 2 mm | 2 | |
@@ -97,7 +97,7 @@ Les PCB sont conçus avec EasyEDA.
 
 Le soufflet est remplacé par une **lame-ressort instrumentée de deux capteurs à effet Hall** qui lisent sa flexion. Les solutions à base de cellule de charge n'ont pas été retenues car elles sont trop rigides et n'aident pas à ressentir et moduler la pression — ça joue comme si on appuyait sur un mur. La lame-ressort préserve ce retour proprioceptif tout en étant simple et durable. L'épaisseur de la lame peut être choisie pour régler la rigidité de l'instrument, du plus souple au plus ferme.
 
-![3d_pcb](documentation/images/bandoneo_blade.webp)
+![3d_pcb](documentation/images/bandolibre_blade.webp)
 
 Un bouton sélecteur de sensibilité permet de cycler entre trois niveaux d'amplification pour ajuster la course de soufflet nécessaire à l'expression maximale — utile pour jouer doucement ou avec une lame plus rigide.
 
@@ -127,8 +127,8 @@ Nous cherchons donc activement des instruments virtuels avec un support expressi
 ## Où en sommes-nous
 
 <p>
-  <img src="documentation/images/bandoneo_overview.webp" alt="Bandolibre overview" width="49%">
-  <img src="documentation/images/bandoneo_main_module.webp" alt="Bandolibre main module" width="49%">
+  <img src="documentation/images/bandolibre_overview.webp" alt="Bandolibre overview" width="49%">
+  <img src="documentation/images/bandolibre_main_module.webp" alt="Bandolibre main module" width="49%">
 </p>
 
 Cinq unités sont construites et fonctionnelles. Le firmware gère les 142 touches, le soufflet poussé/tiré, les pédales et la sortie MIDI de manière fiable. Ces instruments sont actuellement prêtés à des professeurs de bandonéon qui nous donnent leurs retours terrain pendant que nous peaufinons le logiciel.

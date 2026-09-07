@@ -9,14 +9,14 @@ Bus 001 Device 070: ID 0483:3754 STMicroelectronics STLINK-V3
 ```
 
 Install [stlink-tools](https://github.com/stlink-org/stlink) from source, in a
-directory next to your `bandoneo` checkout:
+directory next to your `bandolibre` checkout:
 
 ```
 sudo apt remove stlink-tools
 sudo apt install build-essential cmake libusb-1.0-0-dev
 git clone --depth 1 --branch testing https://github.com/stlink-org/stlink
 cd stlink
-git apply ../bandoneo/documentation/0001-fix-st-trace-fix-SWO-trace-on-STLINK-V3-HS-bulk-endp.patch
+git apply ../bandolibre/documentation/0001-fix-st-trace-fix-SWO-trace-on-STLINK-V3-HS-bulk-endp.patch
 make release && sudo make install && sudo ldconfig
 ```
 
