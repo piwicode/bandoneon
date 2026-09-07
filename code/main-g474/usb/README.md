@@ -5,21 +5,26 @@ The main board enumerates as a full-speed MIDI USB device built on
 
 | | |
 |---|---|
-| VID / PID | `0xCafe` / `0x4008` (TinyUSB convention: `0x4000 \| interface bitmap`, MIDI on bit 3) |
+| VID / PID | `0x0483` / `0xA5B4` (ST's vendor id, product id sublicensed from ST) |
 | Manufacturer | L'Atelier du bandonéon libre |
 | Product | Bandolibre |
 | Serial | 96-bit chip UID, 24 hex digits |
 | Interfaces | MIDI only |
 
-The PID is computed by the `PID_MAP` macro from the enabled classes, so it
-changes whenever one is added. Earlier revisions of this file and of
-`CLAUDE.md` quote `0x4001`, which is what a CDC-only build would give; the
-MIDI-only build in the tree is `0x4008`, as `lsusb` confirms.
+`0x0483` is STMicroelectronics' USB-IF vendor id; `0xA5B4` is a product id
+sublicensed from ST for this project, valid only for a product built on ST
+silicon (STM32G474CBT6) and only for Bandolibre. The sublicense does not carry
+USB-IF certification, so the instrument must not display the USB logo. Earlier
+revisions used TinyUSB's development ids `0xCafe` / `0x4008` (`0x4000 |`
+interface bitmap, computed by a `PID_MAP` macro); that macro is gone, the
+product id is now fixed.
 
 The board also carries a [UF2 bootloader](../../boot-g474/README.md), which
-enumerates separately as `cafe:4002` — mass storage, product string
-"Bandolibre DFU" — while firmware is being updated. The two product ids must
-differ because hosts cache a driver per VID/PID.
+enumerates while firmware is being updated — mass storage, product string
+"Bandolibre DFU". It shares this VID/PID (one product id covers the product)
+and is told apart by `bcdDevice`: `0x0100` here, `0x0200` in the bootloader.
+The revisions must differ because hosts cache a driver per VID/PID/revision and
+the two devices expose different classes.
 
 ## Files
 
@@ -54,7 +59,7 @@ from `code/tests`).
 ## Testing
 
 ```sh
-lsusb -d cafe:4008       # device present (cafe:4002 = bootloader, see boot-g474)
+lsusb -d 0483:a5b4       # device present (bcdDevice 0200 = bootloader, see boot-g474)
 amidi -l                 # MIDI port listed as "Bandolibre"
 aseqdump -p Bandolibre &   # then run `midi [note]` in the console to test
 ```

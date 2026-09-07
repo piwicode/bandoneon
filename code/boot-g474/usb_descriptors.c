@@ -6,16 +6,16 @@
 #include "tusb.h"
 #include "stm32g4xx_hal.h"
 
-/* Same VID and the same auto-PID convention as the application
- * (main-g474/usb/usb_descriptors.c): 0x4000 | the class bitmap, with MSC on
- * bit 1. The bootloader must not share the application's product id — hosts
- * cache a driver per VID/PID, and the two devices expose different classes.
+/* Same sublicensed ST ids as the application (main-g474/usb/usb_descriptors.c):
+ * one product id covers the whole product, so the bootloader is told apart by
+ * bcdDevice instead. Hosts cache a driver per VID/PID/revision and the two
+ * devices expose different classes, so the revisions must stay distinct.
  *
- *   application (MIDI)   0x4008
- *   bootloader  (MSC)    0x4002
+ *   application (MIDI)   bcdDevice 0x0100
+ *   bootloader  (MSC)    bcdDevice 0x0200
  */
-#define USB_VID  0xCafe
-#define USB_PID  0x4002
+#define USB_VID  0x0483  /* STMicroelectronics */
+#define USB_PID  0xA5B4  /* Bandolibre */
 
 //--------------------------------------------------------------------+
 // Device Descriptor
@@ -34,7 +34,7 @@ static tusb_desc_device_t const desc_device = {
 
     .idVendor           = USB_VID,
     .idProduct          = USB_PID,
-    .bcdDevice          = 0x0100,
+    .bcdDevice          = 0x0200,
 
     .iManufacturer      = 0x01,
     .iProduct           = 0x02,

@@ -6,15 +6,20 @@
 #include "tusb.h"
 #include "stm32g4xx_hal.h"
 
-/* A combination of interfaces must have a unique product id, since PC will save device driver after the first plug.
- * Same VID/PID with different interface e.g MSC (first), then CDC (later) will possibly cause system error on PC.
+/* USB ids sublicensed from STMicroelectronics: ST's vendor id with a product
+ * id assigned to this project, valid only for a product built on ST silicon
+ * (STM32G474CBT6) and only for Bandolibre. The sublicense does not cover
+ * USB-IF certification, so the device must not carry the USB logo.
  *
- * Auto ProductID layout's Bitmap:
- *   [MSB]  VENDOR | MIDI | HID | MSC | CDC  [LSB]
+ * The bootloader (boot-g474) shares this VID/PID and is told apart by
+ * bcdDevice: hosts cache a driver per VID/PID/revision, and the two devices
+ * expose different classes (MIDI here, MSC there).
+ *
+ *   application  bcdDevice 0x0100
+ *   bootloader   bcdDevice 0x0200
  */
-#define PID_MAP(itf, n)  ((CFG_TUD_##itf) ? (1 << (n)) : 0)
-#define USB_PID          (0x4000 | PID_MAP(CDC, 0) | PID_MAP(MSC, 1) | PID_MAP(HID, 2) | \
-                          PID_MAP(MIDI, 3) | PID_MAP(VENDOR, 4))
+#define USB_VID  0x0483  /* STMicroelectronics */
+#define USB_PID  0xA5B4  /* Bandolibre */
 
 //--------------------------------------------------------------------+
 // Device Descriptor
@@ -31,7 +36,7 @@ static tusb_desc_device_t const desc_device = {
     .bDeviceProtocol    = MISC_PROTOCOL_IAD,
     .bMaxPacketSize0    = CFG_TUD_ENDPOINT0_SIZE,
 
-    .idVendor           = 0xCafe,
+    .idVendor           = USB_VID,
     .idProduct          = USB_PID,
     .bcdDevice          = 0x0100,
 
@@ -87,8 +92,8 @@ enum {
 // Strings are UTF-8 encoded and converted to UTF-16 on request.
 static char const *string_desc_arr[] = {
   (const char[]) { 0x09, 0x04 },  // 0: supported language is English (0x0409)
-  "Bandolibre",                   // 2: Product
   "L'Atelier du Bandon\xc3\xa9on Libre",  // 1: Manufacturer
+  "Bandolibre",                   // 2: Product
   NULL,                           // 3: Serial, derived from the chip UID
 };
 

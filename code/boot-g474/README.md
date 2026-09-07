@@ -99,14 +99,17 @@ when pressed, which would collide with ST's own boot-mode selection if the
 
 | | Application | Bootloader |
 |---|---|---|
-| VID:PID | `cafe:4008` | `cafe:4002` |
+| VID:PID | `0483:a5b4` | `0483:a5b4` |
+| bcdDevice | `0x0100` | `0x0200` |
 | Class | MIDI (IAD) | Mass storage |
 | Product | Bandolibre | Bandolibre DFU |
 | Serial | 96-bit chip UID, 24 hex digits | same |
 
-The PID follows the same `0x4000 | class bitmap` convention as
-[`../main-g474/usb/usb_descriptors.c`](../main-g474/usb/usb_descriptors.c), with
-MSC on bit 1. The two must differ: hosts cache a driver per VID/PID.
+The VID/PID is ST's vendor id with a product id sublicensed to this project
+(see [`../main-g474/usb/README.md`](../main-g474/usb/README.md)). One product id
+covers the whole product, so application and bootloader share it and differ by
+`bcdDevice` instead: hosts cache a driver per VID/PID/revision, and the two
+expose different classes.
 
 ## Build
 
@@ -129,7 +132,7 @@ so the chip-UID registry still refuses to write main board firmware to a wing.
 ## Testing
 
 ```sh
-lsusb -d cafe:4002              # bootloader enumerated
+lsusb -d 0483:a5b4              # bootloader enumerated (bcdDevice 0200)
 cat /media/*/BANDOLIBRE/INFO_UF2.TXT
 ```
 
