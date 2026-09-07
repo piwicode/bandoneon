@@ -9,17 +9,17 @@
 **  Abstract    : Linker script for STM32G474CBTx series
 **                128Kbytes FLASH and 128Kbytes RAM
 **
-**                DEBUG map: the application starts at 0x08000000 and so
-**                overwrites the bootloader. `just flash` installs this image,
-**                giving a -O0 -g3 build with no DFU support. At -O0 the
-**                firmware is ~116 KB and cannot fit above any bootloader big
-**                enough to hold TinyUSB and the MSC class, so the two cannot
-**                coexist. STM32G474XX_FLASH_APP.ld is the Release map that
-**                sits above the bootloader; `just flash_release` installs
-**                that one together with it.
+**                RELEASE map: the application is relocated to 0x08008000,
+**                above the 32 KB UF2 bootloader, and gets the 94 KB up to the
+**                reserved properties page. This is the image `just dfu`
+**                packages and the bootloader writes.
 **
-**                The last 2 KB page is held back from both maps for the
-**                properties store. See boot-g474/memmap.h for the full split.
+**                The vector table moves with it: main-g474/CMakeLists.txt
+**                defines USER_VECT_TAB_ADDRESS and VECT_TAB_OFFSET=0x8000 for
+**                the Release config, which makes SystemInit() point VTOR here.
+**
+**                STM32G474XX_FLASH.ld is the Debug map (0x08000000, no
+**                bootloader). See boot-g474/memmap.h for the full split.
 **
 **                Set heap size, stack size and stack location according
 **                to application requirements.
@@ -69,7 +69,7 @@ MEMORY
 {
 RAM      (xrw) : ORIGIN = 0x20000000, LENGTH = 128K - 32
 BOOTFLAG (rw)  : ORIGIN = 0x2001FFE0, LENGTH = 32
-FLASH    (rx)  : ORIGIN = 0x08000000, LENGTH = 126K
+FLASH    (rx)  : ORIGIN = 0x08008000, LENGTH = 94K
 }
 
 /* Highest address of the user mode stack */

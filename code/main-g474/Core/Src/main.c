@@ -36,6 +36,8 @@
 #include "properties_console.h"
 #include "app/midi.h"
 #include "app/app.h"
+/* Flash split and the DFU hand-off flag, shared with the bootloader. */
+#include "memmap.h"
 
 /* USER CODE END Includes */
 
@@ -110,6 +112,24 @@ int console_execute(int argc, const char * const *argv)
     usb_app_midi_test_note(note);
     printf("Sent MIDI note %u on/off\r\n", note);
   }
+  else if (strcmp(argv[0], "dfu") == 0)
+  {
+    /* Reboot into the bootloader's mass storage mode, so firmware can be
+     * updated without unplugging and holding FN2. The bootloader reads this
+     * word, clears it, and stays in DFU mode; see boot-g474/main.c. */
+#ifndef USER_VECT_TAB_ADDRESS
+    /* Defined only for the Release build, which is the one that links above
+     * the bootloader. A Debug image was flashed over the bootloader by
+     * `just flash`, so there is nothing to reboot into. */
+    printf("This is a Debug image flashed over the bootloader; there is no\r\n"
+           "DFU mode to enter. Reinstall it with 'just flash_release'.\r\n");
+#else
+    printf("Rebooting into DFU mode; the BANDOLIBRE drive will appear.\r\n");
+    HAL_Delay(50);   /* let the console UART drain before the reset */
+    *(volatile uint32_t *)BOOT_FLAG_ADDR = BOOT_FLAG_MAGIC;
+    NVIC_SystemReset();
+#endif
+  }
   else if (strcmp(argv[0], "bellow_tune") == 0) bellow_tune();
   else if (strcmp(argv[0], "help") == 0)   { properties_help(); midi_console_help(); }
   else if (properties_execute(argc, argv)) { /* handled show/get/set/reset */ }
@@ -125,7 +145,7 @@ int console_execute(int argc, const char * const *argv)
 #define CONSOLE_COMPL_MAX 32
 char ** console_complete(int argc, const char * const *argv)
 {
-  static const char *commands[] = { "help", "show", "get", "set", "reset", "hello", "midi", "bellow_tune" };
+  static const char *commands[] = { "help", "show", "get", "set", "reset", "hello", "midi", "bellow_tune", "dfu" };
   static char *out[CONSOLE_COMPL_MAX + 1];
   const char *partial = (argc > 0) ? argv[argc - 1] : "";
   size_t n = 0;

@@ -1,8 +1,13 @@
 #!/usr/bin/env python3
 """Flash firmware to every connected ST-Link whose chip is registered as the target board type.
 
-Example:
+Examples:
   flash.py wing-g474 build/Debug/wing-g474.bin   # flashes all connected wing boards
+  flash.py main-g474 build/Release/main-g474.bin --address 0x08008000
+
+--address exists because the main board can carry two images: the UF2
+bootloader at 0x08000000 and the Release application above it. See
+code/boot-g474/memmap.h.
 """
 
 import argparse
@@ -26,9 +31,9 @@ def probe_serials() -> list[str]:
     ]
 
 
-def flash_binary(serial: str, binary: Path) -> None:
+def flash_binary(serial: str, binary: Path, address: int) -> None:
     result = subprocess.run(
-        ["st-flash", "--serial", serial, "--reset", "write", str(binary), "0x08000000"]
+        ["st-flash", "--serial", serial, "--reset", "write", str(binary), f"0x{address:08x}"]
     )
     if result.returncode != 0:
         print(f"Error: flash failed for ST-Link {serial}.", file=sys.stderr)
@@ -39,6 +44,8 @@ def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("board", choices=BOARDS, help="Board type to flash")
     parser.add_argument("binary", type=Path, help="Binary (.bin) file to flash")
+    parser.add_argument("--address", type=lambda v: int(v, 0), default=0x08000000,
+                        help="Flash address to write at (default 0x08000000)")
     args = parser.parse_args()
 
     serials = probe_serials()
@@ -66,8 +73,9 @@ def main() -> None:
         sys.exit(1)
 
     for serial, uid in targets:
-        print(f"Flashing {args.board} (chip {uid}) via ST-Link {serial}…")
-        flash_binary(serial, args.binary)
+        print(f"Flashing {args.board} (chip {uid}) via ST-Link {serial} "
+              f"at 0x{args.address:08x}…")
+        flash_binary(serial, args.binary, args.address)
         print("  Done.")
 
 

@@ -93,6 +93,32 @@ board type, so both wings can be flashed in a single command.
 
 The same recipes apply in `code/wing-g474`.
 
+## Main board: two images, two memory maps
+
+The main board carries a UF2 bootloader at `0x08000000` so it can be updated by
+copying a file onto a USB drive — see
+[firmware_update.md](firmware_update.md) and
+[code/boot-g474/README.md](../code/boot-g474/README.md). That splits its 128 KB
+of flash, and the Debug build does not fit in the application's share of it:
+at `-O0` it is ~116 KB against the 94 KB available above the bootloader. So the
+two configurations link differently, and the recipes differ accordingly:
+
+| Recipe | Builds | Links at | Bootloader after |
+|---|---|---|---|
+| `just flash` | Debug, `-O0 -g3` | `0x08000000` | **erased** — this image takes its place |
+| `just flash_release` | bootloader + Release, `-Os -flto` | `0x08008000` | installed |
+| `just dfu` | Release, packaged as `.uf2` | `0x08008000` | (no flashing; copy over USB) |
+
+Day-to-day development is unchanged: `just flash` still gives a full `-O0 -g3`
+image with all its debug information, it just has no DFU drive. Run
+`just flash_release` when you want the bootloader back, and once per board
+before handing it to anyone who will update it over USB.
+
+`just dfu` is the one to use for a release: it builds the Release
+configuration and writes `build/Release/main-g474.uf2`.
+
+None of this affects `code/wing-g474`, which has a single memory map.
+
 
 # Read UART debug console
 

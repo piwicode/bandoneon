@@ -36,6 +36,27 @@ enable_language(C CXX ASM)
 # Create an executable object type
 add_executable(${CMAKE_PROJECT_NAME})
 
+# The Release image lives above the UF2 bootloader at 0x08008000, so its vector
+# table has to move with it. These are the knobs the generated
+# Core/Src/system_stm32g4xx.c already has: with USER_VECT_TAB_ADDRESS defined,
+# SystemInit() sets SCB->VTOR = FLASH_BASE | VECT_TAB_OFFSET. Using them keeps
+# the relocation out of the generated file, so nothing has to be edited outside
+# its USER CODE tags.
+#
+# This has to be directory scope, and has to come before add_subdirectory():
+# system_stm32g4xx.c is listed in STM32_Drivers_Src, so it is compiled into the
+# STM32_Drivers object library rather than into this executable, and a
+# target_compile_definitions() on ${CMAKE_PROJECT_NAME} would never reach it.
+#
+# Debug defines neither and keeps VTOR at 0x08000000, matching
+# STM32G474XX_FLASH.ld. The offset must equal BOOT_SIZE in ../boot-g474/memmap.h.
+# The bootloader also sets VTOR itself before jumping, so the application is
+# safe either way; this makes the image correct on its own terms.
+add_compile_definitions(
+    $<$<CONFIG:Release>:USER_VECT_TAB_ADDRESS>
+    $<$<CONFIG:Release>:VECT_TAB_OFFSET=0x8000U>
+)
+
 # Add STM32CubeMX generated sources
 add_subdirectory(cmake/stm32cubemx)
 
@@ -99,6 +120,9 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ../common/hall_report
     usb
     ../third_party/tinyusb/src
+    # memmap.h: the flash split and the DFU hand-off flag, shared with the
+    # bootloader so the two cannot disagree about them.
+    ../boot-g474
 )
 
 # Add project symbols (macros)

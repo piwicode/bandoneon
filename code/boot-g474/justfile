@@ -1,0 +1,29 @@
+default:
+    @just --list
+
+# Generate build system into build/Debug. Re-run after adding/removing source files or changing CMakeLists.txt.
+init_build:
+    cmake --preset Debug
+
+build:
+    cmake --build --preset Debug
+
+# Generate build system into build/Release. Re-run after adding/removing source files or changing CMakeLists.txt.
+init_build_release:
+    cmake --preset Release
+
+build_release:
+    cmake --build --preset Release
+
+# Install the bootloader at 0x08000000, leaving the application above it untouched.
+flash: init_build_release build_release
+    arm-none-eabi-objcopy -O binary build/Release/boot-g474.elf build/Release/boot-g474.bin
+    ../tool/flash.py main-g474 build/Release/boot-g474.bin --address 0x08000000
+
+# Report how much of the 32 KB bootloader region is used.
+size: init_build_release build_release
+    arm-none-eabi-size build/Release/boot-g474.elf
+
+# Reset the board via STLink
+reset:
+    st-flash reset

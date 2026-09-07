@@ -31,13 +31,22 @@ build_release:
 registry_add:
     ../tool/registry.py add $(basename $(pwd))
 
+# Flash the Debug build over SWD. Links at 0x08000000, so it REPLACES the bootloader.
 flash:
     name=$(basename $(pwd)) && \
     arm-none-eabi-objcopy -O binary build/Debug/$name.elf build/Debug/$name.bin && \
     ../tool/flash.py "$name" build/Debug/$name.bin
 
-# Init, build, and flash release version
-release: init_build_release build_release flash
+# Package the Release firmware as a .uf2 to copy onto the BANDOLIBRE drive.
+dfu: init_build_release build_release
+    arm-none-eabi-objcopy -O binary build/Release/main-g474.elf build/Release/main-g474.bin
+    ../tool/uf2.py build/Release/main-g474.bin build/Release/main-g474.uf2
+
+# Install bootloader + Release application over SWD. Once per board, and after `just flash`.
+flash_release: init_build_release build_release
+    cd ../boot-g474 && just flash
+    arm-none-eabi-objcopy -O binary build/Release/main-g474.elf build/Release/main-g474.bin
+    ../tool/flash.py main-g474 build/Release/main-g474.bin --address 0x08008000
 
 # Reset the board via STLink
 reset:

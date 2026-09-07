@@ -27,7 +27,7 @@ static void print_startup_info(void)
   const uint32_t static_use = (uint32_t)&_end - ram_base;
   const uint32_t heap_free  = (uint32_t)&_estack - stack_resv - (uint32_t)&_end;
 
-  printf("\r\n=== Bandoneo main ===\r\n");
+  printf("\r\n=== Bandolibre main ===\r\n");
   printf("Clocks: SYSCLK %lu MHz, HCLK %lu MHz, PCLK1 %lu MHz, PCLK2 %lu MHz\r\n",
          (unsigned long)(HAL_RCC_GetSysClockFreq() / 1000000UL),
          (unsigned long)(HAL_RCC_GetHCLKFreq()     / 1000000UL),

@@ -6,20 +6,15 @@
 **
 **  Author		: STM32CubeMX
 **
-**  Abstract    : Linker script for STM32G474CBTx series
-**                128Kbytes FLASH and 128Kbytes RAM
+**  Abstract    : Linker script for the Bandolibre UF2 bootloader.
 **
-**                DEBUG map: the application starts at 0x08000000 and so
-**                overwrites the bootloader. `just flash` installs this image,
-**                giving a -O0 -g3 build with no DFU support. At -O0 the
-**                firmware is ~116 KB and cannot fit above any bootloader big
-**                enough to hold TinyUSB and the MSC class, so the two cannot
-**                coexist. STM32G474XX_FLASH_APP.ld is the Release map that
-**                sits above the bootloader; `just flash_release` installs
-**                that one together with it.
+**                Derived from the CubeMX script for the STM32G474CBTx; only
+**                the MEMORY block and the .boot_flag section differ from
+**                main-g474/STM32G474XX_FLASH.ld.
 **
-**                The last 2 KB page is held back from both maps for the
-**                properties store. See boot-g474/memmap.h for the full split.
+**                The bootloader owns the bottom 32 KB of flash, where the
+**                reset vector always lands. The application lives above it at
+**                0x08008000. See memmap.h for the full split.
 **
 **                Set heap size, stack size and stack location according
 **                to application requirements.
@@ -69,7 +64,7 @@ MEMORY
 {
 RAM      (xrw) : ORIGIN = 0x20000000, LENGTH = 128K - 32
 BOOTFLAG (rw)  : ORIGIN = 0x2001FFE0, LENGTH = 32
-FLASH    (rx)  : ORIGIN = 0x08000000, LENGTH = 126K
+FLASH    (rx)  : ORIGIN = 0x08000000, LENGTH = 32K
 }
 
 /* Highest address of the user mode stack */
