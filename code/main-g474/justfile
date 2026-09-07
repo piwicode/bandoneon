@@ -1,5 +1,10 @@
-default:
-    @just --list
+import '../common/board.just'
+set fallback
+
+# Keep first: a bare `just` runs the first recipe of this file (see board.just).
+
+# Show the available recipes.
+default: _list
 
 # Build and run host unit tests for HAL-free modules (e.g. properties)
 test:
@@ -13,29 +18,8 @@ test:
     cc -std=c11 -Wall -Wextra -Iapp -lm app/bellow_classify.c app/bellow_phys.c app/bellow_physical_sim_test.c -o build/bellow_physical_sim_test
     ./build/bellow_physical_sim_test
 
-# Generate build system into build/Debug. Re-run after adding/removing source files or changing CMakeLists.txt.
-init_build:
-    cmake --preset Debug
-
-build:
-    cmake --build --preset Debug
-
-# Generate build system into build/Release. Re-run after adding/removing source files or changing CMakeLists.txt.
-init_build_release:
-    cmake --preset Release
-
-build_release:
-    cmake --build --preset Release
-
-# Record this board's chip UID in the registry. Run once per board before the first flash.
-registry_add:
-    ../tool/registry.py add $(basename $(pwd))
-
 # Flash the Debug build over SWD. Links at 0x08000000, so it REPLACES the bootloader.
-flash:
-    name=$(basename $(pwd)) && \
-    arm-none-eabi-objcopy -O binary build/Debug/$name.elf build/Debug/$name.bin && \
-    ../tool/flash.py "$name" build/Debug/$name.bin
+flash: _flash
 
 # Package the Release firmware as a .uf2 to copy onto the BANDOLIBRE drive.
 dfu: init_build_release build_release
@@ -47,8 +31,3 @@ flash_release: init_build_release build_release
     cd ../boot-g474 && just flash
     arm-none-eabi-objcopy -O binary build/Release/main-g474.elf build/Release/main-g474.bin
     ../tool/flash.py main-g474 build/Release/main-g474.bin --address 0x08008000
-
-# Reset the board via STLink
-reset:
-    st-flash reset
-

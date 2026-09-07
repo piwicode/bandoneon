@@ -1,1 +1,10 @@
-../main-g474/justfile
+import '../common/board.just'
+set fallback
+
+# Keep first: a bare `just` runs the first recipe of this file (see board.just).
+
+# Show the available recipes.
+default: _list
+
+# Flash the Debug build over SWD, at 0x08000000. The wing board carries no bootloader.
+flash: _flash
