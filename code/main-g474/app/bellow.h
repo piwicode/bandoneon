@@ -5,11 +5,13 @@
 #include <stdint.h>
 #include "keyboard_layout.h"
 
-/* The bandoneon is bisonoric: each key sounds a different note on push vs pull.
+/* The bellows drives expression on every tuning, and on a bisonoric one it also
+ * selects which of a key's two notes sounds (see keyboard_layout.h).
  * This module reads the two hall sensors, tracks the bellows direction and how
  * hard it is being pushed or pulled (both derived from the combined hall
- * reading), and emits CC#11 (Expression) from the intensity. FN2 toggles an
- * inertia mode that runs the readings through a virtual-bellows pressure model
+ * reading), and emits CC#11 (Expression) from the intensity. The
+ * bellow_inertia_enable property switches on an inertia mode that runs the
+ * readings through a virtual-bellows pressure model, off by default
  * (documentation/bellow_simulation.md). */
 
 /* Current bellows direction (BELLOWS_NEUTRAL/PUSH/PULL). */
@@ -17,7 +19,7 @@ bellows_t bellow_direction(void);
 
 /* How hard the bellows is currently being pushed or pulled, 0..1024 (0 in
  * BELLOWS_NEUTRAL). Same units as the CC#11 expression value; consumers use it
- * to set note-on velocity. In inertia mode (FN2) this is the simulated chamber
+ * to set note-on velocity. In inertia mode this is the simulated chamber
  * pressure of the bellow_inertia_* model (which stores the energy of a fast
  * impulse and bleeds it through the open pallets); otherwise it is the live
  * reading. See documentation/bellow_simulation.md. */

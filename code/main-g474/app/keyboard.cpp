@@ -230,6 +230,26 @@ void HAL_SPI_ErrorCallback(SPI_HandleTypeDef *hspi)
     b->needs_resync = 1;
 }
 
+/* The active tuning's notes for one wing and bellows direction, or NULL if
+ * wing_id is not a wing — which happens on a bus that has not yet received a
+ * good frame, since last_good_wing starts at 0. Read fresh on every use so a
+ * console edit takes effect live, like the other properties. property_set_u16
+ * clamps to [min,max], but a future flash blob could carry anything, so fall
+ * back to Rheinische rather than index out of bounds.
+ *
+ * Changing tuning while keys are held is deliberately not special-cased:
+ * sounding_note[] holds the note that was actually sent and bus_note_off()
+ * replays it, so a held note keeps its old pitch until released and cannot get
+ * stranded. The next press uses the new tuning. */
+static inline const uint8_t *notes_for(uint8_t wing_id, bellows_t dir)
+{
+  int side = wing_side(wing_id);
+  if (side < 0) return NULL;
+  uint16_t tuning = g_properties->keyboard_tuning;
+  if (tuning >= NUM_TUNINGS) tuning = TUNING_RHEINISCHE;
+  return note_table[tuning][side][dir];
+}
+
 /* Sends NOTE ON for key k on wing_id using the current bellows mapping, if
  * it isn't already sounding and that mapping has a note (it doesn't in
  * BELLOWS_NEUTRAL, where no air moves). No-op otherwise. */
@@ -238,7 +258,9 @@ static void bus_note_on(SPIBus *b, uint8_t wing_id, int k)
   if (b->sounding_note[k] != NOTE_NONE) return;
   bellows_t dir = kbd_bellows();
   if (dir == BELLOWS_NEUTRAL) return;  /* no air moves, no note; table has no neutral slice */
-  uint8_t note = note_table[wing_id][dir][k];
+  const uint8_t *notes = notes_for(wing_id, dir);
+  if (notes == NULL) return;           /* no good frame yet, so no keyboard to map */
+  uint8_t note = notes[k];
   if (note == NOTE_NONE) return;
   b->sounding_note[k] = note;
   /* In table mode the bellows isn't moving, so start from a fixed default and
@@ -296,7 +318,10 @@ static void bus_process_frame(SPIBus *b, const uint16_t *frame)
   uint8_t wing_id = (uint8_t)frame[0];
   const uint16_t *meas = &frame[1];
 
-  if (wing_name(wing_id) == NULL) return; /* unknown wing -> nothing to decode */
+  /* Hoisted out of the per-key loop below: one property read and one table
+   * lookup per frame instead of forty. NULL means an unknown wing id. */
+  const uint8_t *push_notes = notes_for(wing_id, BELLOWS_PUSH);
+  if (push_notes == NULL) return; /* unknown wing -> nothing to decode */
 
   /* Capture the raw readings only while this keyboard's live table is shown,
    * and fold them into the stats only while its stat tables are shown, so a
@@ -315,7 +340,7 @@ static void bus_process_frame(SPIBus *b, const uint16_t *frame)
     if (v < b->key_min[k]) b->key_min[k] = v;
     if (b->key_min[k] == 0) continue;          /* unpopulated channel */
 
-    const bool is_mapped = note_table[wing_id][BELLOWS_PUSH][k] != NOTE_NONE;
+    const bool is_mapped = push_notes[k] != NOTE_NONE;
     if (!b->key_pressed[k] && v <= g_properties->key_press)
     {
       b->key_pressed[k] = 1;
@@ -460,8 +485,9 @@ static void kbd_dash_emit(void *ctx, const char *line)
 static void bus_report_keyboard(SPIBus *b, bool show_stats)
 {
   const char *wname = wing_name(b->last_good_wing);
-  console_dash_println("%-6s keyboard (wing_id=%u %s)", b->name, b->last_good_wing,
-                       wname ? wname : "?");
+  const char *tname = tuning_name((uint8_t)g_properties->keyboard_tuning);
+  console_dash_println("%-6s keyboard (wing_id=%u %s, tuning=%s)", b->name, b->last_good_wing,
+                       wname ? wname : "?", tname ? tname : "?");
   hall_report_keys(b->last_keys, kbd_dash_emit, NULL);
   if (show_stats)
   {

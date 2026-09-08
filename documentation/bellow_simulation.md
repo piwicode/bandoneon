@@ -1,9 +1,9 @@
-# Bellows inertia simulation (FN2)
+# Bellows inertia simulation
 
 A virtual-bellows model that gives the lightweight blade-spring instrument the
-feel of an acoustic bandoneon's bellows. It is toggled by the **right function
-button (FN2)** and is **on by default**; with it off, the bellows reading drives
-the sound directly (the plain mode). This document explains the principle, the
+feel of an acoustic bandoneon's bellows. It is switched by the
+`bellow_inertia_enable` property and is **off by default**; with it off, the
+bellows reading drives the sound directly (the plain mode). This document explains the principle, the
 model, and how to tune it.
 
 ## Why
@@ -111,7 +111,8 @@ step), which keeps the oscillator stable, and the leak is a plain factor floored
 at zero, which is stable for any step and needs no transcendental.
 
 The model is integrated every poll so its state is always visible on the live
-report for tuning; its output is used for sound only while FN2 is engaged.
+report for tuning; its output is used for sound only while
+`bellow_inertia_enable` is set.
 
 ## Direction and output
 
@@ -182,7 +183,7 @@ Enable the bellows live report (`show_bellow`) and watch the first line: it show
 the signed `force`, the velocity `v`, the pressure `P`, the committed effective
 intensity and direction, and the `keys` count.
 
-1. With FN2 off, confirm `P` follows `force` and settles onto it under a slow,
+1. With `bellow_inertia_enable` off, confirm `P` follows `force` and settles onto it under a slow,
    steady push or pull.
 2. Set `track_ms` for the impulse window you want, then `damping` for how much (if
    any) overshoot to allow.

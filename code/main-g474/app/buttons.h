@@ -14,10 +14,15 @@
  * FN1 (middle) cycles bellows sensitivity through three levels. See
  * buttons_bellow_sens_level().
  *
- * FN2 (right) is a press-to-toggle for bellows inertia mode: the readings drive
- * a virtual-bellows pressure model so the energy of a fast impulse stays
- * available for the note that follows, instead of tracking the hall reading
- * instantly. See buttons_bellow_inertia() and documentation/bellow_simulation.md. */
+ * FN2 (right) cycles the keyboard tuning (Rheinische -> Peguri -> Manoury and
+ * back). It writes the keyboard_tuning property rather than latching state of
+ * its own, so read the tuning from g_properties->keyboard_tuning. Held at
+ * power-on, FN2 instead enters the UF2 bootloader; that is the bootloader's
+ * own check and is unrelated to this module.
+ *
+ * FN2 used to toggle bellows inertia mode. That model is still in the firmware
+ * but is off by default and now switched by the bellow_inertia_enable property
+ * (see documentation/bellow_simulation.md). */
 
 /* Reads the three function buttons and logs the combined state on any change.
  * Call once per main loop iteration. */
@@ -30,8 +35,5 @@ bool buttons_table_mode(void);
  * unity scale; levels 1 and 2 apply the bellow_scale_mid / bellow_scale_high
  * properties. */
 uint8_t buttons_bellow_sens_level(void);
-
-/* True while bellows inertia mode is engaged (toggled by each press of FN2). */
-bool buttons_bellow_inertia(void);
 
 #endif /* APP_BUTTONS_H */

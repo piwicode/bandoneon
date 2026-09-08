@@ -2,7 +2,9 @@
 
 #include <stdio.h>
 
+#include "keyboard_layout.h"
 #include "main.h"
+#include "properties.h"
 
 /* Latched by buttons_poll() on each FN0 press; read via buttons_table_mode(). */
 static bool table_mode = false;
@@ -14,9 +16,6 @@ static bool table_mode = false;
  * FN1 press; read via buttons_bellow_sens_level(). */
 static uint8_t bellow_sens_level = 0;
 
-/* Latched by buttons_poll() on each FN2 press; read via buttons_bellow_inertia(). */
-static bool bellow_inertia = false;
-
 bool buttons_table_mode(void)
 {
   return table_mode;
@@ -27,9 +26,17 @@ uint8_t buttons_bellow_sens_level(void)
   return bellow_sens_level;
 }
 
-bool buttons_bellow_inertia(void)
+/* Advances keyboard_tuning to the next tuning, wrapping after the last. The
+ * property stays the single source of truth — this keeps no copy of its own —
+ * so the button and `set keyboard_tuning` on the console agree and neither can
+ * go stale behind the other. */
+static void cycle_keyboard_tuning(void)
 {
-  return bellow_inertia;
+  size_t idx;
+  uint16_t tuning;
+  if (!property_by_name("keyboard_tuning", &idx)) return;
+  if (!property_get_u16(idx, &tuning)) return;
+  property_set_u16(idx, (uint16_t)((tuning + 1) % NUM_TUNINGS));
 }
 
 void buttons_poll(void)
@@ -48,18 +55,19 @@ void buttons_poll(void)
 
   /* Act on rising edges (press, not release). FN0 toggles table mode; FN1
    * advances the bellows sensitivity level, wrapping after the last; FN2
-   * toggles the bellows inertia mode. */
+   * advances the keyboard tuning, wrapping after the last. */
   if ((fn & 1) && !(fn_prev & 1)) table_mode = !table_mode;
   if ((fn & 2) && !(fn_prev & 2)) bellow_sens_level = (bellow_sens_level + 1) % BELLOW_SENS_LEVELS;
-  if ((fn & 4) && !(fn_prev & 4)) bellow_inertia = !bellow_inertia;
+  if ((fn & 4) && !(fn_prev & 4)) cycle_keyboard_tuning();
 
   if (fn != fn_prev)
   {
     fn_prev = fn;
-    printf("FN: %c%c%c  table_mode=%u  bellow_sens_level=%u  bellow_inertia=%u\r\n",
+    const char *tname = tuning_name((uint8_t)g_properties->keyboard_tuning);
+    printf("FN: %c%c%c  table_mode=%u  bellow_sens_level=%u  keyboard_tuning=%s\r\n",
            (fn & 1) ? '1' : '0',
            (fn & 2) ? '1' : '0',
            (fn & 4) ? '1' : '0',
-           table_mode, bellow_sens_level, bellow_inertia);
+           table_mode, bellow_sens_level, tname ? tname : "?");
   }
 }

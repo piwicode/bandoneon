@@ -35,12 +35,12 @@ static void test_defaults(void)
 {
   /* No reset first: this verifies the static initialization of the live
    * struct (values are valid before any call). Runs first in main(). */
-  CHECK(property_count() == 43);
+  CHECK(property_count() == 46);
 
   /* Direct reads match defaults from property_table.def. */
   CHECK(g_properties->key_press == 1900);
   CHECK(g_properties->key_release == 2100);
-  CHECK(g_properties->bellow_center == 3760);
+  CHECK(g_properties->bellow_center == 11280);
   CHECK(g_properties->bellow_cc_period_ms == 10);
 
   /* Same value via the index API. */
@@ -97,7 +97,7 @@ static void test_reset(void)
 
   CHECK(property_set_u16(idx("bellow_center"), 100));
   property_reset_all();
-  CHECK(g_properties->bellow_center == 3760);
+  CHECK(g_properties->bellow_center == 11280);
 }
 
 static void test_pack_unpack_roundtrip(void)
@@ -198,8 +198,8 @@ static void test_complete(void)
 {
   const char *out[64];
   /* "bellow_" matches the bellow_* properties (calibration, CC, scale, inertia) */
-  CHECK(properties_complete("bellow_", out, 64) == 18);
-  /* "key_" matches the two key_* properties */
+  CHECK(properties_complete("bellow_", out, 64) == 20);
+  /* "key_" matches the two key_* properties, not keyboard_tuning */
   CHECK(properties_complete("key_", out, 64) == 2);
   /* empty prefix matches all (buffer is sized above property_count()) */
   CHECK(properties_complete("", out, 64) == property_count());

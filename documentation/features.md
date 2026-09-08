@@ -1,5 +1,37 @@
 # Features
 
+## Keyboard tuning (FN2)
+
+The wing boards report which side they are (left or right); the notes those
+buttons play are chosen by the `keyboard_tuning` property, so one firmware
+covers several bandoneon systems on the same hardware. The **right function
+button (FN2)** cycles through them, wrapping after the last, and the tuning now
+selected is reported on the console. FN2 only writes the property, so the button
+and `set keyboard_tuning` stay in agreement.
+
+| Value | System | |
+|---|---|---|
+| 0 | **Rheinische Tonlage**, 142 tones (default) | bisonoric |
+| 1 | **Peguri** | unisonoric |
+| 2 | **Manoury** | unisonoric |
+
+*Bisonoric* means a key sounds a different note depending on whether the bellows
+is pushed or pulled — the traditional Argentine bandoneon. The two French
+systems are *unisonoric*: every key sounds the same note in both directions.
+All three share the same button disposition, so switching tuning changes only
+which note each button plays.
+
+Two notes of the published Peguri/Manoury right-hand keyboard are missing here.
+Those layouts use 40 right-hand buttons where this instrument has 38, and the
+two absent buttons are the lowest of their rows (D4 and D♯4). What remains is
+chromatically complete from E4 upward.
+
+Changing the tuning while keys are held is safe: a sounding note keeps its
+original pitch until released, and the next press uses the new tuning.
+
+Note that property storage is still RAM-only, so the tuning returns to
+Rheinische after a power cycle.
+
 ## MIDI Active Sensing
 
 A heartbeat the device sends to the host so the host can detect a dropped
@@ -43,10 +75,10 @@ saturates.
 The same multiplier scales the table-mode velocity, so switching sensitivity
 levels also raises or lowers how hard table-mode notes play.
 
-## Bellows inertia mode (FN2)
+## Bellows inertia mode
 
-The **right function button (FN2)** toggles bellows inertia mode; the current
-state is reported on the console. Off, the bellows reading drives the sound
+Set `bellow_inertia_enable` to turn bellows inertia mode on; it is **off by
+default**. Off, the bellows reading drives the sound
 directly. On, the reading is run through a virtual-bellows pressure model that
 gives the light blade spring the feel of an acoustic bandoneon's bellows: a quick
 impulse stores energy that stays available for the note played just after, held

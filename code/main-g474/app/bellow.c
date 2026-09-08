@@ -160,7 +160,7 @@ static void bellow_swo_trace(const bellow_naive_state_t *naive, const bellow_phy
              "%d,%u,"
              "%.3f,%.3f,%u,%d,%.3f,"
              "%ld,%u\n",
-             (unsigned long)now, (unsigned)buttons_bellow_inertia(),
+             (unsigned long)now, (unsigned)g_properties->bellow_inertia_enable,
              (int)naive->direction, (unsigned)naive->intensity,
              (double)phys->core.v, (double)phys->core.p, (unsigned)phys->core.eff_intensity,
              (int)phys->core.eff_dir, (double)phys->core.f_prev,
@@ -330,7 +330,7 @@ void bellow_poll(void)
   bellow_naive(hall_total, &naive);
   bellow_physical_simulation(hall_total, keyboard_keys_pressed(), naive.direction, &phys);
 
-  if (buttons_bellow_inertia()) {
+  if (g_properties->bellow_inertia_enable) {
     g_bellow_out.direction = phys.core.eff_dir;
     g_bellow_out.intensity = phys.core.eff_intensity;
   } else {
