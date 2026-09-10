@@ -8,3 +8,9 @@ default: _list
 
 # Flash the Debug build over SWD, at 0x08000000. The wing board carries no bootloader.
 flash: _flash
+
+# Flash the Release build over SWD, at 0x08000000. The wing board carries no bootloader.
+flash_release: init_build_release build_release
+    name=$(basename $(pwd)) && \
+    arm-none-eabi-objcopy -O binary build/Release/$name.elf build/Release/$name.bin && \
+    ../tool/flash.py "$name" build/Release/$name.bin
