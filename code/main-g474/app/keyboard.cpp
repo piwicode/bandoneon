@@ -263,16 +263,15 @@ static void bus_note_on(SPIBus *b, uint8_t wing_id, int k)
   uint8_t note = notes[k];
   if (note == NOTE_NONE) return;
   b->sounding_note[k] = note;
-  /* In table mode the bellows isn't moving, so start from a fixed default and
-   * scale it by the FN1 sensitivity multiplier (Q8, >>8 to divide), clamped to
-   * the MIDI range; otherwise derive velocity from how hard the bellows is
-   * moving (0..1024 -> 1..127), floored at 1 so a note triggered just past the
-   * neutral deadzone is still audible (0 would be a NOTE OFF). */
+  /* In table mode the bellows isn't moving, so every note plays at the same
+   * constant velocity, tablemode_velocity (which CC#11 is also pinned to there);
+   * otherwise derive velocity from how hard the bellows is moving (0..1024 ->
+   * 1..127), floored at 1 so a note triggered just past the neutral deadzone is
+   * still audible (0 would be a NOTE OFF). */
   uint8_t velocity;
   if (buttons_table_mode())
   {
-    uint32_t v = ((uint32_t)g_properties->tablemode_velocity * bellow_sens_scale_q8()) >> 8;
-    velocity = (uint8_t)(v > 127 ? 127 : v);
+    velocity = (uint8_t)g_properties->tablemode_velocity;
   }
   else
   {

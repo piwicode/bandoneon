@@ -94,7 +94,7 @@ PROPERTY(24, uint16_t, pedal2_cc_period_ms,
          .description = "Pedal 2 min milliseconds between CC sends")
 PROPERTY(25, uint16_t, tablemode_velocity,
          .default_value = 80, .min = 1, .max = 127,
-         .description = "Note velocity used in table mode (bellows at rest)")
+         .description = "CC#11 and velocity value sent in table mode")
 PROPERTY(26, uint16_t, bellow_scale_low,
          .default_value = 256, .min = 16, .max = 1024,
          .description = "Bellows sensitivity scale at level 0 (unity), /256 (256 = x1.0)")

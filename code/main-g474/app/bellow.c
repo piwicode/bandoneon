@@ -61,7 +61,7 @@ uint16_t bellow_intensity(void)
 /* Bellows sensitivity multiplier (Q8, 256 = x1.0) for the level FN1 currently
  * selects: level 0 is unity, levels 1 and 2 use the bellow_scale_mid/high
  * properties. Applied to the intensity, so it scales both note velocity and
- * CC#11; also reused for the table-mode velocity. */
+ * CC#11. Table mode takes neither from the bellows and so is unaffected by it. */
 uint16_t bellow_sens_scale_q8(void)
 {
   switch (buttons_bellow_sens_level())
@@ -177,10 +177,31 @@ static void bellow_swo_trace(const bellow_naive_state_t *naive, const bellow_phy
  * When intensity drops to 0 (bellow at rest), CC=0 is forced and the
  * hysteresis anchor is reset. Without this, the anchor stays at bellow_cchyst
  * and the fwd_thresh condition (x + fwd_thresh < anchor -> 0+16 < 16 -> false)
- * never advances it down, leaving CC=1 stuck indefinitely. */
+ * never advances it down, leaving CC=1 stuck indefinitely.
+ *
+ * Table mode is the exception: the bellows rests there, so it must not drive
+ * expression at all (see the branch below). */
 static void bellow_send_cc(void)
 {
   static hyst_state_t st;
+  static bool table_prev;
+
+  /* Table mode plays with the bellows at rest, so the bellows drives nothing
+   * here: its intensity is 0 and the CC=0 that follows would silence every note.
+   * Expression is constant instead, at the same tablemode_velocity the notes play
+   * at. Send it once on entry, then stay quiet while table mode is engaged. */
+  if (buttons_table_mode())
+  {
+    if (!table_prev)
+    {
+      table_prev = true;
+      uint8_t cc = (uint8_t)g_properties->tablemode_velocity;
+      usb_app_midi_control_change(L_MIDI_CH, 11, cc);
+      usb_app_midi_control_change(R_MIDI_CH, 11, cc);
+    }
+    return;
+  }
+  table_prev = false;
 
   uint16_t intensity = bellow_intensity();
   if (intensity == 0)

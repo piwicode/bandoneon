@@ -9,7 +9,8 @@
  * selects which of a key's two notes sounds (see keyboard_layout.h).
  * This module reads the two hall sensors, tracks the bellows direction and how
  * hard it is being pushed or pulled (both derived from the combined hall
- * reading), and emits CC#11 (Expression) from the intensity. The
+ * reading), and emits CC#11 (Expression) from the intensity — except in table
+ * mode, where the bellows rests and CC#11 is instead pinned to a constant. The
  * bellow_inertia_enable property switches on an inertia mode that runs the
  * readings through a virtual-bellows pressure model, off by default
  * (documentation/bellow_simulation.md). */
@@ -26,8 +27,8 @@ bellows_t bellow_direction(void);
 uint16_t bellow_intensity(void);
 
 /* Sensitivity multiplier for the level FN1 currently selects, as a Q8 fixed
- * point value (256 = x1.0). Already applied to bellow_intensity(); also used to
- * scale the table-mode velocity, so the FN1 levels behave the same there. */
+ * point value (256 = x1.0). Already applied to bellow_intensity(). Table mode
+ * has no bellows signal to scale, so the levels do not affect it. */
 uint16_t bellow_sens_scale_q8(void);
 
 /* Samples both hall sensors, updates the direction/intensity, and emits the

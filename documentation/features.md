@@ -49,13 +49,22 @@ state is reported on the console.
 Normally a note only sounds while the bellows is moving, and its pitch and
 velocity follow the bellows direction and intensity. Table mode lets the
 instrument be played flat on a table with the bellows at rest: each key press
-sounds immediately, the bellows is treated as always **pulled** (so every key
-plays its pull note), and notes use a fixed velocity of 80. This makes it
-practical to type a score into a DAW or notation software one note at a time,
-without having to work the bellows.
+sounds immediately and the bellows is treated as always **pulled**, so every key
+plays its pull note. This makes it practical to type a score into a DAW or
+notation software one note at a time, without having to work the bellows.
+
+With the bellows at rest it can shape neither loudness nor expression, so table
+mode holds both constant and stops the bellows driving them:
+
+- every note plays at the same velocity;
+- the expression CC (**CC#11**) is no longer sent from the bellows. It is pinned
+  once, on entering table mode, to that same value. Without this the bellows
+  would sit at rest, hold CC#11 at 0, and silence every note.
+
+Both take their value from `tablemode_velocity` (default 80).
 
 Toggling table mode off re-evaluates the keys currently held so sounding notes
-follow the real bellows again.
+follow the real bellows again, and hands CC#11 back to it.
 
 ## Bellows sensitivity
 
@@ -72,8 +81,8 @@ fixed point value (256 = x1.0), so 384 and 512. The scaled intensity is clamped
 to its full range, so beyond the point that reaches maximum the signal simply
 saturates.
 
-The same multiplier scales the table-mode velocity, so switching sensitivity
-levels also raises or lowers how hard table-mode notes play.
+Table mode has no bellows signal to scale, so the sensitivity levels do not
+affect it; it plays at `tablemode_velocity` whatever the level.
 
 ## Bellows inertia mode
 
