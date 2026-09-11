@@ -41,6 +41,8 @@ Voir les démos : [avec une clarinette virtuelle](https://youtu.be/6s1wlRKlAk4) 
 
 ## Fonctionnalités
 
+**Accord du clavier** — un bouton pour selecionne la dispositions de clavier parmis: Rheinische Tonlage (bisonore, 142 tons), Peguri ou Manoury.
+
 **Mode table** — un bouton active le mode table : les touches se déclenchent immédiatement à vélocité fixe, sans mouvement de soufflet. Idéal pour saisir une partition note par note sans actionner le soufflet.
 
 **Jouez partout** — Bandolibre est alimenté par le bus USB ; n'importe quel téléphone, tablette ou ordinateur portable avec un synthé logiciel devient le moteur sonore. Un petit hub USB avec prise casque et pass-through d'alimentation vous donne audio, charge et MIDI en un seul câble — testé et tient dans une poche.

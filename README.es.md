@@ -41,6 +41,8 @@ Mira las demos: [con un clarinete virtual](https://youtu.be/6s1wlRKlAk4) · [con
 
 ## Funcionalidades
 
+**Sintonización del teclado** — un botón para ciclar entre las tres disposiciones de teclado: Rheinische Tonlage (bisonórico, 142 tonos), Peguri o Manoury.
+
 **Modo mesa** — un botón activa el modo mesa: las teclas suenan inmediatamente a velocidad fija, sin necesidad de mover el fuelle. Ideal para ingresar una partitura nota a nota sin accionar el fuelle.
 
 **Toca en cualquier lugar** — Bandolibre se alimenta por el bus USB; cualquier teléfono, tableta o laptop con un sintetizador por software se convierte en el motor de sonido. Un pequeño hub USB con salida de auriculares y paso de alimentación te da audio, carga y MIDI desde un solo cable — testeado y de bolsillo.

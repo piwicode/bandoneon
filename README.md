@@ -41,6 +41,8 @@ Watch the demos: [with a clarinet virtual instrument](https://youtu.be/6s1wlRKlA
 
 ## Features
 
+**Keyboard tuning** — a button cycle through the three keyboard layouts: Rheinische Tonlage (bisonoric, 142 tones), Peguri, or Manoury.
+
 **Table mode** — a button toggles table mode: keys fire immediately at fixed velocity, no bellows movement required. Handy for entering a score note by note without working the bellows.
 
 **Play anywhere** — Bandolibre is bus-powered over USB; any phone, tablet, or laptop with a soft synth becomes the sound engine. A small USB hub with a headphone jack and a power pass-through gives you audio, charging, and MIDI from a single cable — tested and pocket-sized.
@@ -162,7 +164,7 @@ It is useful for us to see how many people are interested and what they'd play i
 Questions, ideas, or just curious?
 Join [L'Atelier du bandonéon libre](https://bandolibre.github.io).
 
-The main board communicates digitally with the wing boards and can support any layout. It is possible to design a new keyboard for a different system — Rheinische Lage, Club, Einheitsbandoneon, Peguri, Manouri — and reuse the main board.
+The main board communicates digitally with the wing boards and can support any layout. It is possible to design a new keyboard for a different system — Rheinische Lage, Club, Einheitsbandoneon — and reuse the main board.
 
 Working on something similar? Let the association know — we'd love to connect.
 
