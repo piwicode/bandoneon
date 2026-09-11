@@ -1,6 +1,6 @@
-boards/bandolibre_backup
 **/__pycache__
-keyboard_picture/*.xcf
+boards/bandolibre_backup
+CLAUDE.md
 datasheets
 export
-CLAUDE.md
+keyboard_picture/*.xcf

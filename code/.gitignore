@@ -1,5 +1,6 @@
-*/.settings
-*/.cache
-*/build
-*/STM32CubeIDE
 */__pycache__
+*/.cache
+*/.settings
+*/build
+*/compile_commands.json
+*/STM32CubeIDE
