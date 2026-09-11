@@ -137,7 +137,23 @@ Les modèles 3D et les conceptions de PCB sont solides — aucune révision pré
 
 Il reste beaucoup à explorer côté logiciel. Parce que les capteurs à effet Hall mesurent en continu la position des touches — pas seulement ouvert/fermé — le firmware a accès à la course complète de chaque touche à tout moment. Cela ouvre la voie au **MPE (MIDI Polyphonic Expression)** : courbes de pression, de glissé et de relâché par note, indépendamment pour chacune des 142 touches simultanément.
 
-Bandolibre reste un projet DIY : les plans sont ouverts et chacun peut en construire un. Ce qui manque, c'est le cadre administratif qui permettrait à l'association de conclure une transaction — céder des cartes, un kit ou un instrument fini à quelqu'un qui le demande. C'est encore à quelques mois, il n'y a donc rien à organiser aujourd'hui. Si vous souhaitez que nous vous prévenions quand ce sera possible, [laissez vos coordonnées sur ce formulaire](https://forms.gle/amgxEX4XTy9Jfd538). Cela nous aide aussi à voir combien de personnes sont intéressées, et ce qu'elles aimeraient en jouer. Vos réponses restent au sein de l'association et servent uniquement à vous recontacter au sujet de Bandolibre.
+---
+
+## Comment obtenir un appareil
+
+Bandolibre reste un projet DIY : les plans sont ouverts et chacun peut en construire un. Nous affinons le logiciel et recueillons les retours sur le matériel.
+
+Ce qui manque, c'est le cadre administratif qui permettrait à l'association de conclure une transaction — céder des cartes, un kit ou un instrument fini à quelqu'un qui le demande.
+
+Si vous souhaitez que nous vous prévenions quand ce sera possible :
+
+<div align="center">
+
+### ✉️ **[Rejoindre la liste d'attente →](https://forms.gle/amgxEX4XTy9Jfd538)**
+
+</div>
+
+Cela nous aide aussi à voir combien de personnes sont intéressées et ce qu'elles aimeraient en jouer. Vos réponses restent au sein de l'association et servent uniquement à vous recontacter au sujet de Bandolibre.
 
 ---
 

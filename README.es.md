@@ -137,7 +137,23 @@ Los modelos 3D y los diseños de PCB son sólidos — no hay revisiones planific
 
 Hay mucho por explorar respecto del software. Dado que los sensores de efecto Hall miden la posición de las teclas de forma continua — no solo encendido/apagado — el firmware tiene acceso al recorrido completo de cada tecla en todo momento. Esto abre la puerta al **MPE (MIDI Polyphonic Expression)**: curvas de presión, deslizamiento y levantamiento por nota, de forma independiente para cada una de las 142 teclas simultáneamente.
 
-Bandolibre sigue siendo un proyecto DIY: los planos son abiertos y cualquiera puede construir uno. Lo que falta es el marco administrativo que le permita a la asociación concretar una transacción — ceder placas, un kit o un instrumento terminado a quien lo pida. Eso está a unos meses, así que hoy no hay nada que gestionar. Si quieres que te avisemos cuando sea posible, [deja tus datos en este formulario](https://forms.gle/amgxEX4XTy9Jfd538). También nos ayuda a ver cuánta gente está interesada, y para qué lo tocarían. Tus respuestas quedan en la asociación y solo se usan para contactarte a propósito de Bandolibre.
+---
+
+## ¿Cómo obtener un dispositivo?
+
+Bandolibre sigue siendo un proyecto DIY: los planos son abiertos y cualquiera puede construir uno. Estamos puliendo el software y recopilando comentarios sobre el hardware.
+
+Lo que falta es el marco administrativo que le permita a la asociación concretar una transacción — ceder placas, un kit o un instrumento terminado a quien lo pida.
+
+Si quieres que te avisemos cuando sea posible:
+
+<div align="center">
+
+### ✉️ **[Únete a la lista de espera →](https://forms.gle/amgxEX4XTy9Jfd538)**
+
+</div>
+
+También nos ayuda a ver cuánta gente está interesada y para qué lo tocarían. Tus respuestas quedan en la asociación y solo se usan para contactarte a propósito de Bandolibre.
 
 ---
 

@@ -137,7 +137,23 @@ The 3D models and PCB designs are solid — no rework planned there. The active 
 
 There is a lot to explore on the software side. Because Hall-effect sensors measure key position continuously — not just on/off — the firmware has access to the full travel of every key at all times. This opens the door to **MPE (MIDI Polyphonic Expression)**: per-note pressure, slide, and lift curves, independently for each of the 142 keys simultaneously.
 
-Bandolibre stays a DIY project: the design is open and anyone can build one. What is missing is the paperwork that would let the association handle a transaction at all — passing on boards, a kit, or a finished instrument to someone who asks. That is a few months away, so there is nothing to arrange today. If you'd like to hear from us when it becomes possible, [leave your details on this form](https://forms.gle/amgxEX4XTy9Jfd538). It also helps us see how many people are interested, and what they'd play it for. Your answers stay with the association and are only used to contact you about Bandolibre.
+---
+
+## How to get a device
+
+Bandolibre stays a DIY project: the design is open and anyone can build one. We are polishing the software and collecting feedback on the hardware.
+
+We also miss the paperwork that would allow the association handle a transaction  — passing on boards, a kit, or a finished instrument to someone who asks. 
+
+If you'd like to hear from us when it becomes possible:
+
+<div align="center">
+
+### ✉️ **[Join the interest list →](https://forms.gle/amgxEX4XTy9Jfd538)**
+
+</div>
+
+It is useful for us to see how many people are interested and what they'd play it for. Your answers stay with the association and are only used to contact you about Bandolibre.
 
 ---
 
