@@ -54,6 +54,12 @@ or
 cargo install just
 ```
 
+## Checkout the source code
+
+```
+git clone --recurse-submodules https://github.com/bandolibre/bandolibre.git
+```
+
 ## Build the firmware
 
 Generate the build system once, then build:
