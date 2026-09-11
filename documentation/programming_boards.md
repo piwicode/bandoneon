@@ -1,5 +1,5 @@
 
-# Connecting the debugger probe
+## Connecting the debugger probe
 
 Plug the ST-Link into a USB port and verify the device is detected:
 
@@ -33,7 +33,7 @@ Found 1 stlink programmers
   dev-type:   STM32G47x_G48x
 ```
 
-# Install build prerequisites
+## Install build prerequisites
 
 The ARM toolchain and the build backend:
 
@@ -54,20 +54,16 @@ or
 cargo install just
 ```
 
-# Build the firmware
+## Build the firmware
 
 Generate the build system once, then build:
 
 ```
 cd code/main-g474
-just init_build
-just build
+just init_build_release build_release
 ```
 
-Re-run `just init_build` after adding or removing source files, or after
-changing `CMakeLists.txt`.
-
-# Flash the firmware
+## Flash the firmware
 
 Flashing wing firmware onto a main board — or the reverse — drives pins against
 the connected hardware and can damage the boards, so a chip must be registered
@@ -85,13 +81,13 @@ Then flash with:
 
 ```
 cd code/main-g474
-just flash
+just flash_release
 ```
 
-`just flash` programs every connected ST-Link whose chip is registered as that
-board type, so both wings can be flashed in a single command.
+`just flash_release` programs every connected ST-Link whose chip is registered
+as that board type, so both wings can be flashed in a single command.
 
-The same recipes apply in `code/wing-g474`.
+The same recipe apply in `code/wing-g474`.
 
 ## Main board: two images, two memory maps
 
@@ -120,7 +116,7 @@ configuration and writes `build/Release/main-g474.uf2`.
 None of this affects `code/wing-g474`, which has a single memory map.
 
 
-# Read UART debug console
+## Read UART debug console
 
 Characters written with `printf` (via `_write` retargeted to `HAL_UART_Transmit`) are sent over USART to the STLink VCP bridge, which forwards them to a host `/dev/ttyACMx` device.
 
@@ -137,5 +133,4 @@ just console
 ```
 
 Press `ctrl-t q` to quit.
-
 
