@@ -688,19 +688,12 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : HALL_NEN_Pin */
-  GPIO_InitStruct.Pin = HALL_NEN_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_OD;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(HALL_NEN_GPIO_Port, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : L_BOOT0_Pin */
-  GPIO_InitStruct.Pin = L_BOOT0_Pin;
+  /*Configure GPIO pins : HALL_NEN_Pin L_BOOT0_Pin */
+  GPIO_InitStruct.Pin = HALL_NEN_Pin|L_BOOT0_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(L_BOOT0_GPIO_Port, &GPIO_InitStruct);
+  HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : L_READY_Pin */
   GPIO_InitStruct.Pin = L_READY_Pin;
