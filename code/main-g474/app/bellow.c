@@ -34,6 +34,11 @@ static uint16_t g_bellow_last_hall0; // raw hall reading.
 static uint16_t g_bellow_last_hall1; // raw hall reading.
 static float    g_bellow_1e_out;   /* filtered hall-total, raw hall-total units */
 static uint16_t g_bellow_cc_out;   /* CC value sent, 0..16383 */
+/* CC#11 messages sent, and how many of them moved the opposite way from the
+ * previous one, since the last report frame. A steady value that dribbles out
+ * as +1/-1 steps shows up as many reversals. Reset by bellow_report(). */
+static uint32_t g_bellow_cc_sent;
+static uint32_t g_bellow_cc_reversals;
 
 /* Combined-hall calibration: center is the at-rest reading, push/pull travel
  * how far the reading moves from it at full push/pull. The deadzone sets how far from center the
@@ -102,6 +107,7 @@ static void bellow_send_cc(void)
   static uint16_t last_out;
   static uint32_t last_emit_ms;
   static bool table_prev;
+  static int8_t last_dir;   /* direction of the previous CC sent: +1, -1 or 0 */
 
   /* Table mode plays with the bellows at rest, so the bellows drives nothing
    * here: its intensity is 0 and the CC=0 that follows would silence every note.
@@ -129,6 +135,11 @@ static void bellow_send_cc(void)
   bool period_ok = value == 0 || last_out == 0
                  || (now_ms - last_emit_ms) >= g_properties->bellow_cc_period_ms;
   if (!(changed && period_ok)) return;
+
+  int8_t dir = value > last_out ? 1 : -1;
+  if (last_dir != 0 && dir != last_dir) g_bellow_cc_reversals++;
+  last_dir = dir;
+  g_bellow_cc_sent++;
 
   last_out = value;
   last_emit_ms = now_ms;
@@ -234,6 +245,10 @@ static void bellow_report(bool sampled, const bellow_sample_t *s, const bellow_o
   static uint64_t sq0, sq1, sqT;
   static double sum1e, sq1e;   /* g_bellow_1e_out is a float, so accumulated in double */
   static uint32_t push_entries, pull_entries;
+  /* Variation of the CC#11 value over the window (14-bit units). */
+  static uint16_t cc_min, cc_max;
+  static uint32_t sum_cc;
+  static uint64_t sq_cc;
   static bool show_was_on;
   if (g_properties->show_bellow && !show_was_on)
   {
@@ -241,6 +256,8 @@ static void bellow_report(bool sampled, const bellow_sample_t *s, const bellow_o
     n = 0; sum0 = sum1 = sumT = 0; sq0 = sq1 = sqT = 0;
     sum1e = sq1e = 0.0;
     push_entries = pull_entries = 0;
+    cc_min = 0xFFFF; cc_max = 0; sum_cc = 0; sq_cc = 0;
+    g_bellow_cc_sent = g_bellow_cc_reversals = 0;
   }
   show_was_on = g_properties->show_bellow;
   if (sampled)
@@ -253,6 +270,9 @@ static void bellow_report(bool sampled, const bellow_sample_t *s, const bellow_o
     sum1 += s->hall1; sq1 += (uint32_t)s->hall1 * s->hall1;
     sumT += total;     sqT += (uint32_t)total * total;
     sum1e += (double)g_bellow_1e_out; sq1e += (double)g_bellow_1e_out * g_bellow_1e_out;
+    if (g_bellow_cc_out < cc_min) cc_min = g_bellow_cc_out;
+    if (g_bellow_cc_out > cc_max) cc_max = g_bellow_cc_out;
+    sum_cc += g_bellow_cc_out; sq_cc += (uint32_t)g_bellow_cc_out * g_bellow_cc_out;
 
     /* Zone-entry counters: how many times the direction transitioned into
      * PUSH/PULL since the last report frame (tracked independently of
@@ -320,11 +340,23 @@ static void bellow_report(bool sampled, const bellow_sample_t *s, const bellow_o
                          (unsigned long)push_entries, (unsigned long)pull_entries,
                          (unsigned)g_bellow_cc_out,
                          format_fixed(f[0], sizeof f[0], g_bellow_cc_out / 128.0f, 2, false));
+    /* How much the CC#11 value moves over the window: its std and range (14-bit
+     * units), the messages actually sent, and how many of those reversed
+     * direction (jitter around a steady value shows as many reversals). */
+    double mean_cc = (double)sum_cc / n;
+    double var_cc = (double)sq_cc / n - mean_cc * mean_cc;
+    float std_cc = sqrtf((float)(var_cc > 0.0 ? var_cc : 0.0));
+    console_dash_println("        cc11 std=%6s  range=%5u..%5u  sent=%5lu  reversals=%4lu",
+                         format_fixed(f[0], sizeof f[0], std_cc, 2, false),
+                         (unsigned)cc_min, (unsigned)cc_max,
+                         (unsigned long)g_bellow_cc_sent, (unsigned long)g_bellow_cc_reversals);
 
     hall_min = 0xFFFF; hall_max = 0;
     n = 0; sum0 = sum1 = sumT = 0; sq0 = sq1 = sqT = 0;
     sum1e = sq1e = 0.0;
     push_entries = pull_entries = 0;
+    cc_min = 0xFFFF; cc_max = 0; sum_cc = 0; sq_cc = 0;
+    g_bellow_cc_sent = g_bellow_cc_reversals = 0;
   }
 }
 
