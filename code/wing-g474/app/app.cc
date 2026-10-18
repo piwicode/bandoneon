@@ -76,7 +76,9 @@ static volatile int g_show_keys = 0;
 
 // Toggled by the "report" command; off stops the periodic dashboard (and its
 // UART stall) entirely.
-static volatile int g_report_enabled = 1;
+static volatile int g_report_enabled = 0;
+static uint32_t poll_count = 0;       // scans since the last report
+static uint32_t last_poll_tick = 0;   // tick of the last report
 
 // Toggled by the "show_stats" console command; adds min/max/stddev tables
 // below the live readings while g_show_keys is also set.
@@ -277,6 +279,8 @@ extern "C" int console_execute(int argc, const char * const *argv)
     {
       memset(&g_prof, 0, sizeof g_prof);
       g_prof.window_start = cycles();
+      poll_count = 0;
+      last_poll_tick = HAL_GetTick();
     }
     else
       console_dash_hide();
@@ -397,9 +401,6 @@ static void reporting_task(Frame *frame)
 
   if (!g_report_enabled)
     return;
-
-  static uint32_t poll_count = 0;
-  static uint32_t last_poll_tick = 0;
 
   poll_count++;
   uint32_t now = HAL_GetTick();
