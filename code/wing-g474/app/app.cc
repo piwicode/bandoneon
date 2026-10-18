@@ -28,6 +28,9 @@ static uint8_t read_wing_id(void);
 #define HALL_DEAD_ZONE 64
 // Settling delay after switching the SEL mux, in spin-loop iterations.
 #define MUX_LATENCY_CYCLES 160
+// Settling delay after the Hall supply FET turns on, in spin-loop iterations.
+// Untuned starting value: shorten until readings change, then add margin.
+#define HALL_POWER_SETTLE_CYCLES 2000
 
 // Number of hall sensor slots == number of physical keys on this wing.
 #define KEYBOARD_NUM_KEYS (HALL_NUM_ADC * HALL_SLOTS_PER_ADC)
@@ -75,6 +78,24 @@ static volatile int g_show_keys = 0;
 // below the live readings while g_show_keys is also set.
 static volatile int g_show_stats = 0;
 
+// Per-window CPU time, in DWT cycles, spent in each part of main_task. "other"
+// in the report is the window total minus these (blink, buttons, console,
+// loop overhead). The report's own cost is only known after it ran, so it is
+// charged to the following window.
+static struct
+{
+  uint64_t scan, tx, report;
+  uint32_t loops;
+  uint32_t window_start;
+} g_prof;
+
+static inline uint32_t cycles(void) { return DWT->CYCCNT; }
+
+static uint32_t cycles_to_us(uint64_t c)
+{
+  return (uint32_t)(c * 1000000u / SystemCoreClock);
+}
+
 
 // The .ioc only sets the board layer (pins -> analog, DMA1_Ch1..5 -> ADC1..5,
 // circular periph->mem halfword, MINC, NVIC). It leaves each ADC in single-
@@ -98,10 +119,14 @@ static void adc_set_scan2(ADC_HandleTypeDef *hadc, uint32_t chA, uint32_t chB)
   c.Rank = ADC_REGULAR_RANK_2; c.Channel = chB; HAL_ADC_ConfigChannel(hadc, &c);
 }
 
-// Performs one full sweep into hall_data.
+// Performs one full sweep into hall_data. The Hall supply is only powered for
+// the duration of the sweep (HALL_NEN is active low, high at boot = off).
 static void hall_keyboard_scan(uint16_t hall_data[HALL_NUM_ADC][HALL_SLOTS_PER_ADC])
 {
   static ADC_HandleTypeDef *const adcs[5] = { &hadc1, &hadc2, &hadc3, &hadc4, &hadc5 };
+
+  HAL_GPIO_WritePin(HALL_NEN_GPIO_Port, HALL_NEN_Pin, GPIO_PIN_RESET);
+  for (volatile int i = 0; i < HALL_POWER_SETTLE_CYCLES; i++) __NOP();
 
   for (int sel = 0; sel < HALL_NUM_SEL; sel++)
   {
@@ -133,6 +158,8 @@ static void hall_keyboard_scan(uint16_t hall_data[HALL_NUM_ADC][HALL_SLOTS_PER_A
 
   for (auto adc : adcs)
     HAL_ADC_Stop_DMA(adc);
+
+  HAL_GPIO_WritePin(HALL_NEN_GPIO_Port, HALL_NEN_Pin, GPIO_PIN_SET);
 
   // DMA wrote straight into hall_data in its [adc][sel*rank + rank] layout,
   // so no de-interleave step is needed.
@@ -291,8 +318,11 @@ void main_init(void)
 {
   console_init(&huart1, USART1_IRQn);
 
-  HAL_GPIO_WritePin(HALL_NEN_GPIO_Port, HALL_NEN_Pin, GPIO_PIN_RESET);
-  HAL_Delay(1);
+  // Free-running DWT cycle counter, used for the per-loop timing in the report.
+  CoreDebug->DEMCR |= CoreDebug_DEMCR_TRCENA_Msk;
+  DWT->CYCCNT = 0;
+  DWT->CTRL |= DWT_CTRL_CYCCNTENA_Msk;
+  g_prof.window_start = cycles();
 
   adc_set_scan2(&hadc1, ADC_CHANNEL_1, ADC_CHANNEL_2);
   adc_set_scan2(&hadc2, ADC_CHANNEL_3, ADC_CHANNEL_4);
@@ -346,8 +376,28 @@ static void reporting_task(Frame *frame)
   poll_count = 0;
   last_poll_tick = now;
 
+  uint32_t now_cyc = cycles();
+  uint64_t total = (uint32_t)(now_cyc - g_prof.window_start);
+  uint64_t other = total - g_prof.scan - g_prof.tx - g_prof.report;
+  uint32_t loops = g_prof.loops ? g_prof.loops : 1;
+  uint32_t scan_us = cycles_to_us(g_prof.scan / loops);
+  uint32_t tx_us = cycles_to_us(g_prof.tx / loops);
+  uint32_t other_us = cycles_to_us(other / loops);
+  uint32_t report_us = cycles_to_us(g_prof.report);
+  uint32_t scan_pc = (uint32_t)(g_prof.scan * 100u / total);
+  uint32_t tx_pc = (uint32_t)(g_prof.tx * 100u / total);
+  uint32_t report_pc = (uint32_t)(g_prof.report * 100u / total);
+  uint32_t other_pc = (uint32_t)(other * 100u / total);
+  memset(&g_prof, 0, sizeof g_prof);
+  g_prof.window_start = now_cyc;
+
   console_dash_begin();
   console_dash_println("wing_id=%u   scan rate %6lu Hz", (unsigned)frame->wing_id, (unsigned long)scan_freq_hz);
+  console_dash_println("per loop: scan %5lu us %3lu%%  tx %5lu us %3lu%%  other %5lu us %3lu%%  | last report %lu us %lu%%",
+                       (unsigned long)scan_us, (unsigned long)scan_pc,
+                       (unsigned long)tx_us, (unsigned long)tx_pc,
+                       (unsigned long)other_us, (unsigned long)other_pc,
+                       (unsigned long)report_us, (unsigned long)report_pc);
   if (g_show_keys)
   {
     hall_report_keys((const uint16_t *)frame->sensors, hall_report_emit, NULL);
@@ -363,9 +413,16 @@ void main_task(void)
   blink_task();
   fn_button_task();
 
+  uint32_t t0 = cycles();
   hall_keyboard_scan(g_frame.sensors);
+  uint32_t t1 = cycles();
   transmit_keyboard_frame(&g_frame);
+  uint32_t t2 = cycles();
+  g_prof.scan += t1 - t0;
+  g_prof.tx += t2 - t1;
+  g_prof.loops++;
   reporting_task(&g_frame);
+  g_prof.report += cycles() - t2;
 
   console_task();
 }
