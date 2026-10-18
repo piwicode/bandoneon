@@ -123,11 +123,29 @@ static void adc_set_scan2(ADC_HandleTypeDef *hadc, uint32_t chA, uint32_t chB)
   c.Rank = ADC_REGULAR_RANK_2; c.Channel = chB; HAL_ADC_ConfigChannel(hadc, &c);
 }
 
+// Restarts the ADC's DMA channel at the start of buf. The channel is circular,
+// so it must be disabled while CNDTR/CMAR are rewritten.
+static void hall_dma_rearm(ADC_HandleTypeDef *adc, uint16_t *buf)
+{
+  DMA_Channel_TypeDef *ch = adc->DMA_Handle->Instance;
+  CLEAR_BIT(ch->CCR, DMA_CCR_EN);
+  ch->CNDTR = HALL_SLOTS_PER_ADC;
+  ch->CMAR = (uint32_t)buf;
+  SET_BIT(ch->CCR, DMA_CCR_EN);
+}
+
 // Performs one full sweep into hall_data. The Hall supply is only powered for
 // the duration of the sweep (HALL_NEN is active low, high at boot = off).
 static void hall_keyboard_scan(uint16_t hall_data[HALL_NUM_ADC][HALL_SLOTS_PER_ADC])
 {
   static ADC_HandleTypeDef *const adcs[5] = { &hadc1, &hadc2, &hadc3, &hadc4, &hadc5 };
+
+  // Re-point each DMA channel at the start of its buffer for the whole sweep
+  // (8 = 4 sel x 2 ranks, straight into hall_data, whose layout already matches
+  // the per-ADC buffer). Only the channel is rearmed, not the ADC, which keeps
+  // the sweep aligned even after a stray conversion.
+  for (int a = 0; a < HALL_NUM_ADC; a++)
+    hall_dma_rearm(adcs[a], hall_data[a]);
 
   HAL_GPIO_WritePin(HALL_NEN_GPIO_Port, HALL_NEN_Pin, GPIO_PIN_RESET);
   for (volatile int i = 0; i < HALL_POWER_SETTLE_CYCLES; i++) __NOP();
@@ -138,30 +156,15 @@ static void hall_keyboard_scan(uint16_t hall_data[HALL_NUM_ADC][HALL_SLOTS_PER_A
     HAL_GPIO_WritePin(SEL1_GPIO_Port, SEL1_Pin, (sel & 2) ? GPIO_PIN_SET : GPIO_PIN_RESET);
     for (volatile int i = 0; i < MUX_LATENCY_CYCLES; i++) __NOP();
 
-    if (sel == 0)
-    {
-      // Arm DMA for the whole sweep (8 = 4 sel x 2 ranks) straight into
-      // hall_data, whose layout already matches the per-ADC buffer. Start_DMA
-      // also issues the software trigger for sel 0. The circular buffer wraps
-      // back to index 0 after exactly 8 transfers, i.e. at the end of the sweep.
-      for (int a = 0; a < 5; a++)
-        HAL_ADC_Start_DMA(adcs[a], (uint32_t *)hall_data[a], HALL_SLOTS_PER_ADC);
-    }
-    else
-    {
-      // ADCs are armed; just re-trigger. ContinuousConvMode is disabled, so the
-      // ADC halts after each 2-rank sequence -> ADSTART is a clean per-sel gate.
-      for (auto adc : adcs)
-        SET_BIT(adc->Instance->CR, ADC_CR_ADSTART);
-    }
+    // ADCs stay enabled; ContinuousConvMode is disabled, so each ADC halts
+    // after its 2-rank sequence and ADSTART is a clean per-sel trigger.
+    for (auto adc : adcs)
+      SET_BIT(adc->Instance->CR, ADC_CR_ADSTART);
 
     // Wait for all 5 sequences (2 conversions each) to finish.
     for (auto adc : adcs)
       while (READ_BIT(adc->Instance->CR, ADC_CR_ADSTART)) { }
   }
-
-  for (auto adc : adcs)
-    HAL_ADC_Stop_DMA(adc);
 
   HAL_GPIO_WritePin(HALL_NEN_GPIO_Port, HALL_NEN_Pin, GPIO_PIN_SET);
 
@@ -346,6 +349,20 @@ void main_init(void)
   adc_set_scan2(&hadc3, ADC_CHANNEL_12, ADC_CHANNEL_1);
   adc_set_scan2(&hadc4, ADC_CHANNEL_4, ADC_CHANNEL_5);
   adc_set_scan2(&hadc5, ADC_CHANNEL_1, ADC_CHANNEL_2);
+
+  // Enable each ADC and its DMA request once; the scan only rearms the DMA
+  // channel afterwards. Start_DMA also fires one conversion, so let it finish
+  // (it lands in g_frame and is overwritten by the first sweep). The per-half
+  // and per-transfer DMA interrupts are not needed and would only add ISR
+  // load to every sweep, so they are turned off; the error interrupt stays.
+  static ADC_HandleTypeDef *const adcs[5] = { &hadc1, &hadc2, &hadc3, &hadc4, &hadc5 };
+  for (int a = 0; a < HALL_NUM_ADC; a++)
+  {
+    HAL_ADC_Start_DMA(adcs[a], (uint32_t *)g_frame.sensors[a], HALL_SLOTS_PER_ADC);
+    CLEAR_BIT(adcs[a]->DMA_Handle->Instance->CCR, DMA_CCR_TCIE | DMA_CCR_HTIE);
+  }
+  for (auto adc : adcs)
+    while (READ_BIT(adc->Instance->CR, ADC_CR_ADSTART)) { }
 }
 
 static void blink_task(void)
