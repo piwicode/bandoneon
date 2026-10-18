@@ -76,15 +76,15 @@ static volatile int g_show_keys = 0;
 static volatile uint32_t g_scan_min_period_us = 500;
 
 // Settling delay after switching the SEL mux, in ns. Written by the "mux"
-// command. The default approximates the old 160-iteration spin loop (~13 us,
-// not measured).
-static volatile uint32_t g_mux_settle_ns = 13000;
+// command. The first mux position also counts towards the rail ramp-up, so
+// settle + mux is the time from the FET turning on to the first conversion.
+// Defaults come from the "tune" command: the rail needs ~14 us, the mux far
+// less; 20 us + 1 us gives ~1.5x margin on the rail.
+static volatile uint32_t g_mux_settle_ns = 1000;
 
 // Settling delay after the Hall supply FET turns on, in us. Written by the
-// "settle" command. Untuned starting value: shorten until readings change,
-// then add margin.
-// Tuned agains ramp up.
-static volatile uint32_t g_hall_settle_us = 1;
+// "settle" command. See the mux delay above for how the default was chosen.
+static volatile uint32_t g_hall_settle_us = 20;
 
 static volatile int g_report_enabled = 0;
 static uint32_t poll_count = 0;       // scans since the last report
@@ -189,6 +189,293 @@ static void hall_keyboard_scan(uint16_t hall_data[HALL_NUM_ADC][HALL_SLOTS_PER_A
 }
 
 
+// ---- tune: explore the settle / mux delays and recommend values ----------
+//
+// Scans the keyboard for a grid of (settle, mux) delays and compares each point
+// with a reference taken at the slowest, safest delays:
+//  - noise: per-key standard deviation of the samples;
+//  - bias: shift of each key's mean from its reference mean. A delay that is too
+//    short usually settles to the wrong value rather than a noisy one.
+// A point passes when it is no worse than the test's own floor (see below).
+// Keys that read ~0 (not populated) or pinned at full scale have zero standard
+// deviation whatever the delays are, so they are left out of every average.
+// Values are fixed point, in tenths of an ADC count (x10) unless noted.
+//
+// The grid is dense where the answer usually is (rail settles in ~10 us, mux in
+// about a microsecond or less) and sparse above. Keys may be held down while it
+// runs, as long as they stay still: a held key gives the mux something to
+// settle, which a keyboard at rest barely does.
+
+#define TUNE_KEYS        (HALL_NUM_ADC * HALL_SLOTS_PER_ADC)
+#define TUNE_REF_SETTLE_US 400
+#define TUNE_REF_MUX_NS    16000
+#define TUNE_MUX_PER_SWEEP HALL_NUM_SEL
+// A key counts as connected when its reference mean is in [3.2, 4090] counts.
+#define TUNE_CONNECTED_MIN_X10 32u
+#define TUNE_CONNECTED_MAX_X10 40900u
+// The reference is measured twice. The second run compared with the first is
+// the floor of the test itself (drift, a noisy key, interference), and a point
+// passes when it is no worse than that floor by more than:
+//  - noise: 25% + 0.5 count of the reference noise;
+//  - average shift: the floor's average shift + 0.2 count;
+//  - failing keys: the floor's failing keys + 10% of the keys (at least 3); it
+//    scatters by a few keys from run to run, hence the allowance.
+// A key fails when its shift exceeds 0.5 count plus 3 standard errors of the
+// difference of the two means, so a noisy key is not blamed for its noise.
+#define TUNE_NOISE_SLACK_X10   5u
+#define TUNE_KEY_FLOOR_X10     5u
+#define TUNE_BIAS_SLACK_X10    2u
+// Recommended values are the best passing point times this safety margin (%).
+// The mux is never recommended below TUNE_MUX_MIN_NS: a keyboard at rest hides
+// most of the mux settling error.
+#define TUNE_MARGIN_PERCENT   150u
+#define TUNE_MUX_MIN_NS       1000u
+
+static const uint16_t k_tune_settle_us[] = { 0, 2, 4, 6, 8, 10, 12, 15, 20, 30, 50 };
+static const uint16_t k_tune_mux_ns[]    = { 0, 100, 250, 500, 1000, 2000, 4000 };
+#define TUNE_NSETTLE ((unsigned)(sizeof k_tune_settle_us / sizeof *k_tune_settle_us))
+#define TUNE_NMUX    ((unsigned)(sizeof k_tune_mux_ns / sizeof *k_tune_mux_ns))
+
+typedef struct
+{
+  uint32_t mean_x10[TUNE_KEYS];
+  uint32_t sd_x10[TUNE_KEYS];
+  uint32_t scan_us;
+} tune_stat_t;
+
+static uint32_t isqrt_u64(uint64_t v)
+{
+  uint64_t r = 0, bit = 1ull << 62;
+  while (bit > v) bit >>= 2;
+  while (bit)
+  {
+    if (v >= r + bit) { v -= r + bit; r = (r >> 1) + bit; }
+    else r >>= 1;
+    bit >>= 2;
+  }
+  return (uint32_t)r;
+}
+
+static void print_x10(uint32_t v)
+{
+  printf("%lu.%lu", (unsigned long)(v / 10), (unsigned long)(v % 10));
+}
+
+// Same, right-aligned in a field of the given width (for table columns).
+static void print_x10w(uint32_t v, int width)
+{
+  char buf[16];
+  snprintf(buf, sizeof buf, "%lu.%lu", (unsigned long)(v / 10), (unsigned long)(v % 10));
+  printf("%*s", width, buf);
+}
+
+// Takes n scans at the given delays and fills out with per-key mean and
+// standard deviation. Leaves g_hall_settle_us / g_mux_settle_ns set to them.
+static void tune_measure(uint32_t settle_us, uint32_t mux_ns, uint32_t n, tune_stat_t *out)
+{
+  static uint16_t buf[HALL_NUM_ADC][HALL_SLOTS_PER_ADC];
+  uint32_t sum[TUNE_KEYS] = {0};
+  uint64_t sumsq[TUNE_KEYS] = {0};
+
+  g_hall_settle_us = settle_us;
+  g_mux_settle_ns = mux_ns;
+
+  hall_keyboard_scan(buf);   // warm-up: first sweep after a delay change
+  uint32_t t0 = cycles();
+  for (uint32_t i = 0; i < n; i++)
+  {
+    hall_keyboard_scan(buf);
+    const uint16_t *flat = &buf[0][0];
+    for (int k = 0; k < TUNE_KEYS; k++)
+    {
+      sum[k] += flat[k];
+      sumsq[k] += (uint32_t)flat[k] * flat[k];
+    }
+  }
+  uint32_t elapsed = cycles() - t0;
+  out->scan_us = cycles_to_us((uint64_t)elapsed / n);
+
+  for (int k = 0; k < TUNE_KEYS; k++)
+  {
+    out->mean_x10[k] = (uint32_t)(((uint64_t)sum[k] * 10 + n / 2) / n);
+    uint64_t var_x100 = (sumsq[k] * n - (uint64_t)sum[k] * sum[k]) * 100u / ((uint64_t)n * n);
+    out->sd_x10[k] = isqrt_u64(var_x100);
+  }
+}
+
+// Compares a measurement with the reference over the connected keys: average
+// noise, average shift of the means, and the number of keys whose shift is
+// beyond 0.5 count plus 3 standard errors of the difference of the two means.
+static void tune_compare(const tune_stat_t *cur, const tune_stat_t *ref, const bool *connected,
+                         uint32_t n, uint32_t nconn,
+                         uint32_t *noise_avg, uint32_t *bias_avg, uint32_t *failing)
+{
+  uint32_t noise_sum = 0, bias_sum = 0, bad = 0;
+  for (int k = 0; k < TUNE_KEYS; k++)
+  {
+    if (!connected[k]) continue;
+    uint32_t b = cur->mean_x10[k] > ref->mean_x10[k] ? cur->mean_x10[k] - ref->mean_x10[k]
+                                                       : ref->mean_x10[k] - cur->mean_x10[k];
+    // Standard error of the difference, x100, then the threshold in x10.
+    uint64_t var_sum = (uint64_t)cur->sd_x10[k] * cur->sd_x10[k] +
+                       (uint64_t)ref->sd_x10[k] * ref->sd_x10[k];
+    uint32_t se_x100 = isqrt_u64(var_sum * 100u / n);
+    uint32_t tol = TUNE_KEY_FLOOR_X10 + (3u * se_x100 + 5u) / 10u;
+    noise_sum += cur->sd_x10[k];
+    bias_sum += b;
+    if (b > tol) bad++;
+  }
+  *noise_avg = noise_sum / nconn;
+  *bias_avg = bias_sum / nconn;
+  *failing = bad;
+}
+
+static void tune_run(uint32_t n)
+{
+  const uint32_t saved_settle = g_hall_settle_us;
+  const uint32_t saved_mux = g_mux_settle_ns;
+  tune_stat_t ref, ref2, cur;
+  static bool pass[TUNE_NSETTLE][TUNE_NMUX];
+
+  printf("tune: keep the keyboard still. %lu scans per point, %u points.\r\n",
+         (unsigned long)n, TUNE_NSETTLE * TUNE_NMUX);
+  tune_measure(TUNE_REF_SETTLE_US, TUNE_REF_MUX_NS, n, &ref);
+
+  bool connected[TUNE_KEYS];
+  uint32_t nconn = 0, ref_noise_sum = 0, noisiest = 0;
+  printf("excluded keys (flat index, mean):");
+  for (int k = 0; k < TUNE_KEYS; k++)
+  {
+    connected[k] = ref.mean_x10[k] >= TUNE_CONNECTED_MIN_X10 &&
+                   ref.mean_x10[k] <= TUNE_CONNECTED_MAX_X10;
+    if (connected[k])
+    {
+      nconn++;
+      ref_noise_sum += ref.sd_x10[k];
+      if (ref.sd_x10[k] > ref.sd_x10[noisiest] || !connected[noisiest]) noisiest = k;
+    }
+    else { printf(" %d(", k); print_x10(ref.mean_x10[k]); printf(")"); }
+  }
+  printf("%s\r\n", nconn == TUNE_KEYS ? " none" : "");
+  if (nconn == 0)
+  {
+    printf("tune: no connected key, aborting\r\n");
+    g_hall_settle_us = saved_settle; g_mux_settle_ns = saved_mux;
+    return;
+  }
+  // Second reference run: its difference from the first is the test's floor.
+  tune_measure(TUNE_REF_SETTLE_US, TUNE_REF_MUX_NS, n, &ref2);
+  uint32_t ref2_noise, base_bias, base_failing;
+  tune_compare(&ref2, &ref, connected, n, nconn, &ref2_noise, &base_bias, &base_failing);
+  uint32_t ref_noise = (ref_noise_sum / nconn + ref2_noise) / 2;
+  uint32_t noise_limit = ref_noise + ref_noise / 4 + TUNE_NOISE_SLACK_X10;
+  uint32_t bias_limit = base_bias + TUNE_BIAS_SLACK_X10;
+  uint32_t bad_keys_allowed = base_failing + (nconn / 10 > 3 ? nconn / 10 : 3);
+
+  printf("%lu keys used. reference (settle %u us, mux %u ns): scan %lu us, noise ",
+         (unsigned long)nconn, TUNE_REF_SETTLE_US, TUNE_REF_MUX_NS, (unsigned long)ref.scan_us);
+  print_x10(ref_noise);
+  printf(" counts\r\nnoisiest key: %lu (noise ", (unsigned long)noisiest);
+  print_x10(ref.sd_x10[noisiest]);
+  printf(" counts)\r\ntest floor (2nd reference vs 1st): shift ");
+  print_x10(base_bias);
+  printf(" counts, %lu failing keys\r\nlimits: noise ", (unsigned long)base_failing);
+  print_x10(noise_limit);
+  printf(", shift ");
+  print_x10(bias_limit);
+  printf(", failing keys %lu\r\n", (unsigned long)bad_keys_allowed);
+  if (base_failing > nconn / 4)
+    printf("warning: the two reference runs disagree, the keyboard probably moved\r\n");
+  printf("settle_us mux_ns | rail_us scan_us | noise shift keys | result\r\n");
+
+  for (unsigned si = 0; si < TUNE_NSETTLE; si++)
+  {
+    for (unsigned mi = 0; mi < TUNE_NMUX; mi++)
+    {
+      uint32_t settle = k_tune_settle_us[si], mux = k_tune_mux_ns[mi];
+      tune_measure(settle, mux, n, &cur);
+
+      uint32_t noise_avg, bias_avg, failing;
+      tune_compare(&cur, &ref, connected, n, nconn, &noise_avg, &bias_avg, &failing);
+      bool noise_ok = noise_avg <= noise_limit;
+      bool shift_ok = bias_avg <= bias_limit;
+      bool keys_ok = failing <= bad_keys_allowed;
+      bool ok = noise_ok && shift_ok && keys_ok;
+      pass[si][mi] = ok;
+
+      // rail_us: time from the FET turning on to the first conversion.
+      printf("%9lu %6lu | ", (unsigned long)settle, (unsigned long)mux);
+      print_x10w(settle * 10u + mux / 100u, 7);
+      printf(" %7lu | ", (unsigned long)cur.scan_us);
+      print_x10w(noise_avg, 5); printf(" ");
+      print_x10w(bias_avg, 5);
+      printf(" %4lu | ", (unsigned long)failing);
+      if (ok)
+      {
+        printf("ok");
+      }
+      else
+      {
+        printf("BAD");
+        if (!shift_ok)
+        {
+          printf(": shift "); print_x10(bias_avg); printf(" > "); print_x10(bias_limit);
+        }
+        if (!keys_ok)
+          printf(": keys %lu > %lu", (unsigned long)failing, (unsigned long)bad_keys_allowed);
+        if (!noise_ok)
+        {
+          printf(": noise "); print_x10(noise_avg); printf(" > "); print_x10(noise_limit);
+        }
+      }
+      printf("\r\n");
+    }
+  }
+
+  g_hall_settle_us = saved_settle;
+  g_mux_settle_ns = saved_mux;
+
+  // Best point = cheapest sweep among passing points where at least 2 of the 3
+  // larger neighbours (next settle, next mux, both) also pass, so a single lucky
+  // run is not enough but one unlucky neighbour does not discard the point.
+  uint32_t best_cost = 0xFFFFFFFFu, best_settle = 0, best_mux = 0;
+  for (unsigned si = 0; si < TUNE_NSETTLE; si++)
+    for (unsigned mi = 0; mi < TUNE_NMUX; mi++)
+    {
+      unsigned good = (si + 1 >= TUNE_NSETTLE || pass[si + 1][mi]) +
+                      (mi + 1 >= TUNE_NMUX || pass[si][mi + 1]) +
+                      (si + 1 >= TUNE_NSETTLE || mi + 1 >= TUNE_NMUX || pass[si + 1][mi + 1]);
+      bool solid = pass[si][mi] && good >= 2;
+      uint32_t cost = k_tune_settle_us[si] * 1000u + TUNE_MUX_PER_SWEEP * k_tune_mux_ns[mi];
+      if (solid && cost < best_cost)
+      {
+        best_cost = cost; best_settle = k_tune_settle_us[si]; best_mux = k_tune_mux_ns[mi];
+      }
+    }
+
+  if (best_cost == 0xFFFFFFFFu)
+  {
+    printf("tune: no solid passing point. Keys moving, or the rail is too noisy.\r\n");
+    return;
+  }
+  uint32_t rec_settle = (best_settle * TUNE_MARGIN_PERCENT + 99) / 100;
+  uint32_t rec_mux = (best_mux * TUNE_MARGIN_PERCENT + 99) / 100;
+  if (rec_mux < TUNE_MUX_MIN_NS) rec_mux = TUNE_MUX_MIN_NS;
+  printf("fastest solid point: settle %lu us, mux %lu ns (rail time ",
+         (unsigned long)best_settle, (unsigned long)best_mux);
+  print_x10(best_settle * 10u + best_mux / 100u);
+  printf(" us)\r\n");
+  printf("recommended (x%lu%% margin, mux at least %lu ns): settle %lu, mux %lu\r\n",
+         (unsigned long)TUNE_MARGIN_PERCENT, (unsigned long)TUNE_MUX_MIN_NS,
+         (unsigned long)rec_settle, (unsigned long)rec_mux);
+  printf("rail time at the recommendation: ");
+  print_x10(rec_settle * 10u + rec_mux / 100u);
+  printf(" us\r\n");
+  printf("try:  settle %lu  then  mux %lu   (values restored to %lu us / %lu ns)\r\n",
+         (unsigned long)rec_settle, (unsigned long)rec_mux,
+         (unsigned long)saved_settle, (unsigned long)saved_mux);
+}
+
 // Builds and sends one full keyboard frame over the SPI link: word 0 is this
 // wing's id, words 1..KEYBOARD_NUM_KEYS are the raw hall measurement for each
 // key in flattened order (adc * HALL_SLOTS_PER_ADC + slot). The frame carries
@@ -243,7 +530,7 @@ static void hall_report_emit(void *ctx, const char *line)
 }
 
 
-static const char *const g_cmds[] = { "blink", "report", "scan_period", "settle", "mux", "key", "stat", "rate", "reset", "help", NULL };
+static const char *const g_cmds[] = { "blink", "report", "scan_period", "settle", "mux", "tune", "key", "stat", "rate", "reset", "help", NULL };
 static const char *const g_blink_leds[] = { "fn0", "ready", NULL };
 
 extern "C" char **console_complete(int argc, const char * const *argv)
@@ -360,6 +647,21 @@ extern "C" int console_execute(int argc, const char * const *argv)
     }
     printf("mux: %lu ns\r\n", (unsigned long)g_mux_settle_ns);
   }
+  else if (strcmp(argv[0], "tune") == 0)
+  {
+    unsigned long n = 500;
+    if (argc >= 2)
+    {
+      char *end;
+      n = strtoul(argv[1], &end, 10);
+      if (end == argv[1] || *end || n < 10 || n > 2000)
+      {
+        printf("usage: tune [scans per point]  (10-2000, default 500)\r\n");
+        return 0;
+      }
+    }
+    tune_run(n);
+  }
   else if (strcmp(argv[0], "rate") == 0 && argc >= 2)
   {
     char *end;
@@ -391,6 +693,7 @@ extern "C" int console_execute(int argc, const char * const *argv)
     printf("scan_period <us>  minimum time between scans, 0 = no limit\r\n");
     printf("settle <us>   delay after the hall supply turns on\r\n");
     printf("mux <ns>      delay after switching the mux select\r\n");
+    printf("tune [n]      scan with many settle/mux values and recommend some\r\n");
     printf("rate <hz>     set live report rate (e.g. rate 4, rate 0.5)\r\n");
     printf("reset         reset hall stats (min/max/stddev)\r\n");
     printf("help          this message\r\n");
