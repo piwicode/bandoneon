@@ -74,6 +74,10 @@ static volatile blink_state_t g_blink;
 static volatile uint32_t g_report_period_ms = 250;
 static volatile int g_show_keys = 0;
 
+// Toggled by the "report" command; off stops the periodic dashboard (and its
+// UART stall) entirely.
+static volatile int g_report_enabled = 1;
+
 // Toggled by the "show_stats" console command; adds min/max/stddev tables
 // below the live readings while g_show_keys is also set.
 static volatile int g_show_stats = 0;
@@ -220,7 +224,7 @@ static void hall_report_emit(void *ctx, const char *line)
 }
 
 
-static const char *const g_cmds[] = { "blink", "key", "stat", "rate", "reset", "help", NULL };
+static const char *const g_cmds[] = { "blink", "report", "key", "stat", "rate", "reset", "help", NULL };
 static const char *const g_blink_leds[] = { "fn0", "ready", NULL };
 
 extern "C" char **console_complete(int argc, const char * const *argv)
@@ -262,6 +266,18 @@ extern "C" int console_execute(int argc, const char * const *argv)
       g_blink.last_tick = HAL_GetTick();
       g_blink.led_on = 0;
     }
+  }
+  else if (strcmp(argv[0], "report") == 0)
+  {
+    g_report_enabled = !g_report_enabled;
+    if (g_report_enabled)
+    {
+      memset(&g_prof, 0, sizeof g_prof);
+      g_prof.window_start = cycles();
+    }
+    else
+      console_dash_hide();
+    printf("report: %s\r\n", g_report_enabled ? "on" : "off");
   }
   else if (strcmp(argv[0], "key") == 0)
   {
@@ -305,6 +321,7 @@ extern "C" int console_execute(int argc, const char * const *argv)
     printf("blink ready   blink READY LED 5 times\r\n");
     printf("key           toggle hall sensor table\r\n");
     printf("stat          toggle min/max/stddev stats (requires key)\r\n");
+    printf("report        toggle the periodic report\r\n");
     printf("rate <hz>     set live report rate (e.g. rate 4, rate 0.5)\r\n");
     printf("reset         reset hall stats (min/max/stddev)\r\n");
     printf("help          this message\r\n");
@@ -360,6 +377,9 @@ static void fn_button_task(void)
 static void reporting_task(Frame *frame)
 {
   hall_stats_update(&g_hall_stats, (const uint16_t *)frame->sensors);
+
+  if (!g_report_enabled)
+    return;
 
   static uint32_t poll_count = 0;
   static uint32_t last_poll_tick = 0;
