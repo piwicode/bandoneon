@@ -26,11 +26,6 @@ static uint8_t read_wing_id(void);
 // Slots per ADC across a full sweep: one (sel, rank) pair each.
 #define HALL_SLOTS_PER_ADC (HALL_NUM_SEL * HALL_NUM_RANK)
 #define HALL_DEAD_ZONE 64
-// Settling delay after switching the SEL mux, in spin-loop iterations.
-#define MUX_LATENCY_CYCLES 160
-// Settling delay after the Hall supply FET turns on, in spin-loop iterations.
-// Untuned starting value: shorten until readings change, then add margin.
-#define HALL_POWER_SETTLE_CYCLES 2000
 
 // Number of hall sensor slots == number of physical keys on this wing.
 #define KEYBOARD_NUM_KEYS (HALL_NUM_ADC * HALL_SLOTS_PER_ADC)
@@ -76,6 +71,21 @@ static volatile int g_show_keys = 0;
 
 // Toggled by the "report" command; off stops the periodic dashboard (and its
 // UART stall) entirely.
+// Minimum time between the starts of two scans, in us; 0 = scan as fast as
+// possible. Written by the "scan_period" command.
+static volatile uint32_t g_scan_min_period_us = 500;
+
+// Settling delay after switching the SEL mux, in ns. Written by the "mux"
+// command. The default approximates the old 160-iteration spin loop (~13 us,
+// not measured).
+static volatile uint32_t g_mux_settle_ns = 13000;
+
+// Settling delay after the Hall supply FET turns on, in us. Written by the
+// "settle" command. Untuned starting value: shorten until readings change,
+// then add margin.
+// Tuned agains ramp up.
+static volatile uint32_t g_hall_settle_us = 1;
+
 static volatile int g_report_enabled = 0;
 static uint32_t poll_count = 0;       // scans since the last report
 static uint32_t last_poll_tick = 0;   // tick of the last report
@@ -150,13 +160,17 @@ static void hall_keyboard_scan(uint16_t hall_data[HALL_NUM_ADC][HALL_SLOTS_PER_A
     hall_dma_rearm(adcs[a], hall_data[a]);
 
   HAL_GPIO_WritePin(HALL_NEN_GPIO_Port, HALL_NEN_Pin, GPIO_PIN_RESET);
-  for (volatile int i = 0; i < HALL_POWER_SETTLE_CYCLES; i++) __NOP();
+  uint32_t settle_start = cycles();
+  uint32_t settle_cycles = g_hall_settle_us * (SystemCoreClock / 1000000u);
+  while (cycles() - settle_start < settle_cycles) { }
 
   for (int sel = 0; sel < HALL_NUM_SEL; sel++)
   {
     HAL_GPIO_WritePin(SEL0_GPIO_Port, SEL0_Pin, (sel & 1) ? GPIO_PIN_SET : GPIO_PIN_RESET);
     HAL_GPIO_WritePin(SEL1_GPIO_Port, SEL1_Pin, (sel & 2) ? GPIO_PIN_SET : GPIO_PIN_RESET);
-    for (volatile int i = 0; i < MUX_LATENCY_CYCLES; i++) __NOP();
+    uint32_t mux_start = cycles();
+    uint32_t mux_cycles = g_mux_settle_ns * (SystemCoreClock / 1000000u) / 1000u;
+    while (cycles() - mux_start < mux_cycles) { }
 
     // ADCs stay enabled; ContinuousConvMode is disabled, so each ADC halts
     // after its 2-rank sequence and ADSTART is a clean per-sel trigger.
@@ -229,7 +243,7 @@ static void hall_report_emit(void *ctx, const char *line)
 }
 
 
-static const char *const g_cmds[] = { "blink", "report", "key", "stat", "rate", "reset", "help", NULL };
+static const char *const g_cmds[] = { "blink", "report", "scan_period", "settle", "mux", "key", "stat", "rate", "reset", "help", NULL };
 static const char *const g_blink_leds[] = { "fn0", "ready", NULL };
 
 extern "C" char **console_complete(int argc, const char * const *argv)
@@ -301,6 +315,51 @@ extern "C" int console_execute(int argc, const char * const *argv)
     hall_stats_init(&g_hall_stats);
     printf("stats reset\r\n");
   }
+  else if (strcmp(argv[0], "scan_period") == 0)
+  {
+    if (argc >= 2)
+    {
+      char *end;
+      unsigned long us = strtoul(argv[1], &end, 10);
+      if (end == argv[1] || *end || us > 1000000ul)
+      {
+        printf("usage: scan_period <us>  (0-1000000, 0 = no limit)\r\n");
+        return 0;
+      }
+      g_scan_min_period_us = us;
+    }
+    printf("scan_period: %lu us\r\n", (unsigned long)g_scan_min_period_us);
+  }
+  else if (strcmp(argv[0], "settle") == 0)
+  {
+    if (argc >= 2)
+    {
+      char *end;
+      unsigned long us = strtoul(argv[1], &end, 10);
+      if (end == argv[1] || *end || us > 10000ul)
+      {
+        printf("usage: settle <us>  (0-10000)\r\n");
+        return 0;
+      }
+      g_hall_settle_us = us;
+    }
+    printf("settle: %lu us\r\n", (unsigned long)g_hall_settle_us);
+  }
+  else if (strcmp(argv[0], "mux") == 0)
+  {
+    if (argc >= 2)
+    {
+      char *end;
+      unsigned long ns = strtoul(argv[1], &end, 10);
+      if (end == argv[1] || *end || ns > 100000ul)
+      {
+        printf("usage: mux <ns>  (0-100000)\r\n");
+        return 0;
+      }
+      g_mux_settle_ns = ns;
+    }
+    printf("mux: %lu ns\r\n", (unsigned long)g_mux_settle_ns);
+  }
   else if (strcmp(argv[0], "rate") == 0 && argc >= 2)
   {
     char *end;
@@ -329,6 +388,9 @@ extern "C" int console_execute(int argc, const char * const *argv)
     printf("key           toggle hall sensor table\r\n");
     printf("stat          toggle min/max/stddev stats (requires key)\r\n");
     printf("report        toggle the periodic report\r\n");
+    printf("scan_period <us>  minimum time between scans, 0 = no limit\r\n");
+    printf("settle <us>   delay after the hall supply turns on\r\n");
+    printf("mux <ns>      delay after switching the mux select\r\n");
     printf("rate <hz>     set live report rate (e.g. rate 4, rate 0.5)\r\n");
     printf("reset         reset hall stats (min/max/stddev)\r\n");
     printf("help          this message\r\n");
@@ -451,16 +513,25 @@ void main_task(void)
   blink_task();
   fn_button_task();
 
+  // Throttle: wait until the minimum period since the previous scan started.
+  // The wait is spent in the loop (console etc. keep running) and shows up as
+  // "other" in the report.
+  static uint32_t last_scan_start = 0;
   uint32_t t0 = cycles();
-  hall_keyboard_scan(g_frame.sensors);
-  uint32_t t1 = cycles();
-  transmit_keyboard_frame(&g_frame);
-  uint32_t t2 = cycles();
-  g_prof.scan += t1 - t0;
-  g_prof.tx += t2 - t1;
-  g_prof.loops++;
-  reporting_task(&g_frame);
-  g_prof.report += cycles() - t2;
+  uint32_t min_cycles = g_scan_min_period_us * (SystemCoreClock / 1000000u);
+  if (t0 - last_scan_start >= min_cycles)
+  {
+    last_scan_start = t0;
+    hall_keyboard_scan(g_frame.sensors);
+    uint32_t t1 = cycles();
+    transmit_keyboard_frame(&g_frame);
+    uint32_t t2 = cycles();
+    g_prof.scan += t1 - t0;
+    g_prof.tx += t2 - t1;
+    g_prof.loops++;
+    reporting_task(&g_frame);
+    g_prof.report += cycles() - t2;
+  }
 
   console_task();
 }
