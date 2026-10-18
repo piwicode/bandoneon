@@ -82,9 +82,9 @@ static volatile uint32_t g_scan_min_period_us = 500;
 // less; 20 us + 1 us gives ~1.5x margin on the rail.
 static volatile uint32_t g_mux_settle_ns = 600;
 
-// Settling delay after the Hall supply FET turns on, in us. Written by the
+// Settling delay after the Hall supply FET turns on, in ns. Written by the
 // "settle" command. See the mux delay above for how the default was chosen.
-static volatile uint32_t g_hall_settle_us = 10;
+static volatile uint32_t g_power_settle_ns = 10000;
 
 static volatile int g_report_enabled = 0;
 static uint32_t poll_count = 0;       // scans since the last report
@@ -161,7 +161,7 @@ static void hall_keyboard_scan(uint16_t hall_data[HALL_NUM_ADC][HALL_SLOTS_PER_A
 
   HAL_GPIO_WritePin(HALL_NEN_GPIO_Port, HALL_NEN_Pin, GPIO_PIN_RESET);
   uint32_t settle_start = cycles();
-  uint32_t settle_cycles = g_hall_settle_us * (SystemCoreClock / 1000000u);
+  uint32_t settle_cycles = g_power_settle_ns * (SystemCoreClock / 1000000u) / 1000u;
   while (cycles() - settle_start < settle_cycles) { }
 
   for (int sel = 0; sel < HALL_NUM_SEL; sel++)
@@ -278,14 +278,14 @@ static void print_x10w(uint32_t v, int width)
 }
 
 // Takes n scans at the given delays and fills out with per-key mean and
-// standard deviation. Leaves g_hall_settle_us / g_mux_settle_ns set to them.
+// standard deviation. Leaves g_power_settle_ns / g_mux_settle_ns set to them.
 static void tune_measure(uint32_t settle_us, uint32_t mux_ns, uint32_t n, tune_stat_t *out)
 {
   static uint16_t buf[HALL_NUM_ADC][HALL_SLOTS_PER_ADC];
   uint32_t sum[TUNE_KEYS] = {0};
   uint64_t sumsq[TUNE_KEYS] = {0};
 
-  g_hall_settle_us = settle_us;
+  g_power_settle_ns = settle_us * 1000u;
   g_mux_settle_ns = mux_ns;
 
   hall_keyboard_scan(buf);   // warm-up: first sweep after a delay change
@@ -351,7 +351,7 @@ static void tune_compare(const tune_stat_t *cur, const tune_stat_t *ref, const b
 
 static void tune_run(uint32_t n)
 {
-  const uint32_t saved_settle = g_hall_settle_us;
+  const uint32_t saved_settle = g_power_settle_ns;
   const uint32_t saved_mux = g_mux_settle_ns;
   tune_stat_t ref, ref2, ref_row, cur;
   static bool pass[TUNE_NSETTLE][TUNE_NMUX];
@@ -381,7 +381,7 @@ static void tune_run(uint32_t n)
   if (nconn == 0)
   {
     printf("tune: no connected key, aborting\r\n");
-    g_hall_settle_us = saved_settle; g_mux_settle_ns = saved_mux;
+    g_power_settle_ns = saved_settle; g_mux_settle_ns = saved_mux;
     return;
   }
   // Second reference run: its difference from the first is the test's floor.
@@ -467,7 +467,7 @@ static void tune_run(uint32_t n)
     }
   }
 
-  g_hall_settle_us = saved_settle;
+  g_power_settle_ns = saved_settle;
   g_mux_settle_ns = saved_mux;
 
   // Best point = cheapest sweep among passing points where at least 2 of the 3
@@ -571,8 +571,8 @@ static void tune_run(uint32_t n)
   printf("rail time at the recommendation: ");
   print_x10(rec_settle * 10u + rec_mux / 100u);
   printf(" us\r\n");
-  printf("try:  settle %lu  then  mux %lu   (values restored to %lu us / %lu ns)\r\n",
-         (unsigned long)rec_settle, (unsigned long)rec_mux,
+  printf("try:  settle %lu  then  mux %lu   (values restored to %lu ns / %lu ns)\r\n",
+         (unsigned long)rec_settle * 1000ul, (unsigned long)rec_mux,
          (unsigned long)saved_settle, (unsigned long)saved_mux);
 }
 
@@ -722,15 +722,15 @@ extern "C" int console_execute(int argc, const char * const *argv)
     if (argc >= 2)
     {
       char *end;
-      unsigned long us = strtoul(argv[1], &end, 10);
-      if (end == argv[1] || *end || us > 10000ul)
+      unsigned long ns = strtoul(argv[1], &end, 10);
+      if (end == argv[1] || *end || ns > 10000000ul)
       {
-        printf("usage: settle <us>  (0-10000)\r\n");
+        printf("usage: settle <ns>  (0-10000000)\r\n");
         return 0;
       }
-      g_hall_settle_us = us;
+      g_power_settle_ns = ns;
     }
-    printf("settle: %lu us\r\n", (unsigned long)g_hall_settle_us);
+    printf("settle: %lu ns\r\n", (unsigned long)g_power_settle_ns);
   }
   else if (strcmp(argv[0], "mux") == 0)
   {
@@ -791,7 +791,7 @@ extern "C" int console_execute(int argc, const char * const *argv)
     printf("stat          toggle min/max/stddev stats (requires key)\r\n");
     printf("report        toggle the periodic report\r\n");
     printf("scan_period <us>  minimum time between scans, 0 = no limit\r\n");
-    printf("settle <us>   delay after the hall supply turns on\r\n");
+    printf("settle <ns>   delay after the hall supply turns on\r\n");
     printf("mux <ns>      delay after switching the mux select\r\n");
     printf("tune [n]      scan with many settle/mux values and recommend some\r\n");
     printf("rate <hz>     set live report rate (e.g. rate 4, rate 0.5)\r\n");
