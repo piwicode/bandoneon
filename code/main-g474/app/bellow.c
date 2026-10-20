@@ -229,7 +229,7 @@ static const char *bellows_dir_str(bellows_t dir)
 /* Emits the optional console log and live-report dashboard. Called every
  * bellow_poll() tick regardless of whether this tick actually sampled the hall
  * sensors, so the report dashboard's own frame (report_begin()/report_end(),
- * driven by its independent report_hz timer) always gets its rows even on a
+ * driven by its independent report_period_ms timer) always gets its rows even on a
  * tick where the two rates don't line up; a skipped sampling tick just adds
  * nothing new to accumulate. */
 static void bellow_report(bool sampled, const bellow_sample_t *s, const bellow_output_t *state)
@@ -421,7 +421,7 @@ static void bellow_calibrate_poll(const bellow_sample_t *s, bool sampled)
  * internally rate-limited to bellow_sample_period_us, so most calls skip the
  * ADC work and the direction/intensity/CC update (the previous values carry
  * over). bellow_report() still runs every call regardless: it has its own
- * report_hz cadence (g_report_due, set by report_begin() in report.c) that
+ * report_period_ms cadence (g_report_due, set by report_begin() in report.c) that
  * is independent of the sample rate, and it must run on every tick so it
  * doesn't miss a report_due tick that happens to fall between samples -
  * which would leave that dashboard frame without its bellow rows. */

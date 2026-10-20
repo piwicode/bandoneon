@@ -24,7 +24,7 @@ extern bool g_report_due;
 bool report_begin(void);
 
 /* End the frame: close the console dashboard (drawing the rule at the current
- * report_hz) if one was opened this iteration, otherwise tear the dashboard down
+ * period, report_period_ms) if one was opened this iteration, otherwise tear the dashboard down
  * once no report is enabled. */
 void report_end(void);
 

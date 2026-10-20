@@ -47,10 +47,11 @@ void console_dash_begin(void);
 void console_dash_println(const char *fmt, ...);
 
 // End a dashboard frame: draw the closing rule (a separator carrying the refresh
-// rate hz, which marks the boundary with the scrolling log section below), clear
-// any rows the previous (taller) frame left behind, re-set the scroll region if
-// the row count changed, and restore the cursor into the scrolling region.
-void console_dash_end(unsigned hz);
+// period in ms, which marks the boundary with the scrolling log section below),
+// clear any rows the previous (taller) frame left behind, re-set the scroll
+// region if the row count changed, and restore the cursor into the scrolling
+// region.
+void console_dash_end(unsigned period_ms);
 
 // Tear the dashboard down: release the scroll region and clear the band, so the
 // console behaves exactly as before any report was shown. No-op if no dashboard

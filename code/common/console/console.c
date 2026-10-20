@@ -152,10 +152,10 @@ void console_dash_println(const char *fmt, ...)
   dash_row++;
 }
 
-void console_dash_end(unsigned hz)
+void console_dash_end(unsigned period_ms)
 {
-  console_dash_println("---- live @ %u Hz "
-                       "------------------------------------------", hz);
+  console_dash_println("---- live every %u ms "
+                       "------------------------------------------", period_ms);
   int used = dash_row - 1;
   /* Wipe rows a previous, taller frame left behind. */
   for (int i = dash_row; i <= dash_rows; i++) printf(ANSI_CURSOR_ROW_FMT ANSI_CLEAR_LINE_END, i);

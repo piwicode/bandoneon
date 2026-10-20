@@ -165,9 +165,9 @@ PROPERTY(60, bool, log_pedals,
 PROPERTY(61, bool, log_midi_sysex,
          .factory_value = 0,
          .description = "Log MIDI sysex in and out")
-PROPERTY(62, uint16_t, report_hz,
-         .factory_value = 4, .min = 1, .max = 30,
-         .description = "Live-report refresh rate")
+PROPERTY(62, uint16_t, report_period_ms,
+         .factory_value = 250, .min = 33, .max = 10000,
+         .description = "Live-report refresh period in ms")
 PROPERTY(63, bool, show_bellow,
          .factory_value = 0,
          .description = "Live-report bellows direction, intensity, hall readings")

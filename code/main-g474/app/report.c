@@ -13,7 +13,7 @@ static bool report_active(void)
          g_properties->show_keyboard;
 }
 
-/* True at most once per refresh period (1000 / report_hz ms) and only while
+/* True at most once per refresh period (report_period_ms) and only while
  * report_active(): the iterations on which the dashboard is rebuilt. */
 static bool report_due(void)
 {
@@ -23,7 +23,7 @@ static bool report_due(void)
   if (!report_active()) { have_last = false; return false; }
 
   uint32_t now = HAL_GetTick();
-  uint32_t period = 1000u / g_properties->report_hz; /* report_hz >= 1, so >= 33 ms */
+  uint32_t period = g_properties->report_period_ms;
   if (have_last && (now - last_tick) < period) return false;
 
   last_tick = now;
@@ -40,6 +40,6 @@ bool report_begin(void)
 
 void report_end(void)
 {
-  if (g_report_due) console_dash_end(g_properties->report_hz);
+  if (g_report_due) console_dash_end(g_properties->report_period_ms);
   else if (!report_active()) console_dash_hide();
 }

@@ -908,7 +908,7 @@ static void reporting_task(Frame *frame)
       hall_report_stats(&g_hall_stats, NULL, hall_report_emit, NULL);
   }
   hall_stats_reset_window(&g_hall_stats);
-  console_dash_end(1000u / period);
+  console_dash_end(period);
 }
 
 void main_task(void)
