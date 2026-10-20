@@ -21,6 +21,7 @@ extern "C" {
  *   show                 list all properties with current value
  *   get   <name>         table of value, [min, max], default, firmware value, description
  *   set   <name> <value> set a property, clamped to [min,max]
+ *   set   <name>         toggle a boolean property (no wildcard)
  *   reset <name>         restore default(s)
  */
 bool   properties_execute(int argc, const char *const *argv);

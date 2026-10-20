@@ -115,7 +115,17 @@ static void set_one(size_t i, unsigned long v)
 
 static bool property_cmd_set(int argc, const char *const *argv)
 {
-  if (argc < 3) { printf("usage: set <name> <value>\r\n"); return false; }
+  /* `set <bool name>` with no value flips the boolean. */
+  if (argc == 2 && !has_wildcard(argv[1]))
+  {
+    size_t i;
+    bool cur;
+    if (!property_by_name(argv[1], &i)) { printf("unknown property: %s\r\n", argv[1]); return false; }
+    if (!property_get_bool(i, &cur)) { printf("usage: set <name> <value>  (%s is not a boolean)\r\n", argv[1]); return false; }
+    set_one(i, !cur);
+    return true;
+  }
+  if (argc < 3) { printf("usage: set <name> [<value>]  (the value may be left out for a boolean)\r\n"); return false; }
   unsigned long v;
   if (!parse_value(argv[2], &v)) return false;
   if (has_wildcard(argv[1]))
@@ -221,7 +231,8 @@ void properties_help(void)
   printf("  show                 list all properties with current value (* = saved default)\r\n");
   printf("  get <name>           table of value, range, default, firmware value and description\r\n");
   printf("                       (name may glob, e.g. log_* or *)\r\n");
-  printf("  set <name> <value>   set a property, clamped to its range (name may glob, e.g. log_*)\r\n");
+  printf("  set <name> [<value>] set a property, clamped to its range (name may glob, e.g. log_*);\r\n");
+  printf("                       without a value, a boolean is toggled\r\n");
   printf("  reset <name>         restore default(s): saved value, else factory (name may glob)\r\n");
   printf("  save                 save current values as defaults, in flash\r\n");
   printf("  factory_reset        erase saved values, restore every factory value\r\n");
